@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Mega Splat Party</title>
+        <link rel="stylesheet" href="style.css">
+        <script type="importmap">
+            {
+                "imports": {
+                    "three": "https://cdn.jsdelivr.net/npm/three@0.178.0/build/three.module.js"
+                }
+            }
+        </script>
+    </head>
+    <body>
+        <h2 class="debug">debug</h2>
+        <div id="world"></div>
+        <div class="popups">
+            <div id="connecting" class="popup" style="display: initial;">
+                <div class="popup-inset">
+                    <h1>Please Wait</h1><br>
+                    <h2>Connecting to server...</h2>
+                </div>
+            </div>
+
+            <div id="login" class="popup" style="display: none;">
+                <div class="popup-inset">
+                    <h1>Sign Up / Login</h1><br><br>
+                    <input id="login_discord_input" type="text" placeholder="Discord ID..."><br>
+                    <input id="login_ign_input" type="text" placeholder="Splatoon Username..."><br><br>
+                    <button id="loginbtn">Submit</button>
+                </div>
+            </div>
+
+            <div id="checkin" class="popup" style="display: none;">
+                <div class="popup-inset">
+                    <h2>Tournament starts at (Insert Time)</h2><br>
+                    <h3>Check-in is live</h3><br><br>
+                    <button id="checkinbtn" disabled>Please Wait</button>
+                </div>
+            </div>
+        </div>
+        <script type="module" src="script.js" defer></script>
+    </body>
+</html>
