@@ -55,7 +55,7 @@ if (Object.hasOwn(COOKIES, "playerToken")){
 }
 
 var MinigameData;
-fetch("/resources/minigames.json").then(r => r.text()).then(t => MinigameData = JSON.parse(t));
+fetch("resources/minigames.json").then(r => r.text()).then(t => MinigameData = JSON.parse(t));
 
 const EPSILON = 0.001;
 
@@ -83,53 +83,53 @@ const TexLoader = new THREE.TextureLoader();
 const ModelLoader = new FBXLoader();
 
 var PlayerAvatars = [
-    "/resources/avatars/blue_octo_1.png",
-    "/resources/avatars/blue_octo_2.png",
-    "/resources/avatars/blue_octo_3.png",
+    "resources/avatars/blue_octo_1.png",
+    "resources/avatars/blue_octo_2.png",
+    "resources/avatars/blue_octo_3.png",
 
-    "/resources/avatars/green_octo_1.png",
-    "/resources/avatars/green_octo_2.png",
-    "/resources/avatars/green_octo_3.png",
+    "resources/avatars/green_octo_1.png",
+    "resources/avatars/green_octo_2.png",
+    "resources/avatars/green_octo_3.png",
 
-    "/resources/avatars/pink_octo_1.png",
-    "/resources/avatars/pink_octo_2.png",
-    "/resources/avatars/pink_octo_3.png",
+    "resources/avatars/pink_octo_1.png",
+    "resources/avatars/pink_octo_2.png",
+    "resources/avatars/pink_octo_3.png",
 
-    "/resources/avatars/purple_octo_1.png",
-    "/resources/avatars/purple_octo_2.png",
-    "/resources/avatars/purple_octo_3.png",
+    "resources/avatars/purple_octo_1.png",
+    "resources/avatars/purple_octo_2.png",
+    "resources/avatars/purple_octo_3.png",
 
-    "/resources/avatars/teal_octo_1.png",
-    "/resources/avatars/teal_octo_2.png",
-    "/resources/avatars/teal_octo_3.png",
+    "resources/avatars/teal_octo_1.png",
+    "resources/avatars/teal_octo_2.png",
+    "resources/avatars/teal_octo_3.png",
 
-    "/resources/avatars/yellow_octo_1.png",
-    "/resources/avatars/yellow_octo_2.png",
-    "/resources/avatars/yellow_octo_3.png",
+    "resources/avatars/yellow_octo_1.png",
+    "resources/avatars/yellow_octo_2.png",
+    "resources/avatars/yellow_octo_3.png",
 
-    "/resources/avatars/blue_squid_1.png",
-    "/resources/avatars/blue_squid_2.png",
-    "/resources/avatars/blue_squid_3.png",
+    "resources/avatars/blue_squid_1.png",
+    "resources/avatars/blue_squid_2.png",
+    "resources/avatars/blue_squid_3.png",
 
-    "/resources/avatars/green_squid_1.png",
-    "/resources/avatars/green_squid_2.png",
-    "/resources/avatars/green_squid_3.png",
+    "resources/avatars/green_squid_1.png",
+    "resources/avatars/green_squid_2.png",
+    "resources/avatars/green_squid_3.png",
 
-    "/resources/avatars/pink_squid_1.png",
-    "/resources/avatars/pink_squid_2.png",
-    "/resources/avatars/pink_squid_3.png",
+    "resources/avatars/pink_squid_1.png",
+    "resources/avatars/pink_squid_2.png",
+    "resources/avatars/pink_squid_3.png",
 
-    "/resources/avatars/purple_squid_1.png",
-    "/resources/avatars/purple_squid_2.png",
-    "/resources/avatars/purple_squid_3.png",
+    "resources/avatars/purple_squid_1.png",
+    "resources/avatars/purple_squid_2.png",
+    "resources/avatars/purple_squid_3.png",
 
-    "/resources/avatars/teal_squid_1.png",
-    "/resources/avatars/teal_squid_2.png",
-    "/resources/avatars/teal_squid_3.png",
+    "resources/avatars/teal_squid_1.png",
+    "resources/avatars/teal_squid_2.png",
+    "resources/avatars/teal_squid_3.png",
 
-    "/resources/avatars/yellow_squid_1.png",
-    "/resources/avatars/yellow_squid_2.png",
-    "/resources/avatars/yellow_squid_3.png",
+    "resources/avatars/yellow_squid_1.png",
+    "resources/avatars/yellow_squid_2.png",
+    "resources/avatars/yellow_squid_3.png",
 ];
 var PlayerAvatarsTex = [];
 for (let i = 0; i < PlayerAvatars.length; i++){
@@ -142,17 +142,17 @@ for (let i = 0; i < PlayerAvatars.length; i++){
 }
 
 const SKYBOX_TEX = new THREE.CubeTextureLoader().load([
-    "/resources/Skyboxes/px.png",
-    "/resources/Skyboxes/nx.png",
-    "/resources/Skyboxes/py.png",
-    "/resources/Skyboxes/ny.png",
-    "/resources/Skyboxes/pz.png",
-    "/resources/Skyboxes/nz.png"
+    "resources/Skyboxes/px.png",
+    "resources/Skyboxes/nx.png",
+    "resources/Skyboxes/py.png",
+    "resources/Skyboxes/ny.png",
+    "resources/Skyboxes/pz.png",
+    "resources/Skyboxes/nz.png"
 ]);
 SKYBOX_TEX.colorSpace = THREE.SRGBColorSpace;
 
 var Star;
-ModelLoader.load("/resources/models/squid_star.fbx", (object) => {
+ModelLoader.load("resources/models/squid_star.fbx", (object) => {
     Star = object;
     Scene.add(Star);
     Star.scale.set(0, 0, 0);
@@ -169,26 +169,26 @@ ModelLoader.load("/resources/models/squid_star.fbx", (object) => {
         }
     });
 });
-const RingParticleTex = TexLoader.load("/resources/textures/ring_particle.png");
+const RingParticleTex = TexLoader.load("resources/textures/ring_particle.png");
 RingParticleTex.colorSpace = THREE.SRGBColorSpace;
 var StarRingParticle = new THREE.Mesh(new THREE.PlaneGeometry(1, 1), new THREE.MeshBasicMaterial({ map: RingParticleTex, transparent: true, opacity: 0, color: 0xffea00 }));
 var ItemRingParticle = new THREE.Mesh(new THREE.PlaneGeometry(1, 1), new THREE.MeshBasicMaterial({ map: RingParticleTex, transparent: true, opacity: 0, color: 0xffffff }));
 Scene.add(StarRingParticle);
 
-const GreenPipeTex = TexLoader.load("/resources/models/green-pipe.png");
+const GreenPipeTex = TexLoader.load("resources/models/green-pipe.png");
 GreenPipeTex.colorSpace = THREE.SRGBColorSpace;
 GreenPipeTex.minFilter = THREE.NearestFilter;
 GreenPipeTex.magFilter = THREE.NearestFilter;
 GreenPipeTex.wrapS = THREE.RepeatWrapping;
 GreenPipeTex.wrapT = THREE.RepeatWrapping;
-const GoldPipeTex = TexLoader.load("/resources/models/gold-pipe.png");
+const GoldPipeTex = TexLoader.load("resources/models/gold-pipe.png");
 GoldPipeTex.colorSpace = THREE.SRGBColorSpace;
 GoldPipeTex.minFilter = THREE.NearestFilter;
 GoldPipeTex.magFilter = THREE.NearestFilter;
 GoldPipeTex.wrapS = THREE.RepeatWrapping;
 GoldPipeTex.wrapT = THREE.RepeatWrapping;
 var GreenPipe, GoldPipe;
-ModelLoader.load("/resources/models/pipe.fbx", (object) => {
+ModelLoader.load("resources/models/pipe.fbx", (object) => {
     GreenPipe = object;
     GoldPipe = object.clone(true);
     
@@ -217,7 +217,7 @@ ModelLoader.load("/resources/models/pipe.fbx", (object) => {
 });
 
 
-const ATLAS = TexLoader.load("/resources/textures/atlas.png");
+const ATLAS = TexLoader.load("resources/textures/atlas.png");
 ATLAS.wrapS = THREE.RepeatWrapping;
 ATLAS.wrapT = THREE.RepeatWrapping;
 ATLAS.magFilter = THREE.NearestFilter;
@@ -229,7 +229,7 @@ Scene.background = SKYBOX_TEX;
 const ATLAS_SIZE = {x: 8, y: 8};
 const ATLAS_UV_SIZE = {x: 1 / ATLAS_SIZE.x - (EPSILON * 2), y: 1 / ATLAS_SIZE.y - (EPSILON * 2)};
 
-const PlayerTex = TexLoader.load("/resources/textures/AIRA_Pixel1.png");
+const PlayerTex = TexLoader.load("resources/textures/AIRA_Pixel1.png");
 PlayerTex.magFilter = THREE.NearestFilter;
 PlayerTex.minFilter = THREE.NearestFilter;
 PlayerTex.colorSpace = THREE.SRGBColorSpace;
@@ -283,14 +283,14 @@ for (var i = 0; i < Dice.length; i++){
     Dice[i].receiveShadow = true;
 }
 var CoinText = new THREE.Group();
-const CoinTex = TexLoader.load("/resources/textures/coin_low_res.png");
+const CoinTex = TexLoader.load("resources/textures/coin_low_res.png");
 CoinTex.colorSpace = THREE.SRGBColorSpace;
 CoinTex.minFilter = THREE.NearestFilter;
 CoinTex.magFilter = THREE.NearestFilter;
 var CoinPlane = new THREE.Mesh(new THREE.PlaneGeometry(0.3, 0.3), new THREE.MeshBasicMaterial({ map: CoinTex, transparent: true }));
 CoinText.add(CoinPlane);
 var fontLoader = new FontLoader();
-fontLoader.load("/resources/fonts/Jersey 10/Jersey 10_Regular.json", function(font){
+fontLoader.load("resources/fonts/Jersey 10/Jersey 10_Regular.json", function(font){
     DiceFont = font;
 
     for (var i = 0; i < Dice.length; i++){
@@ -325,7 +325,7 @@ fontLoader.load("/resources/fonts/Jersey 10/Jersey 10_Regular.json", function(fo
 
 
 function loadMap(){
-    fetch("/resources/maps/barnacle-and-dime.json").then(res => res.json()).then(async res => {
+    fetch("resources/maps/barnacle-and-dime.json").then(res => res.json()).then(async res => {
         mapData = res;
         mapSize = {x: mapData[0].length, y: mapData.length};
         
@@ -847,51 +847,51 @@ const ItemData = {
     doubledice: {
         name: "Double Dice",
         description: "Roll 2 dice and move their total value",
-        url: "/resources/textures/doubledice.png",
+        url: "resources/textures/doubledice.png",
         price: 5,
-        image: TexLoader.load("/resources/textures/doubledice.png")
+        image: TexLoader.load("resources/textures/doubledice.png")
     },
     tripledice: {
         name: "Triple Dice",
         description: "Roll 3 dice and move their total value",
-        url: "/resources/textures/tripledice.png",
+        url: "resources/textures/tripledice.png",
         price: 10,
-        image: TexLoader.load("/resources/textures/tripledice.png")
+        image: TexLoader.load("resources/textures/tripledice.png")
     },
     pipe: {
         name: "Warp Pipe",
         description: "Warps you to a random tile on the board",
-        url: "/resources/textures/pipe.png",
+        url: "resources/textures/pipe.png",
         price: 4,
-        image: TexLoader.load("/resources/textures/pipe.png")
+        image: TexLoader.load("resources/textures/pipe.png")
     },
     goldpipe: {
         name: "Gold Pipe",
         description: "Warps you directly to the star",
-        url: "/resources/textures/goldpipe.png",
+        url: "resources/textures/goldpipe.png",
         price: 25,
-        image: TexLoader.load("/resources/textures/goldpipe.png")
+        image: TexLoader.load("resources/textures/goldpipe.png")
     },
     customdice: {
         name: "Custom Dice",
         description: "Choose any number between 1 and 10 to roll",
-        url: "/resources/textures/customdice.png",
+        url: "resources/textures/customdice.png",
         price: 10,
-        image: TexLoader.load("/resources/textures/customdice.png")
+        image: TexLoader.load("resources/textures/customdice.png")
     },
     mushroom: {
         name: "Mushroom",
         description: "Add 3 onto your next roll",
-        url: "/resources/textures/mushroom.png",
+        url: "resources/textures/mushroom.png",
         price: 3,
-        image: TexLoader.load("/resources/textures/mushroom.png")
+        image: TexLoader.load("resources/textures/mushroom.png")
     },
     shophopbox: {
         name: "Shop Hop Box",
         description: "Warp to a random shop",
-        url: "/resources/textures/shophopbox.png",
+        url: "resources/textures/shophopbox.png",
         price: 7,
-        image: TexLoader.load("/resources/textures/shophopbox.png")
+        image: TexLoader.load("resources/textures/shophopbox.png")
     }
 };
 
