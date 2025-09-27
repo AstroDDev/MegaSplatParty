@@ -34,10 +34,10 @@
     "goldeneggs": {
         "lobbySize": 4,
         "type": "coin",
-        "rewards": 0.1,
+        "rewards": 0.333333,
         "evenSize": false,
         "title": "Over Fishing",
-        "description": "This minigame is played in a <b>Private Salmon Run</b> Lobby. Set the <b>Hazard Level to 100</b> and the map to <b>Sockeye Station</b><br><br>Players will compete over the course of a salmon run shift to collect the most <b>Golden Eggs.</b> Players will recieve 1 coin for every 10 <b>Golden Eggs</b> collected.<br><br>When submitting results, enter the <b>Golden Egg</b> totals on the <b>Recent Jobs</b> tab in game.<br><br><b><u>Rewards:</u></b><br><b>1 Coin</b> per <b>10 Golden Eggs</b>"
+        "description": "This minigame is played in a <b>Private Salmon Run</b> Lobby. Set the <b>Hazard Level to 100</b> and the map to <b>Sockeye Station</b><br><br>Players will compete over the course of a salmon run shift to collect the most <b>Golden Eggs.</b> Players will recieve 1 coin for every 3 <b>Golden Eggs</b> collected.<br><br>When submitting results, enter the <b>Golden Egg</b> totals on the <b>Recent Jobs</b> tab in game.<br><br><b><u>Rewards:</u></b><br><b>1 Coin</b> per <b>3 Golden Eggs</b>"
     },
     "gamble": {
         "lobbySize": 4,
@@ -85,7 +85,7 @@
         "rewards": [10, 0],
         "evenSize": true,
         "title": "Splat Zones",
-        "description": "This minigame is played together in a <b>Private Battle</b> lobby with the mode set to <b>Splat Zones.</b> The host can pick their favorite map to play on.<br><br>Players will be seperated randomly into 2 teams. Your goal is to win the match with your team. Use of voice calls for callouts is permitted.<br><br>When submitting results, enter <b>1</b> if the player was on the winning team or enter <b>8</b> if they were not.<br><br><b><u>Rewards:</u></b><br><b>Win: </b>10 Coins<br><b>Lose: </b>0 Coins"
+        "description": "This minigame is played together in a <b>Private Battle</b> lobby with the mode set to <b>Splat Zones.</b> The host can pick their favorite map to play on.<br><br>Players will be seperated randomly into 2 teams. Your goal is to win the match with your team. Use of voice calls for callouts is permitted.<br><br>When submitting results, enter <b>Win</b> if the player was on the winning team or enter <b>Lose</b> if they were not.<br><br><b><u>Rewards:</u></b><br><b>Win: </b>10 Coins<br><b>Lose: </b>0 Coins"
     },
     "scrim2": {
         "lobbySize": 8,
@@ -93,7 +93,7 @@
         "rewards": [10, 0],
         "evenSize": true,
         "title": "Tower Control",
-        "description": "This minigame is played together in a <b>Private Battle</b> lobby with the mode set to <b>Tower Control.</b> The host can pick their favorite map to play on.<br><br>Players will be seperated randomly into 2 teams. Your goal is to win the match with your team. Use of voice calls for callouts is permitted.<br><br>When submitting results, enter <b>1</b> if the player was on the winning team or enter <b>8</b> if they were not.<br><br><b><u>Rewards:</u></b><br><b>Win: </b>10 Coins<br><b>Lose: </b>0 Coins"
+        "description": "This minigame is played together in a <b>Private Battle</b> lobby with the mode set to <b>Tower Control.</b> The host can pick their favorite map to play on.<br><br>Players will be seperated randomly into 2 teams. Your goal is to win the match with your team. Use of voice calls for callouts is permitted.<br><br>When submitting results, enter <b>Win</b> if the player was on the winning team or enter <b>Lose</b> if they were not.<br><br><b><u>Rewards:</u></b><br><b>Win: </b>10 Coins<br><b>Lose: </b>0 Coins"
     },
     "scrim3": {
         "lobbySize": 8,
@@ -101,7 +101,7 @@
         "rewards": [10, 0],
         "evenSize": true,
         "title": "Rainmaker",
-        "description": "This minigame is played together in a <b>Private Battle</b> lobby with the mode set to <b>Rainmaker.</b> The host can pick their favorite map to play on.<br><br>Players will be seperated randomly into 2 teams. Your goal is to win the match with your team. Use of voice calls for callouts is permitted.<br><br>When submitting results, enter <b>1</b> if the player was on the winning team or enter <b>8</b> if they were not.<br><br><b><u>Rewards:</u></b><br><b>Win: </b>10 Coins<br><b>Lose: </b>0 Coins"
+        "description": "This minigame is played together in a <b>Private Battle</b> lobby with the mode set to <b>Rainmaker.</b> The host can pick their favorite map to play on.<br><br>Players will be seperated randomly into 2 teams. Your goal is to win the match with your team. Use of voice calls for callouts is permitted.<br><br>When submitting results, enter <b>Win</b> if the player was on the winning team or enter <b>Lose</b> if they were not.<br><br><b><u>Rewards:</u></b><br><b>Win: </b>10 Coins<br><b>Lose: </b>0 Coins"
     },
     "scrim4": {
         "lobbySize": 8,
@@ -109,15 +109,15 @@
         "rewards": [10, 0],
         "evenSize": true,
         "title": "Clam Blitz",
-        "description": "This minigame is played together in a <b>Private Battle</b> lobby with the mode set to <b>Clam Blitz.</b> The host can pick their favorite map to play on.<br><br>Players will be seperated randomly into 2 teams. Your goal is to win the match with your team. Use of voice calls for callouts is permitted.<br><br>When submitting results, enter <b>1</b> if the player was on the winning team or enter <b>8</b> if they were not.<br><br><b><u>Rewards:</u></b><br><b>Win: </b>10 Coins<br><b>Lose: </b>0 Coins"
+        "description": "This minigame is played together in a <b>Private Battle</b> lobby with the mode set to <b>Clam Blitz.</b> The host can pick their favorite map to play on.<br><br>Players will be seperated randomly into 2 teams. Your goal is to win the match with your team. Use of voice calls for callouts is permitted.<br><br>When submitting results, enter <b>Win</b> if the player was on the winning team or enter <b>Lose</b> if they were not.<br><br><b><u>Rewards:</u></b><br><b>Win: </b>10 Coins<br><b>Lose: </b>0 Coins"
     },
     "kills": {
         "lobbySize": 8,
         "type": "coin",
-        "rewards": 0.25,
+        "rewards": 1,
         "evenSize": false,
         "title": "\"Killer\" Payout",
-        "description": "This minigame is played together in a <b>Private Battle</b> lobby with the mode set to <b>Turf War.</b> The host can pick their favorite map to play on.<br><br>Players will be seperated randomly into 2 teams. Your goal is get as many <b>Kills/Assists</b> as possible. You will recieve 1 Coin for every 4 <b>Kills/Assists.</b> Weapon kits with <b>Angle Shooter</b> or <b>Point Sensor</b> are not allowed to be used.<br><br>When submitting results, enter the <b>Kills/Assists</b> value for each player on the latest <b>Battle Log.</b><br><br><b><u>Rewards:</u></b><br><b>1 Coin</b> per <b>4 Kills/Assists</b>"
+        "description": "This minigame is played together in a <b>Private Battle</b> lobby with the mode set to <b>Turf War.</b> The host can pick their favorite map to play on.<br><br>Players will be seperated randomly into 2 teams. Your goal is get as many <b>Kills/Assists</b> as possible. You will recieve 1 Coin for every <b>Kill/Assist.</b> Weapon kits with <b>Angle Shooter</b> or <b>Point Sensor</b> are not allowed to be used.<br><br>When submitting results, enter the <b>Kills/Assists</b> value for each player on the latest <b>Battle Log.</b><br><br><b><u>Rewards:</u></b><br><b>1 Coin</b> per <b>Kill/Assist</b>"
     },
 
 
@@ -156,19 +156,19 @@
         "hidden": true,
         "lobbySize": 1,
         "type": "coin",
-        "rewards": 0.1,
+        "rewards": 0.33333,
         "evenSize": false,
         "title": "Over Fishing Solo",
-        "description": "This minigame is played solo in a <b>Freelance Salmon Run</b> Lobby.<br><br>You will compete over the course of a salmon run shift to collect as many <b>Golden Eggs</b> as possible. You will recieve 1 coin for every 10 <b>Golden Eggs</b> you collect.<br><br>When submitting results, enter the number of <b>Golden Egg</b> you collected on the <b>Recent Jobs</b> tab in game. <b>Not</b> the total golden eggs collected by everyone.<br><br><b><u>Rewards:</u></b><br><b>1 Coin</b> per <b>10 Golden Eggs</b>"
+        "description": "This minigame is played solo in a <b>Freelance Salmon Run</b> Lobby.<br><br>You will compete over the course of a salmon run shift to collect as many <b>Golden Eggs</b> as possible. You will recieve 1 coin for every 3 <b>Golden Eggs</b> you collect.<br><br>When submitting results, enter the number of <b>Golden Egg</b> you collected on the <b>Recent Jobs</b> tab in game. <b>Not</b> the total golden eggs collected by everyone.<br><br><b><u>Rewards:</u></b><br><b>1 Coin</b> per <b>3 Golden Eggs</b>"
     },
     "killssolo": {
         "hidden": true,
         "lobbySize": 1,
         "type": "coin",
-        "rewards": 0.25,
+        "rewards": 1,
         "evenSize": false,
         "title": "\"Killer\" Payout Solo",
-        "description": "This minigame is played solo in <b>Turf War.</b><br><br>Your goal is get as many <b>Kills/Assists</b> as possible. You will recieve 1 Coin for every 4 <b>Kills/Assists</b> you get. Weapon kits with <b>Angle Shooter</b> or <b>Point Sensor</b> are not allowed to be used.<br><br>When submitting results, enter the <b>Kills/Assists</b> for your player on the latest <b>Battle Log.</b><br><br><b><u>Rewards:</u></b><br><b>1 Coin</b> per <b>4 Kills/Assists</b>"
+        "description": "This minigame is played solo in <b>Turf War.</b><br><br>Your goal is get as many <b>Kills/Assists</b> as possible. You will recieve 1 Coin for every 4 <b>Kill/Assist</b> you get. Weapon kits with <b>Angle Shooter</b> or <b>Point Sensor</b> are not allowed to be used.<br><br>When submitting results, enter the <b>Kills/Assists</b> for your player on the latest <b>Battle Log.</b><br><br><b><u>Rewards:</u></b><br><b>1 Coin</b> per <b>Kill/Assist</b>"
     },
     "speedrunsolo": {
         "hidden": true,
