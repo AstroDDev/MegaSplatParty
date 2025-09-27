@@ -1,5 +1,6 @@
 @import url('https://fonts.googleapis.com/css2?family=Rubik+80s+Fade&family=Sono:wght@200..800&display=swap');
 
+
 *{
     margin: 0;
     padding: 0;
@@ -1037,3 +1038,4 @@ button{
 .minigame-chat > p{
     color: rgba(255, 255, 255, 0.75);
 }
+
