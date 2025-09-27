@@ -2282,7 +2282,7 @@ document.getElementsByClassName("minigame-submit")[0].onclick = function(e){
 var Socket;
 var SignedIn = false;
 function InitializeSocket(){
-    Socket = new WebSocket("ws://" + new URLSearchParams(window.location.search).get("socket") + ".ngrok-free.dev");
+    Socket = new WebSocket("wss://" + new URLSearchParams(window.location.search).get("socket") + ".ngrok-free.dev");
 
     Socket.onopen = function(e){
         console.log("Socket open");
@@ -2910,3 +2910,4 @@ UpdatePlayerUI();
 //TODO!!! Rules Page
 //TODO!!! Full leaderboard (Button in top right) (Not high priority)
 //TODO!!! Low quality version of webpage (no animations, no lighting, no filters)
+
