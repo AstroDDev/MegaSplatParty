@@ -55,7 +55,7 @@ if (Object.hasOwn(COOKIES, "playerToken")){
 }
 
 var MinigameData;
-fetch("./resources/minigames.json").then(r => r.text()).then(t => MinigameData = JSON.parse(t));
+fetch("/resources/minigames.json").then(r => r.text()).then(t => MinigameData = JSON.parse(t));
 
 const EPSILON = 0.001;
 
@@ -83,53 +83,53 @@ const TexLoader = new THREE.TextureLoader();
 const ModelLoader = new FBXLoader();
 
 var PlayerAvatars = [
-    "./resources/avatars/blue_octo_1.png",
-    "./resources/avatars/blue_octo_2.png",
-    "./resources/avatars/blue_octo_3.png",
+    "/resources/avatars/blue_octo_1.png",
+    "/resources/avatars/blue_octo_2.png",
+    "/resources/avatars/blue_octo_3.png",
 
-    "./resources/avatars/green_octo_1.png",
-    "./resources/avatars/green_octo_2.png",
-    "./resources/avatars/green_octo_3.png",
+    "/resources/avatars/green_octo_1.png",
+    "/resources/avatars/green_octo_2.png",
+    "/resources/avatars/green_octo_3.png",
 
-    "./resources/avatars/pink_octo_1.png",
-    "./resources/avatars/pink_octo_2.png",
-    "./resources/avatars/pink_octo_3.png",
+    "/resources/avatars/pink_octo_1.png",
+    "/resources/avatars/pink_octo_2.png",
+    "/resources/avatars/pink_octo_3.png",
 
-    "./resources/avatars/purple_octo_1.png",
-    "./resources/avatars/purple_octo_2.png",
-    "./resources/avatars/purple_octo_3.png",
+    "/resources/avatars/purple_octo_1.png",
+    "/resources/avatars/purple_octo_2.png",
+    "/resources/avatars/purple_octo_3.png",
 
-    "./resources/avatars/teal_octo_1.png",
-    "./resources/avatars/teal_octo_2.png",
-    "./resources/avatars/teal_octo_3.png",
+    "/resources/avatars/teal_octo_1.png",
+    "/resources/avatars/teal_octo_2.png",
+    "/resources/avatars/teal_octo_3.png",
 
-    "./resources/avatars/yellow_octo_1.png",
-    "./resources/avatars/yellow_octo_2.png",
-    "./resources/avatars/yellow_octo_3.png",
+    "/resources/avatars/yellow_octo_1.png",
+    "/resources/avatars/yellow_octo_2.png",
+    "/resources/avatars/yellow_octo_3.png",
 
-    "./resources/avatars/blue_squid_1.png",
-    "./resources/avatars/blue_squid_2.png",
-    "./resources/avatars/blue_squid_3.png",
+    "/resources/avatars/blue_squid_1.png",
+    "/resources/avatars/blue_squid_2.png",
+    "/resources/avatars/blue_squid_3.png",
 
-    "./resources/avatars/green_squid_1.png",
-    "./resources/avatars/green_squid_2.png",
-    "./resources/avatars/green_squid_3.png",
+    "/resources/avatars/green_squid_1.png",
+    "/resources/avatars/green_squid_2.png",
+    "/resources/avatars/green_squid_3.png",
 
-    "./resources/avatars/pink_squid_1.png",
-    "./resources/avatars/pink_squid_2.png",
-    "./resources/avatars/pink_squid_3.png",
+    "/resources/avatars/pink_squid_1.png",
+    "/resources/avatars/pink_squid_2.png",
+    "/resources/avatars/pink_squid_3.png",
 
-    "./resources/avatars/purple_squid_1.png",
-    "./resources/avatars/purple_squid_2.png",
-    "./resources/avatars/purple_squid_3.png",
+    "/resources/avatars/purple_squid_1.png",
+    "/resources/avatars/purple_squid_2.png",
+    "/resources/avatars/purple_squid_3.png",
 
-    "./resources/avatars/teal_squid_1.png",
-    "./resources/avatars/teal_squid_2.png",
-    "./resources/avatars/teal_squid_3.png",
+    "/resources/avatars/teal_squid_1.png",
+    "/resources/avatars/teal_squid_2.png",
+    "/resources/avatars/teal_squid_3.png",
 
-    "./resources/avatars/yellow_squid_1.png",
-    "./resources/avatars/yellow_squid_2.png",
-    "./resources/avatars/yellow_squid_3.png",
+    "/resources/avatars/yellow_squid_1.png",
+    "/resources/avatars/yellow_squid_2.png",
+    "/resources/avatars/yellow_squid_3.png",
 ];
 var PlayerAvatarsTex = [];
 for (let i = 0; i < PlayerAvatars.length; i++){
@@ -142,17 +142,17 @@ for (let i = 0; i < PlayerAvatars.length; i++){
 }
 
 const SKYBOX_TEX = new THREE.CubeTextureLoader().load([
-    "./resources/Skyboxes/px.png",
-    "./resources/Skyboxes/nx.png",
-    "./resources/Skyboxes/py.png",
-    "./resources/Skyboxes/ny.png",
-    "./resources/Skyboxes/pz.png",
-    "./resources/Skyboxes/nz.png"
+    "/resources/Skyboxes/px.png",
+    "/resources/Skyboxes/nx.png",
+    "/resources/Skyboxes/py.png",
+    "/resources/Skyboxes/ny.png",
+    "/resources/Skyboxes/pz.png",
+    "/resources/Skyboxes/nz.png"
 ]);
 SKYBOX_TEX.colorSpace = THREE.SRGBColorSpace;
 
 var Star;
-ModelLoader.load("./resources/models/squid_star.fbx", (object) => {
+ModelLoader.load("/resources/models/squid_star.fbx", (object) => {
     Star = object;
     Scene.add(Star);
     Star.scale.set(0, 0, 0);
@@ -169,26 +169,26 @@ ModelLoader.load("./resources/models/squid_star.fbx", (object) => {
         }
     });
 });
-const RingParticleTex = TexLoader.load("./resources/textures/ring_particle.png");
+const RingParticleTex = TexLoader.load("/resources/textures/ring_particle.png");
 RingParticleTex.colorSpace = THREE.SRGBColorSpace;
 var StarRingParticle = new THREE.Mesh(new THREE.PlaneGeometry(1, 1), new THREE.MeshBasicMaterial({ map: RingParticleTex, transparent: true, opacity: 0, color: 0xffea00 }));
 var ItemRingParticle = new THREE.Mesh(new THREE.PlaneGeometry(1, 1), new THREE.MeshBasicMaterial({ map: RingParticleTex, transparent: true, opacity: 0, color: 0xffffff }));
 Scene.add(StarRingParticle);
 
-const GreenPipeTex = TexLoader.load("./resources/models/green-pipe.png");
+const GreenPipeTex = TexLoader.load("/resources/models/green-pipe.png");
 GreenPipeTex.colorSpace = THREE.SRGBColorSpace;
 GreenPipeTex.minFilter = THREE.NearestFilter;
 GreenPipeTex.magFilter = THREE.NearestFilter;
 GreenPipeTex.wrapS = THREE.RepeatWrapping;
 GreenPipeTex.wrapT = THREE.RepeatWrapping;
-const GoldPipeTex = TexLoader.load("./resources/models/gold-pipe.png");
+const GoldPipeTex = TexLoader.load("/resources/models/gold-pipe.png");
 GoldPipeTex.colorSpace = THREE.SRGBColorSpace;
 GoldPipeTex.minFilter = THREE.NearestFilter;
 GoldPipeTex.magFilter = THREE.NearestFilter;
 GoldPipeTex.wrapS = THREE.RepeatWrapping;
 GoldPipeTex.wrapT = THREE.RepeatWrapping;
 var GreenPipe, GoldPipe;
-ModelLoader.load("./resources/models/pipe.fbx", (object) => {
+ModelLoader.load("/resources/models/pipe.fbx", (object) => {
     GreenPipe = object;
     GoldPipe = object.clone(true);
     
@@ -217,7 +217,7 @@ ModelLoader.load("./resources/models/pipe.fbx", (object) => {
 });
 
 
-const ATLAS = TexLoader.load("./resources/textures/atlas.png");
+const ATLAS = TexLoader.load("/resources/textures/atlas.png");
 ATLAS.wrapS = THREE.RepeatWrapping;
 ATLAS.wrapT = THREE.RepeatWrapping;
 ATLAS.magFilter = THREE.NearestFilter;
@@ -229,7 +229,7 @@ Scene.background = SKYBOX_TEX;
 const ATLAS_SIZE = {x: 8, y: 8};
 const ATLAS_UV_SIZE = {x: 1 / ATLAS_SIZE.x - (EPSILON * 2), y: 1 / ATLAS_SIZE.y - (EPSILON * 2)};
 
-const PlayerTex = TexLoader.load("./resources/textures/AIRA_Pixel1.png");
+const PlayerTex = TexLoader.load("/resources/textures/AIRA_Pixel1.png");
 PlayerTex.magFilter = THREE.NearestFilter;
 PlayerTex.minFilter = THREE.NearestFilter;
 PlayerTex.colorSpace = THREE.SRGBColorSpace;
@@ -325,7 +325,7 @@ fontLoader.load("/resources/fonts/Jersey 10/Jersey 10_Regular.json", function(fo
 
 
 function loadMap(){
-    fetch("./resources/maps/barnacle-and-dime.json").then(res => res.json()).then(async res => {
+    fetch("/resources/maps/barnacle-and-dime.json").then(res => res.json()).then(async res => {
         mapData = res;
         mapSize = {x: mapData[0].length, y: mapData.length};
         
@@ -2897,9 +2897,6 @@ for (let i = 0; i < debugSet.length; i++){
     debugSet[i].onclick = (e) => {debugSetState(debugSet[i].textContent);};
 }
 
-UpdateItemUI();
-UpdatePlayerUI();
-
 
 //TODO!!! Update minigames.json salmon run related descriptions to clarify weapon selection (if needed. Hoping there's a random option in game)
 //TODO!!! Make leaderboard functional
@@ -2910,4 +2907,3 @@ UpdatePlayerUI();
 //TODO!!! Rules Page
 //TODO!!! Full leaderboard (Button in top right) (Not high priority)
 //TODO!!! Low quality version of webpage (no animations, no lighting, no filters)
-
