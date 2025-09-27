@@ -129,7 +129,7 @@ var PlayerAvatars = [
 
     "resources/avatars/yellow_squid_1.png",
     "resources/avatars/yellow_squid_2.png",
-    "resources/avatars/yellow_squid_3.png",
+    "resources/avatars/yellow_squid_3.png"
 ];
 var PlayerAvatarsTex = [];
 for (let i = 0; i < PlayerAvatars.length; i++){
@@ -2907,3 +2907,4 @@ for (let i = 0; i < debugSet.length; i++){
 //TODO!!! Rules Page
 //TODO!!! Full leaderboard (Button in top right) (Not high priority)
 //TODO!!! Low quality version of webpage (no animations, no lighting, no filters)
+
