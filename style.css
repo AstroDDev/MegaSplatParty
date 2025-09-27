@@ -1,5 +1,6 @@
+@import url('https://fonts.googleapis.com/css2?family=Rubik+80s+Fade&family=Sono:wght@200..800&display=swap');
+
 *{
-    image-rendering: pixelated;
     margin: 0;
     padding: 0;
     font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
@@ -13,14 +14,9 @@ body, html{
     position: absolute;
     color: white;
 }
-
-
-.popups{
+.debug-box{
+    z-index: 999999;
     position: absolute;
-    top: 0%;
-    left: 0%;
-    width: 100%;
-    height: 100%;
 }
 
 @keyframes popupscroll {
@@ -91,4 +87,953 @@ input{
 button{
     font-size: 1.125em;
     padding: 2.5px 10px 2.5px 10px;
+}
+
+.player-inputs{
+    position: absolute;
+    width: auto;
+    bottom: 50px;
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 10px;
+    display: flex;
+}
+
+@keyframes checkeredscroll {
+    0% {
+        background-position: 10px 40px;
+    }
+    100% {
+        background-position: 50px 0px;
+    }
+}
+
+.game-ui{
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    padding: 0;
+}
+
+.turn-button{
+    margin: 10px;
+    width: 160px;
+    height: 120px;
+    display: inline-block;
+
+    font-size: 2.5em;
+    font-weight: 900;
+
+    background: 
+        conic-gradient(rgba(255, 255, 255, 0.75) 90deg, rgba(255, 255, 255, 0.85) 90deg 180deg, rgba(255, 255, 255, 0.75) 180deg 270deg, rgba(255, 255, 255, 0.85) 270deg);
+    background-size: 40px 40px;
+    animation: checkeredscroll 2s linear infinite;
+    background-clip: padding-box;
+
+    border-radius: 20px;
+    border-color: rgba(255, 255, 255, 0.65);
+    border-width: 5px;
+    border-style: solid;
+}
+
+.turn-button:active{
+    opacity: 80%;
+}
+
+.options-button{
+    position: absolute;
+    width: 64px;
+    height: 64px;
+    margin: 20px;
+    top: 0%;
+    right: 0%;
+
+    background-color: transparent;
+    background: url("resources/textures/settings_ui.svg");
+    background-repeat: no-repeat;
+    background-position: 50% 50%;
+    background-size: 80% 80%;
+
+    border-color: rgba(255, 255, 255, 0.75);
+    border-radius: 20px;
+    border-width: 5px;
+    border-style: solid;
+
+    color: white;
+}
+
+.options-button:active{
+    opacity: 80%;
+}
+
+.leaderboard{
+    position: absolute;
+    left: 0%;
+    top: 0%;
+    background-color: black;
+    padding: 20px;
+}
+
+.leaderboard-player{
+    position: relative;
+    margin-top: 10px;
+    display: block;
+    width: 275px;
+    height: 25px;
+    font-weight: 500;
+    padding-left: 10px;
+    clip-path: polygon(0% 0%, 95% 0%, 100% 50%, 95% 100%, 0% 100%);
+    align-content: center;
+}
+
+.star-img{
+    position: absolute;
+    display: inline;
+    top: 2.5px;
+    right: 92.5px;
+    width: 20px;
+    height: 20px;
+}
+
+.coin-img{
+    position: absolute;
+    display: inline;
+    top: 2.5px;
+    right: 42.5px;
+    width: 20px;
+    height: 20px;
+}
+
+.leaderboard-player > .name{
+    position: absolute;
+    display: inline;
+    top: 1px;
+    left: 30px;
+}
+
+.leaderboard-player > .stars{
+    position: absolute;
+    display: inline;
+    top: 1px;
+    right: 72.5px;
+}
+
+.leaderboard-player > .place{
+    position: absolute;
+    display: inline;
+    top: 1px;
+    font-weight: 900;
+}
+
+.leaderboard-player > .coins{
+    position: absolute;
+    display: inline;
+    top: 1px;
+    right: 15px;
+}
+
+@keyframes placescroll {
+    0% {
+        background-position: 0 0, 0px 40px;
+    }
+    100% {
+        background-position: 0 0, 40px 0px;
+    }
+}
+
+
+#place-1{
+    background: 
+        linear-gradient(to top, #a67c00 0%, #ffbf00 50%, #ffdc73 100%),
+        conic-gradient(#DDD 90deg, #FFF 90deg 180deg, #DDD 180deg 270deg, #FFF 270deg);
+    background-size: 100% 100%, 20px 20px;
+    background-blend-mode: multiply;
+    animation: placescroll 4s linear infinite;
+}
+
+#place-2{
+    background: 
+        linear-gradient(to top, #868686 0%, #DDD 50%, #c0c0c0 100%),
+        conic-gradient(#DDD 90deg, #FFF 90deg 180deg, #DDD 180deg 270deg, #FFF 270deg);
+    background-size: 100% 100%, 20px 20px;
+    background-blend-mode: multiply;
+    animation: placescroll 4s linear infinite;
+    opacity: 93.75%;
+}
+
+#place-3{
+    background: 
+        linear-gradient(to top, #904d23 0%, #cd6e32 50%, #cd7f32 100%),
+        conic-gradient(#DDD 90deg, #FFF 90deg 180deg, #DDD 180deg 270deg, #FFF 270deg);
+    background-size: 100% 100%, 20px 20px;
+    background-blend-mode: multiply;
+    animation: placescroll 4s linear infinite;
+    opacity: 87.5%;
+}
+
+#place-4{
+    background: 
+        linear-gradient(to top, #a80000 0%, #f54242 100%),
+        conic-gradient(#DDD 90deg, #FFF 90deg 180deg, #DDD 180deg 270deg, #FFF 270deg);
+    background-size: 100% 100%, 20px 20px;
+    background-blend-mode: multiply;
+    animation: placescroll 4s linear infinite;
+    opacity: 81.25%;
+}
+
+#place-5{
+    background: 
+        linear-gradient(to top, #8700a8 0%, #d142f5 100%),
+        conic-gradient(#DDD 90deg, #FFF 90deg 180deg, #DDD 180deg 270deg, #FFF 270deg);
+    background-size: 100% 100%, 20px 20px;
+    background-blend-mode: multiply;
+    animation: placescroll 4s linear infinite;
+    opacity: 75%;
+}
+
+#place-6{
+    background: 
+        linear-gradient(to top, #0000e0 0%, #5656ff 100%),
+        conic-gradient(#DDD 90deg, #FFF 90deg 180deg, #DDD 180deg 270deg, #FFF 270deg);
+    background-size: 100% 100%, 20px 20px;
+    background-blend-mode: multiply;
+    animation: placescroll 4s linear infinite;
+    opacity: 68.75%;
+}
+
+#place-7{
+    background: 
+        linear-gradient(to top, #00a814 0%, #42f557 100%),
+        conic-gradient(#DDD 90deg, #FFF 90deg 180deg, #DDD 180deg 270deg, #FFF 270deg);
+    background-size: 100% 100%, 20px 20px;
+    background-blend-mode: multiply;
+    animation: placescroll 4s linear infinite;
+    opacity: 62.5%;
+}
+
+#place-8{
+    background: 
+        linear-gradient(to top, #a8a800 0%, #f5f542 100%),
+        conic-gradient(#DDD 90deg, #FFF 90deg 180deg, #DDD 180deg 270deg, #FFF 270deg);
+    background-size: 100% 100%, 20px 20px;
+    background-blend-mode: multiply;
+    animation: placescroll 4s linear infinite;
+    opacity: 56.25%;
+}
+
+.up-move-button{
+    position: absolute;
+    width: 200px;
+    height: 100px;
+    left: 50%;
+    top: calc(50% - 50vmin + 20px);
+    transform: translateX(-50%);
+    border: none;
+
+    background: url("resources/textures/arrow.svg");
+    background-size: 100% 100%;
+}
+
+.down-move-button{
+    position: absolute;
+    width: 200px;
+    height: 100px;
+    left: 50%;
+    bottom: calc(50% - 50vmin + 20px);
+    transform: translateX(-50%) rotate(180deg);
+    border: none;
+
+    background: url("resources/textures/arrow.svg");
+    background-size: 100% 100%;
+}
+
+.left-move-button, .decrease-dice-button{
+    position: absolute;
+    width: 200px;
+    height: 100px;
+    top: 50%;
+    left: calc(50% - 50vmin + 20px);
+    transform: translateY(-50%) rotate(-90deg);
+    border: none;
+
+    background: url("resources/textures/arrow.svg");
+    background-size: 100% 100%;
+
+    z-index: 100;
+}
+
+.right-move-button, .increase-dice-button{
+    position: absolute;
+    width: 200px;
+    height: 100px;
+    top: 50%;
+    right: calc(50% - 50vmin + 20px);
+    transform: translateY(-50%) rotate(90deg);
+    border: none;
+
+    background: url("resources/textures/arrow.svg");
+    background-size: 100% 100%;
+
+    z-index: 100;
+}
+
+.up-move-button:active, .down-move-button:active, .left-move-button:active, .right-move-button:active, .increase-dice-button:active, .decrease-dice-button:active{
+    opacity: 80%;
+}
+
+.roll-back-button, .move-undo-button, .item-back-button, .map-back-button{
+    position: absolute;
+    left: 0%;
+    bottom: 0%;
+    margin: 20px;
+    width: 128px;
+    height: 64px;
+}
+
+.roll-canvas-button{
+    position: absolute;
+    width: 100%;
+    height: 100%;
+}
+
+.roll-display{
+    position: absolute;
+    position: absolute;
+    left: 50%;
+    top: 30%;
+}
+
+.roll-display > h1{
+    color: gold;
+    font-size: 8em;
+    transform: translate(-50%, -50%);
+}
+
+.move-end-turn-button{
+    position: absolute;
+    left: 50%;
+    top: 70%;
+    width: 240px;
+    transform: translate(-50%, -50%);
+}
+
+.item-list{
+    padding: 20px;
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+
+    width: 600px;
+    display: inline-block;
+
+    font-size: 2.5em;
+    font-weight: 900;
+
+    background: 
+        conic-gradient(rgba(255, 255, 255, 0.75) 90deg, rgba(255, 255, 255, 0.85) 90deg 180deg, rgba(255, 255, 255, 0.75) 180deg 270deg, rgba(255, 255, 255, 0.85) 270deg);
+    background-size: 40px 40px;
+    animation: checkeredscroll 2s linear infinite;
+
+    mask-image: linear-gradient(to left, rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 1) 10% 90%, rgba(255, 255, 255, 0) 100%);
+    text-align: center;
+
+    font-size: 1em;
+}
+
+.item-option{
+    width: 160px;
+    height: 160px;
+
+    border-radius: 20px;
+    border: 5px solid #DDD;
+
+    background-size: 100% 100%;
+}
+
+.item-option:active{
+    opacity: 80%;
+}
+
+.item-option:hover{
+    border: 5px solid rgb(255, 235, 125);
+}
+
+.item-title{
+    color: black;
+    font-size: 3em;
+}
+
+.item-description{
+    font-size: 1.5em;
+}
+
+.popup-shop{
+    
+}
+
+.shop-popup{
+    height: 470px;
+    width: 510px;
+}
+
+.star-popup{
+    
+}
+
+.shop-item{
+    display: inline-block;
+    width: 120px;
+    margin: 10px;
+}
+
+.shop-button{
+    width: 120px;
+    height: 120px;
+    background-size: 100% 100%;
+
+    border-radius: 20px;
+    border: 5px solid #CCC;
+}
+
+.shop-button:active{
+    opacity: 80%;
+}
+
+.shop-button:hover{
+    border: 5px solid rgb(255, 235, 125);
+}
+
+.coin-shop-image{
+    width: 25px;
+    height: 25px;
+    transform: translateY(3.5px);
+}
+
+.shop-description{
+    color: white;
+    font-size: 1.25em;
+    font-weight: 600;
+}
+
+.player-data{
+    position: absolute;
+    left: 50%;
+    bottom: -40px;
+    transform: translateX(-50%);
+
+    background: 
+        conic-gradient(rgba(255, 255, 255, 0.75) 90deg, rgba(255, 255, 255, 0.85) 90deg 180deg, rgba(255, 255, 255, 0.75) 180deg 270deg, rgba(255, 255, 255, 0.85) 270deg);
+    background-size: 40px 40px;
+    animation: checkeredscroll 2s linear infinite;
+
+    border-radius: 20px;
+    width: 520px;
+    height: 80px;
+}
+
+.player-data-container{
+    position: relative;
+    left: 0;
+    top: 0;
+}
+
+.player-name{
+    position: absolute;
+    left: 20px;
+    top: 7.5px;
+    font-size: 1.25em;
+    font-weight: 600;
+}
+
+.player-star-img{
+    position: absolute;
+    left: 200px;
+    top: 0;
+    width: 30px;
+    height: 30px;
+    transform: translateY(5px);
+}
+
+.player-coin-img{
+    position: absolute;
+    left: 280px;
+    top: 0;
+    width: 30px;
+    height: 30px;
+    transform: translateY(5px);
+}
+
+.player-stars {
+    position: absolute;
+    left: 232.5px;
+    top: 3px;
+    font-size: 1.5em;
+    font-weight: 600;
+}
+
+.player-coins{
+    position: absolute;
+    left: 312.5px;
+    top: 3px;
+    font-size: 1.5em;
+    font-weight: 600;
+}
+
+.player-item-list{
+    position: absolute;
+    left: 367.5px;
+}
+
+.player-item{
+    width: 30px;
+    height: 30px;
+    margin-top: 7px;
+    margin-left: 10px;
+}
+
+.map-shop{
+    position: absolute;
+    top: 0;
+    right: 0;
+    margin: 10px;
+    border-radius: 20px;
+
+    text-align: center;
+
+    background: 
+        conic-gradient(rgba(255, 255, 255, 0.75) 90deg, rgba(255, 255, 255, 0.85) 90deg 180deg, rgba(255, 255, 255, 0.75) 180deg 270deg, rgba(255, 255, 255, 0.85) 270deg);
+    background-size: 40px 40px;
+    animation: checkeredscroll 2s linear infinite;
+}
+
+.map-shop-item{
+    display: inline-block;
+    padding: 5px;
+
+    text-align: center;
+}
+
+.map-shop-item-image{
+    width: 80px;
+    height: 80px;
+}
+
+.map-shop-price{
+    color: black;
+    padding-bottom: 5px;
+}
+
+.map-shop > h2{
+    color: black;
+    padding: 5px;
+}
+
+.map-distance-text{
+    padding-left: 20px;
+    padding-top: 10px;
+    font-size: 3em;
+}
+
+.minigame-title{
+
+}
+
+.minigame-description{
+    color: white;
+    padding: 5px;
+    text-align: left;
+}
+
+.minigame-pool, .minigame-pass{
+    font-size: 1.25em;
+    display: inline-block;
+}
+
+.minigame-player{
+    display: inline-block;
+    width: 100px;
+    margin-top: 20px;
+
+    padding-top: 5px;
+    padding-bottom: 5px;
+
+    border-radius: 20px;
+    border-color: rgba(255, 255, 255, 0.65);
+    border-width: 3px;
+    border-style: solid;
+}
+
+.minigame-player-name {
+    position: relative;
+    color: white;
+    width: 100px;
+    overflow-wrap: break-word;
+}
+
+.minigame-player-tooltip{
+    width: 120px;
+    visibility: hidden;
+    background-color: rgba(0, 0, 0, 0.5);
+    color: white;
+    text-align: center;
+    padding: 5px 0;
+    border-radius: 6px;
+
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    margin-left: -60px;
+}
+
+.minigame-player-name:hover .minigame-player-tooltip{
+    visibility: visible;
+}
+
+.minigame-player-result-coin, .minigame-player-result-vs, .minigame-player-result-coop{
+    margin-top: 5px;
+    width: 60px;
+    height: 30px;
+    font-size: 1em;
+}
+
+.minigame-navigator{
+    text-align: left;
+    align-items: left;
+}
+
+.minigame-navigator-button{
+    position: relative;
+
+    margin: 0;
+    background: none;
+
+    border-color: white;
+    border-style: solid;
+    border-width: 3px;
+    border-top-left-radius: 10px;
+    border-top-right-radius: 10px;
+    border-bottom: none;
+
+    color: white;
+
+    opacity: 65%;
+}
+
+.minigame-navigator-button-selected{
+    opacity: 100%;
+}
+
+.minigame-window{
+    position: relative;
+
+    width: 480px;
+    height: 360px;
+    
+    border-color: white;
+    border-width: 3px;
+    border-style: solid;
+    border-top-right-radius: 10px;
+    border-bottom-left-radius: 10px;
+    border-bottom-right-radius: 10px;
+}
+
+.minigame-sub-window{
+    position: absolute;
+    left: 0;
+    top: 0;
+
+    width: 100%;
+    height: 100%;
+
+    overflow-y: scroll;
+
+    scrollbar-color: white transparent;
+    scrollbar-width: thin;
+}
+
+.minigame-chat-text-bar{
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    height: 35px;
+    border-top: white solid 3px;
+}
+
+#minigame-window-chat{
+    overflow-y: hidden;
+}
+
+.minigame-chat{
+    position: absolute;
+    height: 315px;
+    width: 470px;
+    text-align: left;
+    color: white;
+    padding: 5px;
+    overflow-y: scroll;
+    scrollbar-color: white transparent;
+    scrollbar-width: thin;
+}
+
+#minigame-chat-input{
+    position: absolute;
+    left: 0;
+    margin: 2px;
+    height: 25px;
+    width: 400px;
+    border-radius: 10px;
+    border-width: 3px;
+    border-color: white;
+    border-style: solid;
+    background-color: rgba(255, 255, 255, 0.5);
+    font-size: 1em;
+    text-align: left;
+}
+
+#minigame-chat-send-button{
+    position: absolute;
+    right: 0;
+    margin: 2.5px;
+    height: 31px;
+    border-radius: 10px;
+    border-width: 3px;
+    border-color: white;
+    border-style: solid;
+    background-color: rgba(255, 255, 255, 0.5);
+    color: white;
+    padding: 0;
+    width: 66px;
+    font-size: 1em;
+}
+
+#minigame-chat-send-button:active{
+    opacity: 70%;
+}
+
+.lucky-option{
+    background: rgba(255, 255, 255, 0.75);
+    border-radius: 10px;
+    width: 360px;
+    height: 30px;
+    margin: 5px;
+    font-weight: 600;
+    font-size: 1em;
+    line-height: 30px;
+}
+
+.lucky-selected{
+    background: rgba(255, 255, 255, 1);
+}
+
+.coin-lucky-img{
+    width: 20px;
+    height: 20px;
+    transform: translateY(3.5px);
+}
+
+
+.item-toss-option{
+    width: 120px;
+    height: 120px;
+
+    border-radius: 20px;
+    border: 5px solid #DDD;
+
+    background-size: 100% 100%;
+}
+
+.item-toss-option:active{
+    opacity: 80%;
+}
+
+.item-toss-option:hover{
+    border: 5px solid rgb(255, 235, 125);
+}
+
+.item-toss-title{
+    color: black;
+    font-size: 3em;
+}
+
+.item-toss-description{
+    font-size: 1.5em;
+}
+
+
+.results-podium{
+    position: relative;
+    width: 360px;
+    height: 180px;
+    filter: drop-shadow(0 0 0.25rem rgba(0, 0, 0, 1));
+}
+
+.results-podium-1{
+    position: absolute;
+    width: 120px;
+    height: 100px;
+    background: linear-gradient(to top, #a67c00 0%, #ffbf00 50%, #ffdc73 100%);
+    left: 50%;
+    bottom: 0;
+    transform: translateX(-50%);
+}
+.results-podium-2{
+    position: absolute;
+    width: 120px;
+    height: 75px;
+    background: linear-gradient(to top, #868686 0%, #DDD 50%, #c0c0c0 100%);
+    left: calc(50% + 120px);
+    bottom: 0;
+    transform: translateX(-50%);
+}
+.results-podium-3{
+    position: absolute;
+    width: 120px;
+    height: 50px;
+    background: linear-gradient(to top, #904d23 0%, #cd6e32 50%, #cd7f32 100%);
+    left: calc(50% - 120px);
+    bottom: 0;
+    transform: translateX(-50%);
+}
+.results-podium-image{
+    position: absolute;
+    width: 80px;
+    height: 80px;
+    image-rendering: pixelated;
+    left: 50%;
+    top: -80px;
+    transform: translateX(-50%);
+}
+.results-podium-stars, .results-podium-coins{
+    font-size: 1em;
+    font-weight: 600;
+}
+.results-podium-text-img{
+    width: 20px;
+    height: 20px;
+    filter: drop-shadow(0 0 0.1rem rgba(0, 0, 0, 0.65));
+    padding-left: 3px;
+    transform: translateY(3.5px);
+}
+.results-podium-info{
+    position: absolute;
+    left: 50%;
+    top: calc(50% - 1.5px);
+    width: 100%;
+    transform: translate(-50%, -50%);
+}
+
+.results-you{
+    display: inline-block;
+    width: 360px;
+    height: 29px;
+    background-color: rgba(255, 255, 255, 0.75);
+    padding: 5px 0 5px 0;
+    border-radius: 10px;
+    text-align: left;
+    font-size: 1.2em;
+    position: relative;
+}
+.results-you-username{
+    font-weight: 600;
+}
+.results-you-placement{
+    font-weight: 900;
+    margin-left: 2.5px;
+    margin-right: 10px;
+}
+.results-you-text-img{
+    width: 20px;
+    height: 20px;
+    filter: drop-shadow(0 0 0.1rem rgba(0, 0, 0, 0.65));
+    padding-left: 3px;
+    transform: translateY(3.5px);
+}
+.results-you-info{
+    position: absolute;
+    right: 12.5px;
+}
+
+.results-list{
+    position: relative;
+    width: 360px;
+    max-height: 240px;
+    margin-top: 20px;
+    overflow-y: scroll;
+    scrollbar-color: white none;
+    scrollbar-width: none;
+    border-radius: 10px;
+}
+.results-list-item-a{
+    position: relative;
+    background-color: rgba(255, 255, 255, 0.65);
+    text-align: left;
+    padding: 3px;
+    height: 22px;
+    overflow: hidden;
+}
+.results-list-item-b{
+    position: relative;
+    background-color: rgba(255, 255, 255, 0.5);
+    text-align: left;
+    padding: 3px;
+    height: 22px;
+    overflow: hidden;
+}
+.results-list-item-1{
+    background-image: linear-gradient(to top, #a67c00c8 0%, #ffbf00c8 50%, #ffdc73c8 100%);
+}
+.results-list-item-2{
+    background-image: linear-gradient(to top, #868686c8 0%, #DDDDDDc8 50%, #c0c0c0c8 100%);
+}
+.results-list-item-3{
+    background-image: linear-gradient(to top, #904d23c8 0%, #cd6e32c8 50%, #cd7f32c8 100%);
+}
+.results-list-text-img{
+    width: 16px;
+    height: 16px;
+    filter: drop-shadow(0 0 0.1rem rgba(0, 0, 0, 0.65));
+    transform: translateY(1.5px);
+}
+.results-list-placement{
+    margin-left: 12.5px;
+    font-weight: 800;
+}
+.results-list-username{
+    margin-left: 36px;
+    font-weight: 500;
+}
+.results-list-info{
+    position: absolute;
+    right: 12.5px;
+}
+.results-list-avatar{
+    position: absolute;
+    display: block;
+    image-rendering: pixelated;
+    bottom: -4px;
+    left: 32px;
+    width: 32px;
+    height: 36px;
+    transform: translateY(1px);
+}
+
+.minigame-chat-notification{
+    position: absolute;
+    width: 20px;
+    height: 20px;
+    border-radius: 10px;
+    background-color: white;
+    top: -10px;
+    right: -10px;
+}
+
+.minigame-chat > p > b{
+    color: white;
+}
+.minigame-chat > p{
+    color: rgba(255, 255, 255, 0.75);
 }
