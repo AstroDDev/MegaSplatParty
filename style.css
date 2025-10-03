@@ -1,6 +1,5 @@
 @import url('https://fonts.googleapis.com/css2?family=Rubik+80s+Fade&family=Sono:wght@200..800&display=swap');
 
-
 *{
     margin: 0;
     padding: 0;
@@ -42,10 +41,11 @@ body, html{
     background-size: 100% 100%;
     background-blend-mode: multiply, normal, normal;
 
+    overflow: hidden;
+
+    width: max-content;
     max-width: 90%;
     max-height: 90%;
-
-    overflow: hidden;
 }
 .popup-inset{
     padding: 40px;
@@ -170,19 +170,43 @@ button{
     opacity: 80%;
 }
 
-.leaderboard{
+.leaderboard-button{
+    position: absolute;
+    width: 64px;
+    height: 64px;
+    margin: 20px;
+    top: 0%;
+    right: 0%;
+
+    background-color: transparent;
+    background: url("resources/textures/leaderboard_ui.svg");
+    background-repeat: no-repeat;
+    background-position: 50% 50%;
+    background-size: 80% 80%;
+
+    border-color: rgba(255, 255, 255, 0.75);
+    border-radius: 20px;
+    border-width: 5px;
+    border-style: solid;
+
+    color: white;
+}
+
+.options-button:active, .leaderboard-button:active{
+    opacity: 80%;
+}
+
+#leaderboard{
     position: absolute;
     left: 0%;
-    top: 0%;
-    background-color: black;
-    padding: 20px;
+    top: 70px;
 }
 
 .leaderboard-player{
     position: relative;
     margin-top: 10px;
     display: block;
-    width: 275px;
+    width: 230px;
     height: 25px;
     font-weight: 500;
     padding-left: 10px;
@@ -193,19 +217,21 @@ button{
 .star-img{
     position: absolute;
     display: inline;
-    top: 2.5px;
+    top: 1.5px;
     right: 92.5px;
     width: 20px;
     height: 20px;
+    filter: drop-shadow(0 0 0.125rem black);
 }
 
 .coin-img{
     position: absolute;
     display: inline;
-    top: 2.5px;
+    top: 1.5px;
     right: 42.5px;
     width: 20px;
     height: 20px;
+    filter: drop-shadow(0 0 0.125rem black);
 }
 
 .leaderboard-player > .name{
@@ -219,7 +245,7 @@ button{
     position: absolute;
     display: inline;
     top: 1px;
-    right: 72.5px;
+    left: 152.5px;
 }
 
 .leaderboard-player > .place{
@@ -233,7 +259,7 @@ button{
     position: absolute;
     display: inline;
     top: 1px;
-    right: 15px;
+    left: 202.5px;
 }
 
 @keyframes placescroll {
@@ -1039,3 +1065,210 @@ button{
     color: rgba(255, 255, 255, 0.75);
 }
 
+#minigame-waiting{
+    position: relative;
+}
+.minigame-podium-display{
+    filter: drop-shadow(0 0 0.25rem black);
+}
+.minigame-podium{
+    position: relative;
+    display: inline-block;
+    width: 80px; 
+    height: 180px;
+}
+.minigame-podium-block{
+    position: absolute;
+    width: 80px;
+    background: linear-gradient(to top, #aaa 0%, #ddd 100%);
+    bottom: 0;
+}
+.minigame-podium-image{
+    position: absolute;
+    width: 60px;
+    height: 60px;
+    image-rendering: pixelated;
+    left: 50%;
+    top: -60px;
+    transform: translateX(-50%);
+}
+.minigame-podium-coins{
+    position: absolute;
+    width: 100%;
+    top: -90px;
+    left: 50%;
+    transform: translateX(-50%);
+    color: white;
+    font-weight: 700;
+    font-size: 1.25em;
+}
+.minigame-podium-coins-image{
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    transform: translateY(3px);
+}
+.minigame-podium-name{
+    position: absolute;
+    width: 100%;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    color: black;
+    font-weight: 700;
+    font-size: 0.75em;
+}
+.minigame-podium-placement{
+    font-size: 1.25em;
+    font-weight: 700;
+}
+
+#turn-counter{
+    position: absolute;
+    width: 120px;
+    height: 60px;
+    top: 10px;
+    left: 0;
+    background: 
+        conic-gradient(rgb(255, 255, 255, 0.75) 90deg, rgba(255, 255, 255, 0.85) 90deg 180deg, rgba(255, 255, 255, 0.75) 180deg 270deg, rgba(255, 255, 255, 0.85) 270deg);
+    background-size: 40px 40px;
+    animation: checkeredscroll 2s linear infinite;
+    clip-path: polygon(100% 50%, 75% 0%, 0% 0%, 0% 100%, 75% 100%);
+    text-align: left;
+}
+#turn-counter-text{
+    display: inline-block;
+    text-align: center;
+    width: 90px;
+    transform: translateY(-5px);
+    color: black;
+}
+
+.global-leaderboard-list{
+    position: relative;
+    width: 360px;
+    max-height: 400px;
+    margin-top: 20px;
+    overflow-y: scroll;
+    scrollbar-color: white none;
+    scrollbar-width: none;
+    border-radius: 10px;
+}
+
+
+
+
+
+
+
+
+
+.confetti-wrapper {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    overflow: hidden;
+}
+@keyframes confetti-fall-1 {
+    0% {
+        transform: translateY(-100%) rotate(0deg) rotateX(180deg) rotateY(0deg);
+    }
+    100% {
+        transform: translateY(100vh) rotate(360deg) rotateX(-180deg) rotateY(360deg);
+    }
+}
+@keyframes confetti-fall-2 {
+    0% {
+        transform: translateY(-100%) rotate(0deg) rotateX(-180deg) rotateY(0deg);
+    }
+    100% {
+        transform: translateY(100vh) rotate(360deg) rotateX(180deg) rotateY(360deg);
+    }
+}
+@keyframes confetti-fall-3 {
+    0% {
+        transform: translateY(-100%) rotate(0deg) rotateX(360deg) rotateY(-180deg);
+    }
+    100% {
+        transform: translateY(100vh) rotate(360deg) rotateX(0deg) rotateY(180deg);
+    }
+}
+@keyframes confetti-fall-4 {
+    0% {
+        transform: translateY(-100%) rotate(0deg) rotateX(0deg) rotateY(180deg);
+    }
+    100% {
+        transform: translateY(100vh) rotate(360deg) rotateX(360deg) rotateY(-180deg);
+    }
+}
+.confetti-piece {
+    position: absolute;
+    width: 12px;
+    height: 15px;
+    background: var(--confetti-color, red);
+    transform: translateY(-50px);
+}
+/* Randomize confetti properties */
+.confetti-piece:nth-child(10n) {
+    left: 10%;
+    --confetti-color: #ff6347;
+    --fall-duration: 3s;
+    animation: confetti-fall-1 var(--fall-duration, 4s) linear 4s infinite;
+}
+.confetti-piece:nth-child(10n+1) {
+    left: 25%;
+    --confetti-color: #ffa500;
+    --fall-duration: 5s;
+    animation: confetti-fall-2 var(--fall-duration, 4s) linear 3s infinite;
+}
+.confetti-piece:nth-child(10n+2) {
+    left: 40%;
+    --confetti-color: #32cd32;
+    --fall-duration: 4.5s;
+    animation: confetti-fall-3 var(--fall-duration, 4s) linear 2s infinite;
+}
+.confetti-piece:nth-child(10n+3) {
+    left: 60%;
+    --confetti-color: #1e90ff;
+    --fall-duration: 3.5s;
+    animation: confetti-fall-4 var(--fall-duration, 4s) linear 1s infinite;
+}
+.confetti-piece:nth-child(10n+4) {
+    left: 80%;
+    --confetti-color: #ff69b4;
+    --fall-duration: 6s;
+    animation: confetti-fall-1 var(--fall-duration, 4s) linear 0s infinite;
+}
+.confetti-piece:nth-child(10n+5) {
+    left: 10%;
+    --confetti-color: #ff6347;
+    --fall-duration: 3s;
+    animation: confetti-fall-2 var(--fall-duration, 4s) linear 4.5s infinite;
+}
+.confetti-piece:nth-child(10n+6) {
+    left: 25%;
+    --confetti-color: #ffa500;
+    --fall-duration: 5s;
+    animation: confetti-fall-3 var(--fall-duration, 4s) linear 3.5s infinite;
+}
+.confetti-piece:nth-child(10n+7) {
+    left: 40%;
+    --confetti-color: #32cd32;
+    --fall-duration: 4.5s;
+    animation: confetti-fall-4 var(--fall-duration, 4s) linear 2.5s infinite;
+}
+.confetti-piece:nth-child(10n+8) {
+    left: 60%;
+    --confetti-color: #1e90ff;
+    --fall-duration: 3.5s;
+    animation: confetti-fall-1 var(--fall-duration, 4s) linear 1.5s infinite;
+}
+.confetti-piece:nth-child(10n+9) {
+    left: 80%;
+    --confetti-color: #ff69b4;
+    --fall-duration: 6s;
+    animation: confetti-fall-2 var(--fall-duration, 4s) linear 0.5s infinite;
+}
