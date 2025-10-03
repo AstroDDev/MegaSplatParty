@@ -23,6 +23,10 @@
             <button class="debug-set">map</button><br>
         </div>
 
+        <div class="confetti-wrapper" style="display: none;">
+            <!-- Confetti elements will be created using CSS -->
+        </div>
+
         <div id="world"></div>
         <div class="game-ui">
             <div class="custom-dice-input" style="display: none;">
@@ -41,49 +45,49 @@
                 <button class="move-end-turn-button turn-button" style="display: none;">End Turn</button>
             </div>
             <div id="leaderboard" style="display: none;">
-                <div class="leaderboard-player" id="place-1">
+                <div class="leaderboard-player" id="place-1" style="display: none;">
                     <span class="place">1.</span>
                     <span class="name">AstroDwarf#1234</span>
                     <img class="star-img" src="resources/textures/squid_star.svg"><span class="stars">99</span>
                     <img class="coin-img" src="resources/textures/squid_coin.svg"><span class="coins">999</span>
                 </div>
-                <div class="leaderboard-player" id="place-2">
+                <div class="leaderboard-player" id="place-2" style="display: none;">
                     <span class="place">2.</span>
                     <span class="name">AstroDwarf#1234</span>
                     <img class="star-img" src="resources/textures/squid_star.svg"><span class="stars">99</span>
                     <img class="coin-img" src="resources/textures/squid_coin.svg"><span class="coins">999</span>
                 </div>
-                <div class="leaderboard-player" id="place-3">
+                <div class="leaderboard-player" id="place-3" style="display: none;">
                     <span class="place">3.</span>
                     <span class="name">AstroDwarf#1234</span>
                     <img class="star-img" src="resources/textures/squid_star.svg"><span class="stars">99</span>
                     <img class="coin-img" src="resources/textures/squid_coin.svg"><span class="coins">999</span>
                 </div>
-                <div class="leaderboard-player" id="place-4">
+                <div class="leaderboard-player" id="place-4" style="display: none;">
                     <span class="place">4.</span>
                     <span class="name">AstroDwarf#1234</span>
                     <img class="star-img" src="resources/textures/squid_star.svg"><span class="stars">99</span>
                     <img class="coin-img" src="resources/textures/squid_coin.svg"><span class="coins">999</span>
                 </div>
-                <div class="leaderboard-player" id="place-5">
+                <div class="leaderboard-player" id="place-5" style="display: none;">
                     <span class="place">5.</span>
                     <span class="name">AstroDwarf#1234</span>
                     <img class="star-img" src="resources/textures/squid_star.svg"><span class="stars">99</span>
                     <img class="coin-img" src="resources/textures/squid_coin.svg"><span class="coins">999</span>
                 </div>
-                <div class="leaderboard-player" id="place-6">
+                <div class="leaderboard-player" id="place-6" style="display: none;">
                     <span class="place">6.</span>
                     <span class="name">AstroDwarf#1234</span>
                     <img class="star-img" src="resources/textures/squid_star.svg"><span class="stars">99</span>
                     <img class="coin-img" src="resources/textures/squid_coin.svg"><span class="coins">999</span>
                 </div>
-                <div class="leaderboard-player" id="place-7">
+                <div class="leaderboard-player" id="place-7" style="display: none;">
                     <span class="place">7.</span>
                     <span class="name">AstroDwarf#1234</span>
                     <img class="star-img" src="resources/textures/squid_star.svg"><span class="stars">99</span>
                     <img class="coin-img" src="resources/textures/squid_coin.svg"><span class="coins">999</span>
                 </div>
-                <div class="leaderboard-player" id="place-8">
+                <div class="leaderboard-player" id="place-8" style="display: none;">
                     <span class="place">8.</span>
                     <span class="name">AstroDwarf#1234</span>
                     <img class="star-img" src="resources/textures/squid_star.svg"><span class="stars">99</span>
@@ -125,11 +129,11 @@
             <div class="player-data" style="display: none;">
                 <div class="player-data-container">
                     <span class="player-name">AstroDwarf#1234</span>
-                    <img class="player-star-img" src="resources/textures/squid_star.svg"><span class="player-stars">99</span>
-                    <img class="player-coin-img" src="resources/textures/squid_coin.svg"><span class="player-coins">999</span>
+                    <img class="player-star-img" src="resources/textures/squid_star.svg"><span class="player-stars">0</span>
+                    <img class="player-coin-img" src="resources/textures/squid_coin.svg"><span class="player-coins">10</span>
                     <div class="player-item-list">
                         <img src="resources/textures/doubledice.png" class="player-item">
-                        <img src="resources/textures/tripledice.png" class="player-item">
+                        <img src="resources/textures/noitem.png" class="player-item">
                         <img src="resources/textures/noitem.png" class="player-item">
                     </div>
                 </div>
@@ -194,7 +198,12 @@
                 <h2 class="map-distance-text">9 Away</h2>
                 <button class="map-back-button">Back</button>
             </div>
+            <div id="turn-counter" style="display: none;">
+                <h3 style="color: black; display: block; font-size: 1em; text-align: center; width: calc(100% - 30px); float: left; opacity: 50%;">Turn</h3>
+                <h2 id="turn-counter-text">1/10</h2>
+            </div>
             <!--<button class="options-button"></button>-->
+            <button class="leaderboard-button" style="display: none;"></button>
         </div>
         <div class="popups">
             <div id="connecting" class="popup" style="display: initial;">
@@ -206,10 +215,15 @@
 
             <div id="login" class="popup" style="display: none;">
                 <div class="popup-inset">
-                    <h1>Sign Up / Login</h1><br><br>
-                    <input id="login_discord_input" type="text" placeholder="Discord ID..."><br>
-                    <input id="login_ign_input" type="text" placeholder="Splatoon Username..."><br><br>
-                    <button id="loginbtn">Submit</button>
+                    <form id="login-form">
+                        <h1>Sign Up / Login</h1><br><br>
+                        <h4 id="login-error-message" style="color: red; filter: drop-shadow(0 0 0.25rem black);"></h4>
+                        <h3>Discord Username</h3>
+                        <input id="login_discord_input" type="text" placeholder="e.g. username12"><br>
+                        <h3>Splatoon Name</h3>
+                        <input id="login_ign_input" type="text" placeholder="e.g. Username#1234"><br><br>
+                        <button id="loginbtn">Submit</button>
+                    </form>
                 </div>
             </div>
 
@@ -229,197 +243,260 @@
 
             <div id="minigame" class="popup" style="display: none;">
                 <div class="popup-inset">
-                    <h1 style="font-size: 3.25em;">Minigame</h1>
-                    <h2 class="minigame-title">Minigame Name</h2><br>
-                    <h3 class="minigame-pool">Pool: MSP0</h3>
-                    <div style="width: 100px; display: inline-block;"></div>
-                    <h3 class="minigame-pass">Pass: 5555</h3><br><br>
-                    <div class="minigame-navigator">
-                        <button class="minigame-navigator-button minigame-navigator-button-selected">Description</button>
-                        <button class="minigame-navigator-button">Submit Results</button>
-                        <button class="minigame-navigator-button">
-                            Chat
-                            <div class="minigame-chat-notification" style="display: none;"></div>
-                        </button>
+                    <div id="minigame-interactive" style="display: initial;">
+                        <h1 style="font-size: 3.25em;">Minigame</h1>
+                        <h2 class="minigame-title">Minigame Name</h2><br>
+                        <h3 class="minigame-pool">Pool: MSP0</h3>
+                        <div style="width: 100px; display: inline-block;"></div>
+                        <h3 class="minigame-pass">Pass: 5555</h3><br><br>
+                        <div class="minigame-navigator">
+                            <button class="minigame-navigator-button minigame-navigator-button-selected">Description</button>
+                            <button class="minigame-navigator-button">Submit Results</button>
+                            <button class="minigame-navigator-button">Chat<div class="minigame-chat-notification" style="display: none;"></div></button>
+                        </div>
+                        <div class="minigame-window">
+                            <div id="minigame-window-description" class="minigame-sub-window" style="display: initial;">
+                                <p class="minigame-description"></p>
+                            </div>
+                            <div id="minigame-window-results" class="minigame-sub-window" style="display: none;">
+                                <div class="minigame-players">
+                                    <div class="minigame-player" style="display: inline-block;">
+                                        <h4 class="minigame-player-name">AstroDwarf<br>#1234
+                                            <span class="minigame-player-tooltip">astrodwarf</span>
+                                        </h4>
+                                        <input type="number" class="minigame-player-result-coin" style="display: none;">
+                                        <select class="minigame-player-result-vs" style="display: none;">
+                                            <option value="0" class="vs-1">1st</option>
+                                            <option value="1" class="vs-2">2nd</option>
+                                            <option value="2" class="vs-3">3rd</option>
+                                            <option value="3" class="vs-4">4th</option>
+                                            <option value="4" class="vs-5">5th</option>
+                                            <option value="5" class="vs-6">6th</option>
+                                            <option value="6" class="vs-7">7th</option>
+                                            <option value="7" class="vs-8">8th</option>
+                                        </select>
+                                        <select class="minigame-player-result-coop" style="display: initial;">
+                                            <option value="0">Win</option>
+                                            <option value="1">Lose</option>
+                                        </select>
+                                    </div>
+                                    <div class="minigame-player" style="display: inline-block;">
+                                        <h4 class="minigame-player-name">AstroDwarf#1234
+                                            <span class="minigame-player-tooltip">astrodwarf</span>
+                                        </h4>
+                                        <input type="number" class="minigame-player-result-coin" style="display: none;">
+                                        <select class="minigame-player-result-vs" style="display: none;">
+                                            <option value="0" class="vs-1">1st</option>
+                                            <option value="1" class="vs-2">2nd</option>
+                                            <option value="2" class="vs-3">3rd</option>
+                                            <option value="3" class="vs-4">4th</option>
+                                            <option value="4" class="vs-5">5th</option>
+                                            <option value="5" class="vs-6">6th</option>
+                                            <option value="6" class="vs-7">7th</option>
+                                            <option value="7" class="vs-8">8th</option>
+                                        </select>
+                                        <select class="minigame-player-result-coop" style="display: initial;">
+                                            <option value="0">Win</option>
+                                            <option value="1">Lose</option>
+                                        </select>
+                                    </div>
+                                    <div class="minigame-player" style="display: inline-block;">
+                                        <h4 class="minigame-player-name">AstroDwarf#1234
+                                            <span class="minigame-player-tooltip">astrodwarf</span>
+                                        </h4>
+                                        <input type="number" class="minigame-player-result-coin" style="display: none;">
+                                        <select class="minigame-player-result-vs" style="display: none;">
+                                            <option value="0" class="vs-1">1st</option>
+                                            <option value="1" class="vs-2">2nd</option>
+                                            <option value="2" class="vs-3">3rd</option>
+                                            <option value="3" class="vs-4">4th</option>
+                                            <option value="4" class="vs-5">5th</option>
+                                            <option value="5" class="vs-6">6th</option>
+                                            <option value="6" class="vs-7">7th</option>
+                                            <option value="7" class="vs-8">8th</option>
+                                        </select>
+                                        <select class="minigame-player-result-coop" style="display: initial;">
+                                            <option value="0">Win</option>
+                                            <option value="1">Lose</option>
+                                        </select>
+                                    </div>
+                                    <div class="minigame-player" style="display: inline-block;">
+                                        <h4 class="minigame-player-name">AstroDwarf#1234
+                                            <span class="minigame-player-tooltip">astrodwarf</span>
+                                        </h4>
+                                        <input type="number" class="minigame-player-result-coin" style="display: none;">
+                                        <select class="minigame-player-result-vs" style="display: none;">
+                                            <option value="0" class="vs-1">1st</option>
+                                            <option value="1" class="vs-2">2nd</option>
+                                            <option value="2" class="vs-3">3rd</option>
+                                            <option value="3" class="vs-4">4th</option>
+                                            <option value="4" class="vs-5">5th</option>
+                                            <option value="5" class="vs-6">6th</option>
+                                            <option value="6" class="vs-7">7th</option>
+                                            <option value="7" class="vs-8">8th</option>
+                                        </select>
+                                        <select class="minigame-player-result-coop" style="display: initial;">
+                                            <option value="0">Win</option>
+                                            <option value="1">Lose</option>
+                                        </select>
+                                    </div>
+                                    <div class="minigame-player" style="display: inline-block;">
+                                        <h4 class="minigame-player-name">AstroDwarf#1234
+                                            <span class="minigame-player-tooltip">astrodwarf</span>
+                                        </h4>
+                                        <input type="number" class="minigame-player-result-coin" style="display: none;">
+                                        <select class="minigame-player-result-vs" style="display: none;">
+                                            <option value="0" class="vs-1">1st</option>
+                                            <option value="1" class="vs-2">2nd</option>
+                                            <option value="2" class="vs-3">3rd</option>
+                                            <option value="3" class="vs-4">4th</option>
+                                            <option value="4" class="vs-5">5th</option>
+                                            <option value="5" class="vs-6">6th</option>
+                                            <option value="6" class="vs-7">7th</option>
+                                            <option value="7" class="vs-8">8th</option>
+                                        </select>
+                                        <select class="minigame-player-result-coop" style="display: initial;">
+                                            <option value="0">Win</option>
+                                            <option value="1">Lose</option>
+                                        </select>
+                                    </div>
+                                    <div class="minigame-player" style="display: inline-block;">
+                                        <h4 class="minigame-player-name">AstroDwarf#1234
+                                            <span class="minigame-player-tooltip">astrodwarf</span>
+                                        </h4>
+                                        <input type="number" class="minigame-player-result-coin" style="display: none;">
+                                        <select class="minigame-player-result-vs" style="display: none;">
+                                            <option value="0" class="vs-1">1st</option>
+                                            <option value="1" class="vs-2">2nd</option>
+                                            <option value="2" class="vs-3">3rd</option>
+                                            <option value="3" class="vs-4">4th</option>
+                                            <option value="4" class="vs-5">5th</option>
+                                            <option value="5" class="vs-6">6th</option>
+                                            <option value="6" class="vs-7">7th</option>
+                                            <option value="7" class="vs-8">8th</option>
+                                        </select>
+                                        <select class="minigame-player-result-coop" style="display: initial;">
+                                            <option value="0">Win</option>
+                                            <option value="1">Lose</option>
+                                        </select>
+                                    </div>
+                                    <div class="minigame-player" style="display: inline-block;">
+                                        <h4 class="minigame-player-name">AstroDwarf#1234
+                                            <span class="minigame-player-tooltip">astrodwarf</span>
+                                        </h4>
+                                        <input type="number" class="minigame-player-result-coin" style="display: none;">
+                                        <select class="minigame-player-result-vs" style="display: none;">
+                                            <option value="0" class="vs-1">1st</option>
+                                            <option value="1" class="vs-2">2nd</option>
+                                            <option value="2" class="vs-3">3rd</option>
+                                            <option value="3" class="vs-4">4th</option>
+                                            <option value="4" class="vs-5">5th</option>
+                                            <option value="5" class="vs-6">6th</option>
+                                            <option value="6" class="vs-7">7th</option>
+                                            <option value="7" class="vs-8">8th</option>
+                                        </select>
+                                        <select class="minigame-player-result-coop" style="display: initial;">
+                                            <option value="0">Win</option>
+                                            <option value="1">Lose</option>
+                                        </select>
+                                    </div>
+                                    <div class="minigame-player" style="display: inline-block;">
+                                        <h4 class="minigame-player-name">AstroDwarf#1234
+                                            <span class="minigame-player-tooltip">astrodwarf</span>
+                                        </h4>
+                                        <input type="number" class="minigame-player-result-coin" style="display: none;">
+                                        <select class="minigame-player-result-vs" style="display: none;">
+                                            <option value="0" class="vs-1">1st</option>
+                                            <option value="1" class="vs-2">2nd</option>
+                                            <option value="2" class="vs-3">3rd</option>
+                                            <option value="3" class="vs-4">4th</option>
+                                            <option value="4" class="vs-5">5th</option>
+                                            <option value="5" class="vs-6">6th</option>
+                                            <option value="6" class="vs-7">7th</option>
+                                            <option value="7" class="vs-8">8th</option>
+                                        </select>
+                                        <select class="minigame-player-result-coop" style="display: initial;">
+                                            <option value="0">Win</option>
+                                            <option value="1">Lose</option>
+                                        </select>
+                                    </div>
+                                </div><br>
+                                <button class="minigame-submit">Submit Results</button>
+                            </div>
+                            <div id="minigame-window-chat" class="minigame-sub-window" style="display: none;">
+                                <div class="minigame-chat">
+                                    
+                                </div>
+                                <div class="minigame-chat-text-bar">
+                                    <form id="minigame-chat-form">
+                                        <input id="minigame-chat-input" type="text">
+                                    </form>
+                                    <button id="minigame-chat-send-button">Send</button>
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                    <div class="minigame-window">
-                        <div id="minigame-window-description" class="minigame-sub-window" style="display: initial;">
-                            <p class="minigame-description"></p>
-                        </div>
-                        <div id="minigame-window-results" class="minigame-sub-window" style="display: none;">
-                            <div class="minigame-players">
-                                <div class="minigame-player" style="display: inline-block;">
-                                    <h4 class="minigame-player-name">AstroDwarf<br>#1234
-                                        <span class="minigame-player-tooltip">astrodwarf</span>
-                                    </h4>
-                                    <input type="number" class="minigame-player-result-coin" style="display: none;">
-                                    <select class="minigame-player-result-vs" style="display: none;">
-                                        <option value="0" class="vs-1">1st</option>
-                                        <option value="1" class="vs-2">2nd</option>
-                                        <option value="2" class="vs-3">3rd</option>
-                                        <option value="3" class="vs-4">4th</option>
-                                        <option value="4" class="vs-5">5th</option>
-                                        <option value="5" class="vs-6">6th</option>
-                                        <option value="6" class="vs-7">7th</option>
-                                        <option value="7" class="vs-8">8th</option>
-                                    </select>
-                                    <select class="minigame-player-result-coop" style="display: initial;">
-                                        <option value="0">Win</option>
-                                        <option value="1">Lose</option>
-                                    </select>
+                    <div id="minigame-waiting" style="display: none;">
+                        <h2>Minigame Results</h2><br>
+                        <div class="minigame-podium-display">
+                            <div class="minigame-podium">
+                                <div class="minigame-podium-block" style="height: 90px;">
+                                    <img class="minigame-podium-image" src="resources/textures/AIRA_Pixel1.png">
+                                    <span class="minigame-podium-coins">+<span>10</span> <img class="minigame-podium-coins-image" src="resources/textures/squid_coin.svg"></span>
+                                    <span class="minigame-podium-name">AstroDwarf</span>
                                 </div>
-                                <div class="minigame-player" style="display: inline-block;">
-                                    <h4 class="minigame-player-name">AstroDwarf#1234
-                                        <span class="minigame-player-tooltip">astrodwarf</span>
-                                    </h4>
-                                    <input type="number" class="minigame-player-result-coin" style="display: none;">
-                                    <select class="minigame-player-result-vs" style="display: none;">
-                                        <option value="0" class="vs-1">1st</option>
-                                        <option value="1" class="vs-2">2nd</option>
-                                        <option value="2" class="vs-3">3rd</option>
-                                        <option value="3" class="vs-4">4th</option>
-                                        <option value="4" class="vs-5">5th</option>
-                                        <option value="5" class="vs-6">6th</option>
-                                        <option value="6" class="vs-7">7th</option>
-                                        <option value="7" class="vs-8">8th</option>
-                                    </select>
-                                    <select class="minigame-player-result-coop" style="display: initial;">
-                                        <option value="0">Win</option>
-                                        <option value="1">Lose</option>
-                                    </select>
-                                </div>
-                                <div class="minigame-player" style="display: inline-block;">
-                                    <h4 class="minigame-player-name">AstroDwarf#1234
-                                        <span class="minigame-player-tooltip">astrodwarf</span>
-                                    </h4>
-                                    <input type="number" class="minigame-player-result-coin" style="display: none;">
-                                    <select class="minigame-player-result-vs" style="display: none;">
-                                        <option value="0" class="vs-1">1st</option>
-                                        <option value="1" class="vs-2">2nd</option>
-                                        <option value="2" class="vs-3">3rd</option>
-                                        <option value="3" class="vs-4">4th</option>
-                                        <option value="4" class="vs-5">5th</option>
-                                        <option value="5" class="vs-6">6th</option>
-                                        <option value="6" class="vs-7">7th</option>
-                                        <option value="7" class="vs-8">8th</option>
-                                    </select>
-                                    <select class="minigame-player-result-coop" style="display: initial;">
-                                        <option value="0">Win</option>
-                                        <option value="1">Lose</option>
-                                    </select>
-                                </div>
-                                <div class="minigame-player" style="display: inline-block;">
-                                    <h4 class="minigame-player-name">AstroDwarf#1234
-                                        <span class="minigame-player-tooltip">astrodwarf</span>
-                                    </h4>
-                                    <input type="number" class="minigame-player-result-coin" style="display: none;">
-                                    <select class="minigame-player-result-vs" style="display: none;">
-                                        <option value="0" class="vs-1">1st</option>
-                                        <option value="1" class="vs-2">2nd</option>
-                                        <option value="2" class="vs-3">3rd</option>
-                                        <option value="3" class="vs-4">4th</option>
-                                        <option value="4" class="vs-5">5th</option>
-                                        <option value="5" class="vs-6">6th</option>
-                                        <option value="6" class="vs-7">7th</option>
-                                        <option value="7" class="vs-8">8th</option>
-                                    </select>
-                                    <select class="minigame-player-result-coop" style="display: initial;">
-                                        <option value="0">Win</option>
-                                        <option value="1">Lose</option>
-                                    </select>
-                                </div>
-                                <div class="minigame-player" style="display: inline-block;">
-                                    <h4 class="minigame-player-name">AstroDwarf#1234
-                                        <span class="minigame-player-tooltip">astrodwarf</span>
-                                    </h4>
-                                    <input type="number" class="minigame-player-result-coin" style="display: none;">
-                                    <select class="minigame-player-result-vs" style="display: none;">
-                                        <option value="0" class="vs-1">1st</option>
-                                        <option value="1" class="vs-2">2nd</option>
-                                        <option value="2" class="vs-3">3rd</option>
-                                        <option value="3" class="vs-4">4th</option>
-                                        <option value="4" class="vs-5">5th</option>
-                                        <option value="5" class="vs-6">6th</option>
-                                        <option value="6" class="vs-7">7th</option>
-                                        <option value="7" class="vs-8">8th</option>
-                                    </select>
-                                    <select class="minigame-player-result-coop" style="display: initial;">
-                                        <option value="0">Win</option>
-                                        <option value="1">Lose</option>
-                                    </select>
-                                </div>
-                                <div class="minigame-player" style="display: inline-block;">
-                                    <h4 class="minigame-player-name">AstroDwarf#1234
-                                        <span class="minigame-player-tooltip">astrodwarf</span>
-                                    </h4>
-                                    <input type="number" class="minigame-player-result-coin" style="display: none;">
-                                    <select class="minigame-player-result-vs" style="display: none;">
-                                        <option value="0" class="vs-1">1st</option>
-                                        <option value="1" class="vs-2">2nd</option>
-                                        <option value="2" class="vs-3">3rd</option>
-                                        <option value="3" class="vs-4">4th</option>
-                                        <option value="4" class="vs-5">5th</option>
-                                        <option value="5" class="vs-6">6th</option>
-                                        <option value="6" class="vs-7">7th</option>
-                                        <option value="7" class="vs-8">8th</option>
-                                    </select>
-                                    <select class="minigame-player-result-coop" style="display: initial;">
-                                        <option value="0">Win</option>
-                                        <option value="1">Lose</option>
-                                    </select>
-                                </div>
-                                <div class="minigame-player" style="display: inline-block;">
-                                    <h4 class="minigame-player-name">AstroDwarf#1234
-                                        <span class="minigame-player-tooltip">astrodwarf</span>
-                                    </h4>
-                                    <input type="number" class="minigame-player-result-coin" style="display: none;">
-                                    <select class="minigame-player-result-vs" style="display: none;">
-                                        <option value="0" class="vs-1">1st</option>
-                                        <option value="1" class="vs-2">2nd</option>
-                                        <option value="2" class="vs-3">3rd</option>
-                                        <option value="3" class="vs-4">4th</option>
-                                        <option value="4" class="vs-5">5th</option>
-                                        <option value="5" class="vs-6">6th</option>
-                                        <option value="6" class="vs-7">7th</option>
-                                        <option value="7" class="vs-8">8th</option>
-                                    </select>
-                                    <select class="minigame-player-result-coop" style="display: initial;">
-                                        <option value="0">Win</option>
-                                        <option value="1">Lose</option>
-                                    </select>
-                                </div>
-                                <div class="minigame-player" style="display: inline-block;">
-                                    <h4 class="minigame-player-name">AstroDwarf#1234
-                                        <span class="minigame-player-tooltip">astrodwarf</span>
-                                    </h4>
-                                    <input type="number" class="minigame-player-result-coin" style="display: none;">
-                                    <select class="minigame-player-result-vs" style="display: none;">
-                                        <option value="0" class="vs-1">1st</option>
-                                        <option value="1" class="vs-2">2nd</option>
-                                        <option value="2" class="vs-3">3rd</option>
-                                        <option value="3" class="vs-4">4th</option>
-                                        <option value="4" class="vs-5">5th</option>
-                                        <option value="5" class="vs-6">6th</option>
-                                        <option value="6" class="vs-7">7th</option>
-                                        <option value="7" class="vs-8">8th</option>
-                                    </select>
-                                    <select class="minigame-player-result-coop" style="display: initial;">
-                                        <option value="0">Win</option>
-                                        <option value="1">Lose</option>
-                                    </select>
-                                </div>
-                            </div><br>
-                            <button class="minigame-submit">Submit Results</button>
-                        </div>
-                        <div id="minigame-window-chat" class="minigame-sub-window" style="display: none;">
-                            <div class="minigame-chat">
-                                
                             </div>
-                            <div class="minigame-chat-text-bar">
-                                <input id="minigame-chat-input" type="text">
-                                <button id="minigame-chat-send-button">Send</button>
+                            <div class="minigame-podium">
+                                <div class="minigame-podium-block" style="height: 90px;">
+                                    <img class="minigame-podium-image" src="resources/textures/AIRA_Pixel1.png">
+                                    <span class="minigame-podium-coins">+<span>10</span> <img class="minigame-podium-coins-image" src="resources/textures/squid_coin.svg"></span>
+                                    <span class="minigame-podium-name">AstroDwarf</span>
+                                </div>
                             </div>
-                        </div>
+                            <div class="minigame-podium">
+                                <div class="minigame-podium-block" style="height: 90px;">
+                                    <img class="minigame-podium-image" src="resources/textures/AIRA_Pixel1.png">
+                                    <span class="minigame-podium-coins">+<span>10</span> <img class="minigame-podium-coins-image" src="resources/textures/squid_coin.svg"></span>
+                                    <span class="minigame-podium-name">AstroDwarf</span>
+                                </div>
+                            </div>
+                            <div class="minigame-podium">
+                                <div class="minigame-podium-block" style="height: 90px;">
+                                    <img class="minigame-podium-image" src="resources/textures/AIRA_Pixel1.png">
+                                    <span class="minigame-podium-coins">+<span>10</span> <img class="minigame-podium-coins-image" src="resources/textures/squid_coin.svg"></span>
+                                    <span class="minigame-podium-name">AstroDwarf</span>
+                                </div>
+                            </div>
+                            <div class="minigame-podium">
+                                <div class="minigame-podium-block" style="height: 90px;">
+                                    <img class="minigame-podium-image" src="resources/textures/AIRA_Pixel1.png">
+                                    <span class="minigame-podium-coins">+<span>10</span> <img class="minigame-podium-coins-image" src="resources/textures/squid_coin.svg"></span>
+                                    <span class="minigame-podium-name">AstroDwarf</span>
+                                </div>
+                            </div>
+                            <div class="minigame-podium">
+                                <div class="minigame-podium-block" style="height: 90px;">
+                                    <img class="minigame-podium-image" src="resources/textures/AIRA_Pixel1.png">
+                                    <span class="minigame-podium-coins">+<span>10</span> <img class="minigame-podium-coins-image" src="resources/textures/squid_coin.svg"></span>
+                                    <span class="minigame-podium-name">AstroDwarf</span>
+                                </div>
+                            </div>
+                            <div class="minigame-podium">
+                                <div class="minigame-podium-block" style="height: 90px;">
+                                    <img class="minigame-podium-image" src="resources/textures/AIRA_Pixel1.png">
+                                    <span class="minigame-podium-coins">+<span>10</span> <img class="minigame-podium-coins-image" src="resources/textures/squid_coin.svg"></span>
+                                    <span class="minigame-podium-name">AstroDwarf</span>
+                                </div>
+                            </div>
+                            <div class="minigame-podium">
+                                <div class="minigame-podium-block" style="height: 90px;">
+                                    <img class="minigame-podium-image" src="resources/textures/AIRA_Pixel1.png">
+                                    <span class="minigame-podium-coins">+<span>10</span> <img class="minigame-podium-coins-image" src="resources/textures/squid_coin.svg"></span>
+                                    <span class="minigame-podium-name">AstroDwarf</span>
+                                </div>
+                            </div>
+                        </div><br>
+                        <h3>Waiting for other lobbies to finish...</h3>
                     </div>
                 </div>
             </div>
@@ -505,7 +582,8 @@
             <div id="lucky-space" class="popup" style="display: none;">
                 <div class="popup-inset">
                     <h2 style="font-size: 2.75em;">Lucky Space</h2><br>
-                    <div class="lucky-option lucky-selected">10 <img class="coin-lucky-img" src="resources/textures/squid_coin.svg"></div>
+                    <div class="lucky-option lucky-selected">Triple Dice</div>
+                    <div class="lucky-option">10 <img class="coin-lucky-img" src="resources/textures/squid_coin.svg"></div>
                     <div class="lucky-option">Double Dice</div>
                     <div class="lucky-option">5 <img class="coin-lucky-img" src="resources/textures/squid_coin.svg"></div>
                     <div class="lucky-option">Custom Dice</div>
@@ -564,7 +642,16 @@
                     </div>
                 </div>
             </div>
+
+            <div id="global-leaderboard" class="popup" style="display: none;">
+                <div class="popup-inset">
+                    <h1 style="font-size: 3.25em;">Leaderboard</h1>
+                    <div class="global-leaderboard-list"></div><br>
+                    <button class="global-leaderboard-close">Close</button>
+                </div>
+            </div>
         </div>
+
         <script type="module" src="script.js" defer></script>
     </body>
 </html>
