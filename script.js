@@ -3,6 +3,7 @@ import { TextGeometry } from "three/addons/geometries/TextGeometry.js";
 import { FontLoader } from "three/addons/loaders/FontLoader.js";
 import { FBXLoader } from "three/addons/loaders/FBXLoader.js"
 
+
 function lerp(a, b, t) { return a * (1 - t) + b * t; }
 function easeInOut(t) { let sqr = Math.pow(t, 2); return sqr / (2 * (sqr - t) + 1); }
 function easeOut(t) { return 1 - Math.pow(1 - t, 2); }
@@ -152,11 +153,11 @@ const SKYBOX_TEX = new THREE.CubeTextureLoader().load([
 SKYBOX_TEX.colorSpace = THREE.SRGBColorSpace;
 
 var Star;
+var SilverStar;
 ModelLoader.load("resources/models/squid_star.fbx", (object) => {
-    Star = object;
+    Star = object.clone(true);
     Scene.add(Star);
     Star.scale.set(0, 0, 0);
-    
     Star.traverse(function (child){
         if (child.isMesh) {
             if (child.material.map !== null){
@@ -164,10 +165,25 @@ ModelLoader.load("resources/models/squid_star.fbx", (object) => {
                 child.material = new THREE.MeshBasicMaterial({ map: child.material.map, transparent: true });
             }
             else{
-                child.material = new THREE.MeshStandardMaterial({ color: 0xffbf00, envMap: SKYBOX_TEX, roughness: 0.1, metalness: 0.8, emissive: 0xffdc73, emissiveIntensity: 0.5 });
+                child.material = new THREE.MeshStandardMaterial({ color: 0xffbf00, envMap: SKYBOX_TEX, roughness: 0.075, metalness: 0.8, emissive: 0xffdc73, emissiveIntensity: 0.5 });
             }
         }
     });
+
+    SilverStar = object.clone(true);
+    SilverStar.traverse(function (c){
+        if (c.isMesh) {
+            c.castShadow = true;
+            if (c.material.map !== null){
+                c.material.map.colorSpace = THREE.SRGBColorSpace;
+                c.material = new THREE.MeshBasicMaterial({ map: c.material.map, transparent: true });
+            }
+            else{
+                c.material = new THREE.MeshStandardMaterial({ color: 0xaaaaaa, envMap: SKYBOX_TEX, roughness: 0.075, metalness: 0.8, emissive: 0xffffff, emissiveIntensity: 0.25 });
+            }
+        }
+    });
+    SilverStar.scale.set(0.001, 0.001, 0.001);
 });
 const RingParticleTex = TexLoader.load("resources/textures/ring_particle.png");
 RingParticleTex.colorSpace = THREE.SRGBColorSpace;
@@ -911,20 +927,21 @@ window.onkeydown = function(e){
         mapData[PlayerData.position.y][PlayerData.position.x].material = Number.parseInt(input);
         Scene.remove(MapMesh);
         buildMap();
-    }
-    if (e.keyCode == 27){
+    }*/
+    /*if (e.keyCode == 27){
         //ESC
         navigator.clipboard.writeText(JSON.stringify(mapData, null, "\t"));
+        console.log("COPY!!!!");
     }*/
 }
 window.onkeyup = function(e){ keys[e.keyCode] = false; }
 
 const StartingTile = { x: 15, y: 30 };
 const ShopWarpTiles = [
-    {x: 7, y: 17},
-    {x: 13, y: 13},
-    {x: 7, y: 10},
-    {x: 13, y: 20}
+    {x: 4, y: 11},
+    {x: 6, y: 17},
+    {x: 14, y: 15},
+    {x: 16, y: 21}
 ];
 
 var PlayerData = {
@@ -933,12 +950,31 @@ var PlayerData = {
         y: 30
     },
     roll: 0,
-    items: [],
+    items: ["doubledice"],
     coins: 10,
     stars: 0,
+    collectedSilverStars: [],
     currentTurn: 1,
     turnsCompleted: 0
 };
+
+var PlayerSilverStarObjs = [];
+var CollectedSilverStarPlayerPos = [
+    new THREE.Vector3(-0.3, 0.85, 0),
+    new THREE.Vector3(0.4, 0.7, 0),
+    new THREE.Vector3(-0.5, 0.5, 0),
+    new THREE.Vector3(0.1, 1, 0),
+    new THREE.Vector3(0.55, 0.35, 0)
+];
+var CollectedSilverStarAbovePos = [
+    new THREE.Vector3(-0.05, 0.1, -0.1),
+    new THREE.Vector3(0.05, 0.1, -0.1),
+    new THREE.Vector3(-0.05, 0.1, 0),
+    new THREE.Vector3(0, 0.1, -0.05),
+    new THREE.Vector3(-0.1, 0.1, 0.1)
+];
+
+var ServerSilverStars = [];
 
 var lastFrameTime = Date.now();
 const UIPanels = {
@@ -946,7 +982,8 @@ const UIPanels = {
     login: document.getElementById("login"),
     checkin: document.getElementById("checkin"),
     waitMinigame: document.getElementById("waiting-minigame"),
-    minigame: document.getElementById("minigame")
+    minigame: document.getElementById("minigame"),
+    globalLeaderboard: document.getElementById("global-leaderboard")
 };
 
 const MinigameChatElement = document.getElementsByClassName("minigame-chat")[0];
@@ -966,6 +1003,8 @@ function update(){
     DoTurn();
 
     UpdateUI();
+
+    AnimateSilverStars();
     
     Renderer.render(Scene, Camera);
     requestAnimationFrame(update);
@@ -1045,7 +1084,7 @@ function UpdateUI(){
         playerRot = new THREE.Euler(-Math.PI / 2, 0, 0);
         let yPos = mapData[PlayerData.position.y][PlayerData.position.x].ramp ? Math.max(mapData[PlayerData.position.y][PlayerData.position.x].height.pos, mapData[PlayerData.position.y][PlayerData.position.x].height.neg) : mapData[PlayerData.position.y][PlayerData.position.x].height;
         playerPos = new THREE.Vector3(PlayerData.position.x, yPos + 0.02, PlayerData.position.y);
-        cameraPos = new THREE.Vector3(mapSize.x / 2, 20, mapSize.y / 2);
+        cameraPos = new THREE.Vector3(mapSize.x / 2 - 0.5, 32, mapSize.y / 2 - 0.5);
         cameraRot = new THREE.Euler(-Math.PI / 2, 0, 0);
     }
 
@@ -1079,6 +1118,196 @@ function UpdateUI(){
     Camera.setRotationFromEuler(cameraRot);
 }
 
+function InitializeSilverStars(){
+    for (var i = 0; i < ServerSilverStars.length; i++){
+        if (!Object.hasOwn(ServerSilverStars[i], "obj")){
+            Object.defineProperty(ServerSilverStars[i], "obj", { writable: true, enumerable: true, value: null });
+            Object.defineProperty(ServerSilverStars[i], "offset", { writable: true, enumerable: true, value: Math.random() });
+        }
+
+        if (!Object.hasOwn(ServerSilverStars[i], "buffer")){
+            Object.defineProperty(ServerSilverStars[i], "buffer", { enumerable: false, writable: true, value: { pos: new THREE.Vector3(), rot: new THREE.Vector3(), scale: new THREE.Vector3() } });
+        }
+
+        if (ServerSilverStars[i].obj == null && !PlayerData.collectedSilverStars.includes(i)){
+            ServerSilverStars[i].obj = SilverStar.clone(true);
+            Scene.add(ServerSilverStars[i].obj);
+            ServerSilverStars[i].obj.position.set(ServerSilverStars[i].x, getHeightTile(ServerSilverStars[i].x, ServerSilverStars[i].y) + 0.35, ServerSilverStars[i].y);
+        }
+    }
+    for (var i = 0; i < PlayerData.collectedSilverStars.length % 5; i++){
+        let ss = SilverStar.clone(true);
+        Scene.add(ss);
+        PlayerSilverStarObjs.push(ss);
+    }
+}
+var silverStarCameFromMinigame = false;
+function SpawnSilverStarBoard(starPos, cameFromMinigame){
+    silverStarCameFromMinigame = cameFromMinigame;
+    //Don't need to set position because the animate function will take care of that
+    let star = SilverStar.clone(true);
+    ServerSilverStars.push({ x: starPos.x, y: starPos.y, spawned: true, obj: star, offset: Math.random() });
+    Object.defineProperty(ServerSilverStars[ServerSilverStars.length - 1], "buffer", { enumerable: false, writable: true, value: { pos: new THREE.Vector3(), rot: new THREE.Vector3(), scale: new THREE.Vector3() } });
+    Scene.add(star);
+
+    //TODO!!! trigger a "star place" animation
+    UIState = "override";
+    turnStep = "spawn-silver-star-anim";
+    animTimer = 5;
+    transitionValues.filter = 0;
+}
+function SpawnSilverStarAnimation(){
+    const animLength = 5;
+
+    animTimer -= DeltaTime;
+
+    let silverStar = ServerSilverStars[ServerSilverStars.length - 1];
+    let starPos = new THREE.Vector3(silverStar.x, getHeightTile(silverStar.x, silverStar.y), silverStar.y);
+    let playerPos = new THREE.Vector3(PlayerData.position.x, getHeightTile(PlayerData.position.x, PlayerData.position.y) + 0.375, PlayerData.position.y);
+
+    if (animTimer > animLength - 2){
+        let t = 1 - ((animTimer - animLength + 2) / 2);
+        let filter = 1 - Math.min(t * 4, 1);
+        //Extra long so it pauses at the beginning
+        silverStar.obj.position.set(starPos.x, starPos.y + lerp(4, 0.35, t), starPos.z);
+        Camera.position.set(starPos.x, starPos.y + 1.5, starPos.z + 2.5);
+        Camera.rotation.set(-Math.PI / 6, 0, 0, "YXZ");
+        Renderer.domElement.style.filter = filter > 0 ? "blur(" + (10 * filter) + "px) opacity(" + (100 - (50 * filter)) + "%)" : "";
+    }
+    else if (animTimer > animLength - 5){
+        let t = 1 - ((animTimer - animLength + 6) / 4);
+        //(Math.sin(Date.now() / 750 + ServerSilverStars[i].offset) * 0.075)
+        silverStar.obj.position.set(starPos.x, starPos.y + 0.35 + (Math.sin(-t * 8) * 0.075), starPos.z);
+        silverStar.obj.rotation.set(0, 0, Math.sin(t * 10) * 0.1, "YXZ");
+    }
+    else{
+        UIState = "player";
+        turnStep = "menu";
+
+        transitionValues.cameraPos = new THREE.Vector3(Camera.position.x, Camera.position.y, Camera.position.z);
+        transitionValues.cameraRot = new THREE.Euler(Camera.rotation.x, Camera.rotation.y, Camera.rotation.z, "YXZ");
+                
+        if (silverStarCameFromMinigame){
+            console.log("CAME FROM MINIGAME");
+            minigameCoinGiveCheck = true;
+            getPlayerDataTimeout(0);
+        }
+        else{
+            document.getElementsByClassName("player-inputs")[0].style.display = "flex";
+        }
+        UpdateItemUI();
+        UpdatePlayerUI();
+    }
+}
+function CollectSilverStar(index){
+    if (PlayerData.collectedSilverStars.includes(index)){
+        console.error("Player Collected a star that has already been collected!");
+        return;
+    }
+
+    PlayerData.collectedSilverStars.push(index);
+    PlayerSilverStarObjs.push(ServerSilverStars[index].obj);
+    ServerSilverStars[index].obj = null;
+}
+function UncollectLatestSilverStar(){
+    let index = PlayerData.collectedSilverStars[PlayerData.collectedSilverStars.length - 1];
+    PlayerData.collectedSilverStars.splice(PlayerData.collectedSilverStars.length - 1, 1);
+
+    ServerSilverStars[index].obj = PlayerSilverStarObjs[PlayerSilverStarObjs.length - 1];
+    PlayerSilverStarObjs.splice(PlayerSilverStarObjs.length - 1, 1);
+}
+const SilverStarMoveSpeed = 2;
+const SilverStarFollowOffset = 0.5;
+const SilverStarStopFollowDistance = 0.25;
+const SilverStarSlowDownDistance = 0.5;
+function AnimateSilverStars(){
+    //Uncollected map silver stars
+    for (var i = 0; i < ServerSilverStars.length; i++){
+        if (ServerSilverStars[i].obj == null || PlayerData.collectedSilverStars.includes(i)) continue;
+        if (i == ServerSilverStars.length - 1 && turnStep == "spawn-silver-star-anim") break;
+        let pos, rot, scale;
+        if (UIState == "map"){
+            pos = new THREE.Vector3(ServerSilverStars[i].x, getHeightTile(ServerSilverStars[i].x, ServerSilverStars[i].y) + 0.2, ServerSilverStars[i].y);
+            rot = new THREE.Euler(-Math.PI / 2, 0, Math.sin(Date.now() / 887 + ServerSilverStars[i].offset) * 0.1, "YXZ");
+            scale = new THREE.Vector3(0.002, 0.002, 0.002);
+        }
+        else if (UIState == "above"){
+            pos = new THREE.Vector3(ServerSilverStars[i].x, getHeightTile(ServerSilverStars[i].x, ServerSilverStars[i].y) + 0.2, ServerSilverStars[i].y);
+            rot = new THREE.Euler(-Math.PI / 2, 0, Math.sin(Date.now() / 887 + ServerSilverStars[i].offset) * 0.1, "YXZ");
+            scale = new THREE.Vector3(0.0015, 0.0015, 0.0015);
+        }
+        else{
+            pos = new THREE.Vector3(ServerSilverStars[i].x, getHeightTile(ServerSilverStars[i].x, ServerSilverStars[i].y) + (Math.sin(Date.now() / 750 + ServerSilverStars[i].offset) * 0.075) + 0.35, ServerSilverStars[i].y);
+            rot = new THREE.Euler(0, 
+                easeInOut(Math.min(1, (Date.now() / 1000 + (ServerSilverStars[i].offset * 12)) % 12)) * Math.PI * 2, 
+                Math.sin(Date.now() / 887 + ServerSilverStars[i].offset) * 0.1, "YXZ");
+            scale = new THREE.Vector3(0.001, 0.001, 0.001);
+        }
+
+        if (transitionStart + transitionLength[UIState] > Date.now()){
+            let t = (Date.now() - transitionStart) / transitionLength[UIState];
+
+            pos = new THREE.Vector3(lerp(ServerSilverStars[i].buffer.pos.x, pos.x, t), lerp(ServerSilverStars[i].buffer.pos.y, pos.y, t), lerp(ServerSilverStars[i].buffer.pos.z, pos.z, t));
+            rot = new THREE.Euler(lerp(ServerSilverStars[i].buffer.rot.x, rot.x, t), lerp(ServerSilverStars[i].buffer.rot.y, rot.y, t), lerp(ServerSilverStars[i].buffer.rot.z, rot.z, t), "YXZ");
+            scale = new THREE.Vector3(lerp(ServerSilverStars[i].buffer.scale.x, scale.x, t), lerp(ServerSilverStars[i].buffer.scale.y, scale.y, t), lerp(ServerSilverStars[i].buffer.scale.z, scale.z, t));
+        }
+        else{
+            //Set buffer values
+            ServerSilverStars[i].buffer.pos = pos;
+            ServerSilverStars[i].buffer.rot = rot;
+            ServerSilverStars[i].buffer.scale = scale;
+        }
+
+        ServerSilverStars[i].obj.position.set(pos.x, pos.y, pos.z);
+        ServerSilverStars[i].obj.setRotationFromEuler(rot);
+        ServerSilverStars[i].obj.scale.set(scale.x, scale.y, scale.z);
+    }
+
+    //Animated collected silver stars floating around player and following them on map
+    if (PlayerSilverStarObjs.length == 0) return;
+    if (turnStep == "silver-stars-to-star-anim") return;
+    for (var i = 0; i < PlayerSilverStarObjs.length; i++){
+        let offset = (i * Math.PI / 2);
+        let pos, rot, scale;
+
+        if (UIState == "above"){
+            //Do a follow anim here
+            let targetPos = new THREE.Vector3(
+                PlayerData.position.x + CollectedSilverStarAbovePos[i % 5].x, 
+                Math.max(getHeightTile(Math.round(PlayerSilverStarObjs[i].position.x), Math.round(PlayerSilverStarObjs[i].position.z)), getHeightTile(PlayerData.position.x, PlayerData.position.y)) + CollectedSilverStarAbovePos[i % 5].y,
+                PlayerData.position.y + CollectedSilverStarAbovePos[i % 5].z);
+            let dist = Math.sqrt(Math.pow(PlayerSilverStarObjs[i].position.x - targetPos.x, 2) + Math.pow(PlayerSilverStarObjs[i].position.y - targetPos.y, 2) + Math.pow(PlayerSilverStarObjs[i].position.z - targetPos.z, 2));
+            let speed = Math.min(Math.max(dist - (SilverStarStopFollowDistance * i + SilverStarFollowOffset), 0) / SilverStarSlowDownDistance, 1) * SilverStarMoveSpeed * DeltaTime;
+            pos = new THREE.Vector3(
+                lerp(PlayerSilverStarObjs[i].position.x, targetPos.x, speed / dist),
+                lerp(PlayerSilverStarObjs[i].position.y, targetPos.y, speed / dist),
+                lerp(PlayerSilverStarObjs[i].position.z, targetPos.z, speed / dist),
+            );
+            rot = new THREE.Euler(-Math.PI/2, 0, Math.sin(Date.now() / 887 + offset) * 0.1, "YXZ");
+            scale = new THREE.Vector3(0.00075, 0.00075, 0.00075);
+        }
+        else{
+            if (i < 5){
+                pos = new THREE.Vector3(PlayerData.position.x + CollectedSilverStarPlayerPos[i].x, getHeightTile(PlayerData.position.x, PlayerData.position.y) + CollectedSilverStarPlayerPos[i].y + (Math.sin(Date.now() / 750 + offset) * 0.075), PlayerData.position.y)
+                rot = new THREE.Euler(0, 
+                    easeInOut(Math.min(1, (Date.now() / 1000 + (offset * 12)) % 12)) * Math.PI * 2, 
+                    Math.sin(Date.now() / 887 + offset) * 0.1, "YXZ");
+                scale = new THREE.Vector3(0.00075, 0.00075, 0.00075);
+            }
+            else{
+                //Hide any stars above 5, need these out of the way for a star get animation
+                pos = new THREE.Vector3(PlayerData.position.x, 0, PlayerData.position.y);
+                rot = new THREE.Euler(0, 0, 0, "YXZ");
+                scale = new THREE.Vector3(0, 0, 0);
+            }
+        }
+
+        PlayerSilverStarObjs[i].position.set(pos.x, pos.y, pos.z);
+        PlayerSilverStarObjs[i].setRotationFromEuler(rot);
+        PlayerSilverStarObjs[i].scale.set(scale.x, scale.y, scale.z);
+    }
+}
+
 function getHeightTile(x, y){
     return mapData[y][x].ramp ? (mapData[y][x].height.pos + mapData[y][x].height.neg) / 2 : mapData[y][x].height;
 }
@@ -1107,7 +1336,7 @@ document.getElementById("items-button").onclick = function(e){
     }
 }
 
-var turnStep = "menu";
+var turnStep = "menu";//Deafult is menu
 var turnAnimTimer = 0;
 var rollsRemaining = 1;
 var currentRoll = 0;
@@ -1126,7 +1355,6 @@ function DoTurn(){
     else if (turnStep == "roll"){
         if (customDiceRoll == 0){
             if (turnAnimTimer == 0){
-                console.log(rollsRemaining);
                 Dice[rollsRemaining - 1].position.set(Player.position.x, Player.position.y + 0.85, Player.position.z);
                 Dice[rollsRemaining - 1].rotation.set(Date.now() / 96, Date.now() / 232, Date.now() / 181, "YXZ");
                 Dice[rollsRemaining - 1].scale.set(0.85, 0.85, 0.85);
@@ -1326,10 +1554,16 @@ function DoTurn(){
     else if (turnStep == "coin-space-anim"){
         CoinSpaceAnimation();
     }
+    else if (turnStep == "silver-stars-to-star-anim" || turnStep == "silver-stars-to-star-anim-intro"){
+        SilverStarsToStarAnimation();
+    }
+    else if (turnStep == "spawn-silver-star-anim"){
+        SpawnSilverStarAnimation();
+    }
     else if (turnStep == "popup"){
         if (mapData[PlayerData.position.y][PlayerData.position.x].popup == "lucky-space"){
             luckyTimer += luckyClickTimer == -1 ? DeltaTime : DeltaTime * lerp(0, 0.85, Math.max(Math.min(luckyClickTimer - 1, 2), 0) / 2);
-            let selectedIndex = Math.floor(luckyTimer * 15) % 6;
+            let selectedIndex = Math.floor(luckyTimer * 15) % luckyOptions.length;
             for (var i = 0; i < luckyOptions.length; i++){
                 luckyOptions[i].classList.remove("lucky-selected");
                 if (selectedIndex == i){
@@ -1340,13 +1574,13 @@ function DoTurn(){
             if (luckyClickTimer == 0){
                 document.getElementById("lucky-space").style.display = "none";
                 //End
-                if (selectedIndex % 2 == 0){
+                if (selectedIndex % 2 == 1){
                     //Coins
-                    TriggerCoinChangeAnimation([10, 5, 15][selectedIndex / 2]);
+                    TriggerCoinChangeAnimation([10, 5, 15][(selectedIndex - 1) / 2]);
                 }
                 else{
                     //Item
-                    TriggerGiveItemAnimation(luckyRouletteItems[(selectedIndex - 1) / 2]);
+                    TriggerGiveItemAnimation(luckyRouletteItems[selectedIndex / 2], false);
                 }
             }
         }
@@ -1450,6 +1684,28 @@ window.onpointermove = function(e){
     pointer.x = (e.clientX / window.innerWidth) * 2 - 1;
     pointer.y = -(e.clientY / window.innerHeight) * 2 + 1;
 }
+//THIS IS A MAP BUILDING FUNCTION
+/*window.onmousedown = function(e){
+    if (turnStep == "map"){
+        raycaster.setFromCamera(pointer, Camera);
+        var intersections = raycaster.intersectObject(MapMesh, false);
+
+        if (intersections.length > 0){
+            let intersectPos = new THREE.Vector2(Math.round(intersections[0].point.x), Math.round(intersections[0].point.z));
+            //let newMat = Number.parseInt(prompt("Enter New Material", mapData[intersectPos.y][intersectPos.x].material));
+            let spawnable = window.confirm("Spawnable? " + mapData[intersectPos.y][intersectPos.x].silverStarSpawnable);
+            mapData[intersectPos.y][intersectPos.x].silverStarSpawnable = spawnable;
+            console.log(spawnable);
+            if (mapData[intersectPos.y][intersectPos.x].material != newMat){
+                mapData[intersectPos.y][intersectPos.x].material = newMat;
+
+                //Then update face appearance
+                Scene.remove(MapMesh);
+                buildMap();
+            }
+        }
+    }
+}*/
 
 function SetMoveUI(){
     if (spacesMoved < PlayerData.roll){
@@ -1487,10 +1743,29 @@ function TestMoveSpace(xOffset, yOffset){
             (xOffset == 1 && mapData[PlayerData.position.y][PlayerData.position.x].connections.e) ||
             (yOffset == -1 && mapData[PlayerData.position.y][PlayerData.position.x].connections.n) ||
             (yOffset == 1 && mapData[PlayerData.position.y][PlayerData.position.x].connections.s)){
-            moveHistory.push(PlayerData.position);
+            let newItemArray = [];
+            for (let i = 0; i < PlayerData.items.length; i++) newItemArray.push(PlayerData.items[i]);
+            let newSilverStarArray = [];
+            for (let i = 0; i < PlayerData.collectedSilverStars.length; i++) newSilverStarArray.push(PlayerData.collectedSilverStars[i]);
+            moveHistory.push({ position: PlayerData.position, coins: PlayerData.coins, stars: PlayerData.stars, items: newItemArray, collectedSilverStars: newSilverStarArray });
             PlayerData.position = { x: x, y: y };
             spacesMoved++;
             SetMoveUI();
+            
+            //Test if space has a silver star on it
+            for (let i = 0; i < ServerSilverStars.length; i++){
+                if (PlayerData.collectedSilverStars.includes(i)) continue;
+                if (ServerSilverStars[i].x == PlayerData.position.x && ServerSilverStars[i].y == PlayerData.position.y){
+                    //Collect it
+                    CollectSilverStar(i);
+                    break;
+                }
+            }
+
+            if (Object.hasOwn(mapData[PlayerData.position.y][PlayerData.position.x], "popup") && mapData[PlayerData.position.y][PlayerData.position.x].walkOver){
+                //Trigger Popup
+                OpenPopup();
+            }
         }
     }
 }
@@ -1508,9 +1783,15 @@ document.getElementsByClassName("roll-back-button")[0].onclick = (e) => {
 }
 document.getElementsByClassName("move-undo-button")[0].onclick = (e) => {
     if (spacesMoved > 0){
-        let pos = moveHistory.pop();
+        let data = moveHistory.pop();
         spacesMoved--;
-        PlayerData.position = pos;
+        PlayerData.position = data.position;
+        PlayerData.stars = data.stars;
+        PlayerData.coins = data.coins;
+        PlayerData.items = data.items;
+        if (PlayerData.collectedSilverStars > data.collectedSilverStars) UncollectLatestSilverStar();
+        UpdatePlayerUI();
+        UpdateItemUI();
         SetMoveUI();
     }
 }
@@ -1519,7 +1800,7 @@ document.getElementsByClassName("down-move-button")[0].onclick = (e) => { TestMo
 document.getElementsByClassName("left-move-button")[0].onclick = (e) => { TestMoveSpace(-1, 0); }
 document.getElementsByClassName("right-move-button")[0].onclick = (e) => { TestMoveSpace(1, 0); }
 
-document.getElementsByClassName("item-back-button")[0].onclick = (e) => {
+function ItemBackButton(e){
     if (turnStep == "item"){
         turnStep = "menu";
         document.getElementsByClassName("player-inputs")[0].style.display = "flex";
@@ -1529,7 +1810,10 @@ document.getElementsByClassName("item-back-button")[0].onclick = (e) => {
         document.getElementsByClassName("item-menu")[0].style.display = "none";
         document.getElementById(mapData[PlayerData.position.y][PlayerData.position.x].popup).style.display = "initial";
     }
-};
+}
+document.getElementsByClassName("item-back-button")[0].onclick = ItemBackButton;
+document.getElementsByClassName("item-back-button")[1].onclick = ItemBackButton;
+
 
 var playerItemDisplays = document.getElementsByClassName("player-item");
 
@@ -1631,12 +1915,10 @@ function UseItem(index){
     else if (turnStep == "popup"){
         //Disposed of an item to buy an item from the shop
         PlayerData.items.splice(index, 1);
-        PlayerData.items.push(shopItemBuffer);
         PlayerData.coins -= ItemData[shopItemBuffer].price;
         document.getElementsByClassName("item-menu")[0].style.display = "none";
-        EndTurn();
-        UpdateItemUI();
         UpdatePlayerUI();
+        TriggerGiveItemAnimation(shopItemBuffer, true);
     }
 }
 
@@ -1645,6 +1927,7 @@ document.getElementsByClassName("item-toss-option")[1].onclick = (e) => { Replac
 document.getElementsByClassName("item-toss-option")[2].onclick = (e) => { ReplaceItem(2) };
 document.getElementsByClassName("item-toss-option")[3].onclick = (e) => { ReplaceItem(3) };
 function ReplaceItem(index){
+    //I think this function is only used for Lucky Spaces (Might be wrong)
     if (index == 0){
         
     }
@@ -1661,7 +1944,7 @@ function ReplaceItem(index){
 
 document.getElementsByClassName("move-end-turn-button")[0].onclick = (e) => {
     if (turnStep == "move"){
-        if (Object.hasOwn(mapData[PlayerData.position.y][PlayerData.position.x], "popup")){
+        if (Object.hasOwn(mapData[PlayerData.position.y][PlayerData.position.x], "popup") && !mapData[PlayerData.position.y][PlayerData.position.x].walkOver){
             EndTurnPopup();
         }
         else if (Object.hasOwn(mapData[PlayerData.position.y][PlayerData.position.x], "coins")){
@@ -1678,22 +1961,32 @@ for (var i = 0; i < shopItems.length; i++){
     let shopItem = shopItems[i].getAttribute("item");
     shopItems[i].onmouseover = (e) => {
         document.getElementsByClassName("shop-description")[0].innerHTML = "<b>" + ItemData[shopItem].name + ":</b> " + ItemData[shopItem].description;
+        document.getElementsByClassName("shop-description")[1].innerHTML = "<b>" + ItemData[shopItem].name + ":</b> " + ItemData[shopItem].description;
+        document.getElementsByClassName("shop-description")[2].innerHTML = "<b>" + ItemData[shopItem].name + ":</b> " + ItemData[shopItem].description;
     }
     shopItems[i].onmouseout = (e) => {
         document.getElementsByClassName("shop-description")[0].innerHTML = "Hover over an item to learn about it";
+        document.getElementsByClassName("shop-description")[1].innerHTML = "Hover over an item to learn about it";
+        document.getElementsByClassName("shop-description")[2].innerHTML = "Hover over an item to learn about it";
     }
     shopItems[i].onclick = (e) => {
         PurchaseItem(shopItem);
     }
 }
 
+function LeaveShop(){
+    ClosePopup();
+}
 var shopLeaveButtons = document.getElementsByClassName("shop-leave-button");
 for (var i = 0; i < shopLeaveButtons.length; i++){
-    shopLeaveButtons[i].onclick = EndTurn;
+    shopLeaveButtons[i].onclick = LeaveShop;
 }
 
 function EndTurn(){
-    if (PlayerData.roll == spacesMoved){
+    if (PlayerSilverStarObjs.length >= 5){
+        TriggerSilverStarsToStarAnimation();
+    }
+    else if (PlayerData.roll == spacesMoved){
         if (turnStep == "popup") document.getElementById(mapData[PlayerData.position.y][PlayerData.position.x].popup).style.display = "none";
         UIState = "menu";
         turnStep = "wait";
@@ -1702,7 +1995,39 @@ function EndTurn(){
         document.getElementsByClassName("move-undo-button")[0].style.display = "none";
         UIPanels.waitMinigame.style.display = "initial";
         saveCookies();
-        Socket.send(JSON.stringify({ method: "end_turn", token: TOKEN, position: PlayerData.position, stars: PlayerData.stars, coins: PlayerData.coins, items: PlayerData.items }));
+        Socket.send(JSON.stringify({ method: "end_turn", token: TOKEN, position: PlayerData.position, stars: PlayerData.stars, coins: PlayerData.coins, items: PlayerData.items, collectedSilverStars: PlayerData.collectedSilverStars }));
+    }
+}
+
+function OpenPopup(){
+    document.getElementsByClassName("board-inputs")[0].style.display = "none";
+    document.getElementById(mapData[PlayerData.position.y][PlayerData.position.x].popup).style.display = "initial";
+    document.getElementsByClassName("roll-display")[0].style.transform = "scale(0%)";
+    turnStep = "popup";
+    UIState = "player";
+    document.getElementsByClassName("move-end-turn-button")[0].style.display = "none";
+    document.getElementsByClassName("move-undo-button")[0].style.display = "none";
+
+    if (mapData[PlayerData.position.y][PlayerData.position.x].popup == "star-1"){
+        document.getElementsByClassName("purchase-star-button")[0].textContent = PlayerData.coins >= 20 ? "Yes" : "Not enough coins";
+        document.getElementsByClassName("purchase-star-button")[0].disabled = PlayerData.coins < 20;
+    }
+    else if (mapData[PlayerData.position.y][PlayerData.position.x].popup == "shop-1" || mapData[PlayerData.position.y][PlayerData.position.x].popup == "shop-2" || mapData[PlayerData.position.y][PlayerData.position.x].popup == "shop-3"){
+        //Enable/Disable Buttons
+        for (var i = 0; i < shopItems.length; i++){
+            shopItems[i].disabled = ItemData[shopItems[i].getAttribute("item")].price > PlayerData.coins;
+        }
+    }
+}
+function ClosePopup(){
+    document.getElementById(mapData[PlayerData.position.y][PlayerData.position.x].popup).style.display = "none";
+    if (mapData[PlayerData.position.y][PlayerData.position.x].walkOver){
+        turnStep = "move";
+        UIState = "above";
+        document.getElementsByClassName("roll-display")[0].style.transform = "scale(100%)";
+        document.getElementsByClassName("board-inputs")[0].style.display = "initial";
+        document.getElementsByClassName("move-end-turn-button")[0].style.display = spacesMoved == PlayerData.roll ? "initial" : "none";
+        document.getElementsByClassName("move-undo-button")[0].style.display = "initial";
     }
 }
 
@@ -1721,19 +2046,15 @@ function EndTurnPopup(){
 
             //Set item options on roulette
             luckyRouletteItems = [];
-            while(luckyRouletteItems.length < 3){
+            while(luckyRouletteItems.length < 4){
                 let index = Math.floor(Math.random() * luckyItemOptions.length);
                 if (!luckyRouletteItems.includes(luckyItemOptions[index])){
                     luckyRouletteItems.push(luckyItemOptions[index]);
                 }
             }
-            for (var i = 0; i < 3; i++){
-                luckyOptions[i * 2 + 1].textContent = ItemData[luckyRouletteItems[i]].name;
+            for (var i = 0; i < 4; i++){
+                luckyOptions[i * 2].textContent = ItemData[luckyRouletteItems[i]].name;
             }
-        }
-        else if (mapData[PlayerData.position.y][PlayerData.position.x].popup == "star-1"){
-            document.getElementsByClassName("purchase-star-button")[0].textContent = PlayerData.coins >= 20 ? "Yes" : "Not enough coins";
-            document.getElementsByClassName("purchase-star-button")[0].disabled = PlayerData.coins < 20;
         }
     }
 }
@@ -1749,11 +2070,11 @@ function PurchaseItem(item){
         }
         else{
             PlayerData.coins -= ItemData[item].price;
-            PlayerData.items.push(item);
             document.getElementById(mapData[PlayerData.position.y][PlayerData.position.x].popup).style.display = "none";
-            EndTurn();
-            UpdateItemUI();
+            //EndTurn();
+            //UpdateItemUI();
             UpdatePlayerUI();
+            TriggerGiveItemAnimation(item, true);
         }
     }
 }
@@ -1828,7 +2149,14 @@ function RandomMapSpace(){
     var result;
     while(true){
         result = { x: Math.floor(Math.random() * mapSize.x), y: Math.floor(Math.random() * mapSize.y) };
-        if (mapData[result.y][result.x].height !== 0) return result;
+        if (mapData[result.y][result.x].height !== 0){
+            for (let i = 0; i < ServerSilverStars.length; i++){
+                if (ServerSilverStars[i].x == result.x && ServerSilverStars[i].y == result.y){
+                    continue;
+                }
+            }
+            return result;
+        }
     }
 }
 
@@ -1895,7 +2223,13 @@ function PipeWarpAnimation(){
         PlayerData.position = { x: pipeWarpLocation.x, y: pipeWarpLocation.y };
         
         if (turnStep == "pipe-warp-anim-end-turn"){
-            EndTurn();
+            SetMoveUI();
+            turnStep = "move";
+            UIState = "above";
+            document.getElementsByClassName("roll-display")[0].style.transform = "scale(100%)";
+            document.getElementsByClassName("board-inputs")[0].style.display = "initial";
+            document.getElementsByClassName("move-end-turn-button")[0].style.display = (spacesMoved == PlayerData.roll && spacesMoved != 0) ? "initial" : "none";
+            document.getElementsByClassName("move-undo-button")[0].style.display = spacesMoved == 0 ? "none" : "initial";
         }
         else{
             //Go to dice roll
@@ -1972,11 +2306,13 @@ function GoldPipeWarpAnimation(){
 }
 
 var giveItemAnimItem;
-function TriggerGiveItemAnimation(item){
+var giveItemAnimIsShop;
+function TriggerGiveItemAnimation(item, isShop){
     UIState = "override";
     turnStep = "give-item-anim";
     animTimer = 3;
     giveItemAnimItem = item;
+    giveItemAnimIsShop = isShop;
 
     let targetPos = new THREE.Vector3(PlayerData.position.x, getHeightTile(PlayerData.position.x, PlayerData.position.y) + 0.375, PlayerData.position.y);
 
@@ -1991,6 +2327,7 @@ function TriggerGiveItemAnimation(item){
     Scene.add(ItemRingParticle);
 
     document.getElementById(mapData[PlayerData.position.y][PlayerData.position.x].popup).style.display = "none";
+    UpdatePlayerUI();
 }
 function GiveItemAnimation(){
     const animLength = 3;
@@ -2038,17 +2375,25 @@ function GiveItemAnimation(){
         Scene.remove(ItemPreview);
         Scene.remove(ItemRingParticle);
 
-        UIState = "player";
-        turnStep = "toss-item";
-
-        if (PlayerData.items.length == 3){
-            document.getElementsByClassName("item-toss-menu")[0].style.display = "initial";
-            UpdateTossItemUI(giveItemAnimItem);
-        }
-        else{
+        if (giveItemAnimIsShop){
+            UIState = "player";
             PlayerData.items.push(giveItemAnimItem);
             UpdateItemUI();
-            EndTurn();
+            ClosePopup();
+        }
+        else{
+            UIState = "player";
+            turnStep = "toss-item";
+
+            if (PlayerData.items.length == 3){
+                document.getElementsByClassName("item-toss-menu")[0].style.display = "initial";
+                UpdateTossItemUI(giveItemAnimItem);
+            }
+            else{
+                PlayerData.items.push(giveItemAnimItem);
+                UpdateItemUI();
+                EndTurn();
+            }
         }
     }
 }
@@ -2071,7 +2416,7 @@ function TriggerCoinChangeAnimation(amount){
 
     let targetPos = new THREE.Vector3(PlayerData.position.x, getHeightTile(PlayerData.position.x, PlayerData.position.y) + 0.375, PlayerData.position.y);
 
-    CoinText.scale.set(0.85, 0.85, 0.85);
+    CoinText.scale.set(0, 0, 0);
     Scene.add(CoinText);
     ItemRingParticle.scale.set(0, 0, 0);
     ItemRingParticle.position.set(targetPos.x, targetPos.y - (amount < 0 ? 0.05 : 0.1), targetPos.z);
@@ -2092,6 +2437,7 @@ function GainCoinsAnimation(){
         let eo = easeOut(t);
 
         CoinText.position.set(targetPos.x - (coinsTextWidth / 2 * 0.85), targetPos.y + lerp(1.5, -0.1, eo), targetPos.z + 0.1);
+        CoinText.scale.set(0.85, 0.85, 0.85);
     }
     else if (animTimer > animLength - 2){
         CoinText.position.set(targetPos.x - (coinsTextWidth / 2 * 0.85), targetPos.y -0.1, targetPos.z + 0.1);
@@ -2204,6 +2550,138 @@ function SetCoinText(coins){
     return coinInnerText.boundingBox.max.x + 0.2 + 0.15;
 }
 
+var silverStarsAnimBuffer = [];
+function TriggerSilverStarsToStarAnimation(){
+    UIState = "player";
+    turnStep = "silver-stars-to-star-anim-intro";
+    animTimer = 8.5;
+
+    silverStarsAnimBuffer = [];
+    for (var i = 0; i < 5; i++){
+        silverStarsAnimBuffer.push({ position: PlayerSilverStarObjs[i].position, rotation: PlayerSilverStarObjs[i].rotation });
+    }
+
+    StarRingParticle.scale.set(0, 0, 0);
+    StarRingParticle.position.set(Player.position.x, Player.position.y, Player.position.z + 0.05);
+
+    document.getElementsByClassName("move-end-turn-button")[0].style.display = "none";
+    document.getElementsByClassName("move-undo-button")[0].style.display = "none";
+
+    PlayerData.stars++;
+
+    firstSilverStarTrigger = true;
+}
+var firstSilverStarTrigger = true;
+function SilverStarsToStarAnimation(){
+    const animLength = 8.5;
+    animTimer -= DeltaTime;
+
+    let targetPos = new THREE.Vector3(PlayerData.position.x, getHeightTile(PlayerData.position.x, PlayerData.position.y) + 0.375, PlayerData.position.y);
+
+    if (animTimer > animLength - 1){
+        //Wait
+    }
+    else if (animTimer > animLength - 2){
+        turnStep = "silver-stars-to-star-anim";
+        let t = 1 - ((animTimer - animLength + 2) / 1);
+        let ei = easeIn(t);
+
+        for (let i = 0; i < PlayerSilverStarObjs.length; i++){
+            if (i < 5){
+                let angle = (Math.PI * 2 / 5 * i) + (t * Math.PI);
+                let starPos = new THREE.Vector3(Math.cos(angle) * 0.5 + targetPos.x, targetPos.y + 0.45, Math.sin(angle) * 0.5 + targetPos.z);
+                PlayerSilverStarObjs[i].position.set(lerp(silverStarsAnimBuffer[i].position.x, starPos.x, ei), lerp(silverStarsAnimBuffer[i].position.y, starPos.y, ei), lerp(silverStarsAnimBuffer[i].position.z, starPos.z, ei));
+                PlayerSilverStarObjs[i].rotation.set(lerp(silverStarsAnimBuffer[i].rotation.x, 0, ei), lerp(silverStarsAnimBuffer[i].rotation.y, -angle, ei), lerp(silverStarsAnimBuffer[i].rotation.z, 0, ei), "YXZ");
+            }
+            else{
+                PlayerSilverStarObjs[i].scale.set(0, 0, 0);
+            }
+        }
+    }
+    else if (animTimer > animLength - 4){
+        let t = 1 - ((animTimer - animLength + 4) / 2);
+        let ei = easeIn(t);
+        let b = lerp(t, ei, 0.75);
+
+        for (let i = 0; i < PlayerSilverStarObjs.length; i++){
+            if (i < 5){
+                let angle = (Math.PI * 2 / 5 * i) + (b * Math.PI * 8 + Math.PI);
+                let starPos = new THREE.Vector3(Math.cos(angle) * 0.5 * (1 - t) + targetPos.x, targetPos.y + lerp(0.45, 0.575, ei), Math.sin(angle) * 0.5 * (1 - t) + targetPos.z);
+                PlayerSilverStarObjs[i].position.set(starPos.x, starPos.y, starPos.z);
+                PlayerSilverStarObjs[i].rotation.set(0, -angle, 0, "YXZ");
+                PlayerSilverStarObjs[i].children[1].material.emissiveIntensity = lerp(0.25, 1, t);
+                PlayerSilverStarObjs[i].scale.set(lerp(0.00075, 0.001, ei), lerp(0.00075, 0.001, ei), lerp(0.00075, 0.001, ei));
+            }
+        }
+    }
+    else if (animTimer > animLength - 5){
+        let t = 1 - ((animTimer - animLength + 5) / 1);
+        let ei = easeIn(t);
+        let eo = easeOut(t);
+
+        for (let i = 0; i < PlayerSilverStarObjs.length; i++){
+            if (i < 5){
+                PlayerSilverStarObjs[i].scale.set(0, 0, 0);
+            }
+        }
+
+        let angle = (eo * Math.PI * 4);
+        Star.scale.set(lerp(0.001, 0.0015, t), lerp(0.001, 0.0015, t), lerp(0.001, 0.0015, t));
+        Star.position.set(targetPos.x, targetPos.y + 0.575, targetPos.z);
+        Star.rotation.set(0, angle, 0, "YXZ");
+        Star.children[1].material.emissive.set(new THREE.Color(1, lerp(1, 0.715, ei), lerp(1, 0.171, ei)));
+        Star.children[1].material.emissiveIntensity = lerp(1, 0.5, ei);
+    }
+    else if (animTimer > animLength - 6){
+        Star.scale.set(0.0015, 0.0015, 0.0015);
+        Star.position.set(targetPos.x, targetPos.y + 0.575, targetPos.z);
+        Star.rotation.set(0, 0, 0, "YXZ");
+        Star.children[1].material.emissive.set(new THREE.Color(1, 0.715, 0.171));
+        Star.children[1].material.emissiveIntensity = 0.5;
+    }
+    else if (animTimer > animLength - 6.5){
+        let t = 1 - ((animTimer - animLength + 6.5) / 0.5);
+        Star.position.set(targetPos.x, targetPos.y + lerp(0.575, 0.2, t), targetPos.z + lerp(0, 0.05, t));
+        Star.scale.set(lerp(0.0015, 0.0005, t), lerp(0.0015, 0.0005, t), lerp(0.0015, 0.0005, t));
+        Star.rotation.set(0, 0, 0);
+    }
+    else if (animTimer > animLength - 6.75){
+        let t = 1 - ((animTimer - animLength + 6.75) / 0.25);
+        Star.position.set(targetPos.x, targetPos.y + lerp(0.2, 0, t), targetPos.z + 0.05);
+        Star.scale.set(lerp(0.0005, 0, t), lerp(0.0005, 0, t), lerp(0.0005, 0, t));
+    }
+    else if (animTimer > animLength - 7){
+        if (firstSilverStarTrigger){
+            UpdatePlayerUI();
+            firstSilverStarTrigger = false;
+        }
+
+        let t = 1 - ((animTimer - animLength + 7) / 0.25);
+        Star.scale.set(0, 0, 0);
+        StarRingParticle.scale.set(lerp(0, 0.35, t), lerp(0, 0.35, t), lerp(0, 0.35, t));
+        StarRingParticle.material.opacity = lerp(0, 1, t);
+        UpdatePlayerUI();
+    }
+    else if (animTimer > animLength - 7.5){
+        let t = 1 - ((animTimer - animLength + 7.5) / 0.5);
+        StarRingParticle.scale.set(lerp(0.35, 1, t), lerp(0.35, 1, t), lerp(0.35, 1, t));
+        StarRingParticle.material.opacity = lerp(1, 0, t);
+    }
+    else if (animTimer > animLength - 8.5){
+        StarRingParticle.scale.set(0, 0, 0);
+    }
+    else{
+        for (let i = 0; i < 5; i++){
+            Scene.remove(PlayerSilverStarObjs[i]);
+        }
+        PlayerSilverStarObjs.splice(0, 5);
+
+        SilverStar.material.emissiveIntensity = 0.25;
+
+        EndTurn();
+    }
+}
+
 function UpdatePlayerUI(){
     document.getElementsByClassName("player-stars")[0].textContent = PlayerData.stars;
     document.getElementsByClassName("player-coins")[0].textContent = PlayerData.coins;
@@ -2282,7 +2760,9 @@ document.getElementsByClassName("minigame-submit")[0].onclick = function(e){
 var Socket;
 var SignedIn = false;
 function InitializeSocket(){
-    Socket = new WebSocket("wss://" + new URLSearchParams(window.location.search).get("socket") + ".ngrok-free.dev");
+    //TODO!!! Swap this back
+    //Socket = new WebSocket("wss://" + new URLSearchParams(window.location.search).get("socket") + ".ngrok-free.dev");
+    Socket = new WebSocket("ws://localhost:6969");
 
     Socket.onopen = function(e){
         console.log("Socket open");
@@ -2306,6 +2786,9 @@ function InitializeSocket(){
         console.log(data);
 
         switch (data.method){
+            case "update_player_data":
+                update_player_data_server(data);
+                break;
             case "get_status":
                 get_status_server(data);
                 break;
@@ -2340,14 +2823,14 @@ function InitializeSocket(){
 var GetStatusServerTimeout;
 function getStatusTimeout(i){
     if (i > TIMEOUT_LIMIT) { disconnectError(); return; }
-    GetStatusServerTimeout = setTimeout(() => {getStatusTimeout(i+1)}, 1000);
+    GetStatusServerTimeout = setTimeout(() => {getStatusTimeout(i+1)}, 3000);
     Socket.send(JSON.stringify(TOKEN == "" ? { method: "get_status" } : { method: "get_status", token: TOKEN }));
 }
 var ServerStatus = "null";
 var ServerTurn = 0;
 function get_status_server(data){
     clearTimeout(GetStatusServerTimeout);
-    ServerTurn = data.turn;
+    if (Object.hasOwn(data, "turn")) ServerTurn = data.turn;
 
     if (Object.hasOwn(data, "data")){
         if (data.status == "RESULTS"){
@@ -2378,8 +2861,11 @@ function get_status_server(data){
                     items: data.data.items,
                     coins: data.data.coins,
                     stars: data.data.stars,
+                    collectedSilverStars: data.data.collectedSilverStars,
                     turnsCompleted: data.data.turnsCompleted
                 };
+                transitionValues.playerPos = new THREE.Vector3(PlayerData.position.x, getHeightTile(PlayerData.position.x, PlayerData.position.y) + 0.375, PlayerData.position.y);
+
                 if (data.status == "TURN"){
                     //Reset Turn UI and States
                     UIPanels.minigame.style.display = "none";
@@ -2405,6 +2891,12 @@ function get_status_server(data){
                 UpdatePlayerUI();
             }
         }
+    }
+
+    if (Object.hasOwn(data, "silverStars")){
+        ServerSilverStars = data.silverStars;
+
+        InitializeSilverStars();
     }
 
     if (ServerStatus != data.status){
@@ -2436,6 +2928,7 @@ function get_status_server(data){
                 }
                 break;
             case "TURN":
+                document.getElementsByClassName("leaderboard-button")[0].style.display = "initial";
                 if (!checkedIn || !SignedIn){
                     UIState = "menu";
                     UIPanels.connecting.style.display = "none";
@@ -2448,6 +2941,8 @@ function get_status_server(data){
                     UIPanels.login.style.display = "none";
                     document.getElementsByClassName("player-data")[0].style.display = "initial";
                     document.getElementById("leaderboard").style.display = "initial";
+                    document.getElementById("turn-counter").style.display = "initial";
+                    document.getElementById("turn-counter-text").textContent = ServerTurn + "/10";
                     //Check if done turn or not
                     if (PlayerData.turnsCompleted < ServerTurn){
                         //Play your turn
@@ -2460,13 +2955,14 @@ function get_status_server(data){
                 }
                 break;
             case "MINIGAME":
+                document.getElementsByClassName("leaderboard-button")[0].style.display = "initial";
                 if (!checkedIn || !SignedIn){
                     UIState = "menu";
                     UIPanels.connecting.style.display = "none";
                     UIPanels.login.style.display = "initial";
                 }
                 else{
-                    GetLobbyServerTimeout = setTimeout(() => {getLobbyTimeout(0)}, 1000);
+                    GetLobbyServerTimeout = setTimeout(() => {getLobbyTimeout(0)}, 3000);
                     Socket.send(JSON.stringify({ method: "get_lobby", token: TOKEN }));
                 }
                 break;
@@ -2482,6 +2978,7 @@ function announcement_server(data){
     if (Object.hasOwn(data, "status")){
         let lastStatus = ServerStatus;
         ServerStatus = data.status;
+        if (Object.hasOwn(data, "turn")) ServerTurn = data.turn;
 
         if (ServerStatus == "CHECK_IN"){
             if (TOKEN != ""){
@@ -2491,15 +2988,15 @@ function announcement_server(data){
             }
         }
         else if (ServerStatus == "TURN"){
+            document.getElementsByClassName("leaderboard-button")[0].style.display = "initial";
             if (TOKEN == ""){
                 UIState = "menu";
                 UIPanels.connecting.style.display = "none";
                 UIPanels.login.style.display = "initial";
             }
             else{
+                SpawnSilverStarBoard(data.silverStar, lastStatus == "MINIGAME");
                 rollsRemaining = 1;
-                UIState = "player";
-                turnStep = "menu";
                 UIPanels.checkin.style.display = "none";
                 UIPanels.connecting.style.display = "none";
                 UIPanels.login.style.display = "none";
@@ -2507,17 +3004,12 @@ function announcement_server(data){
                 document.getElementsByClassName("player-data")[0].style.display = "initial";
                 document.getElementById("leaderboard").style.display = "initial";
                 document.getElementById("items-button").disabled = false;
-                if (lastStatus == "MINIGAME"){
-                    console.log("CAME FROM MINIGAME");
-                    minigameCoinGiveCheck = true;
-                    getPlayerDataTimeout(0);
-                }
-                else{
-                    document.getElementsByClassName("player-inputs")[0].style.display = "flex";
-                }
+                document.getElementById("turn-counter").style.display = "initial";
+                document.getElementById("turn-counter-text").textContent = ServerTurn + "/10";
             }
         }
         else if (ServerStatus == "MINIGAME"){
+            document.getElementsByClassName("leaderboard-button")[0].style.display = "initial";
             document.getElementsByClassName("minigame-navigator-button")[0].classList.add("minigame-navigator-button-selected");
             document.getElementsByClassName("minigame-navigator-button")[1].classList.remove("minigame-navigator-button-selected");
             document.getElementsByClassName("minigame-navigator-button")[2].classList.remove("minigame-navigator-button-selected");
@@ -2543,6 +3035,13 @@ function GenerateResultsPage(data){
     UIPanels.login.style.display = "none";
     UIPanels.waitMinigame.style.display = "none";
     document.getElementById("results").style.display = "initial";
+    document.getElementsByClassName("confetti-wrapper")[0].style.display = "initial";
+    UIPanels.globalLeaderboard.style.display = "none";
+    document.getElementsByClassName("leaderboard-button")[0].style.display = "none";
+    document.getElementsByClassName("player-data")[0].style.display = "none";
+    document.getElementById("turn-counter").style.display = "none";
+    document.getElementById("leaderboard").style.display = "none";
+    StartConfetti();
 
     UIState = "menu";
     turnStep = "results";
@@ -2627,6 +3126,61 @@ function GenerateResultsPage(data){
     }
 }
 
+document.getElementsByClassName("leaderboard-button")[0].onclick = function(e){
+    console.log(GlobalLeaderboard.style.display);
+    UIPanels.globalLeaderboard.style.display = UIPanels.globalLeaderboard.style.display == "none" ? "initial" : "none";
+};
+document.getElementsByClassName("global-leaderboard-close")[0].onclick = function(e){ UIPanels.globalLeaderboard.style.display = "none"; };
+
+var GlobalLeaderboard = document.getElementsByClassName("global-leaderboard-list")[0];
+function UpdateGlobalLeaderboard(data){
+    //Spawn new leaderboard slots
+    for (var i = GlobalLeaderboard.children.length; i < data.data.length; i++){
+        let listElement = document.createElement("div");
+        listElement.classList.add("results-list-item-" + (i%2==0?"a":"b"));
+        if (i == 0) listElement.classList.add("results-list-item-1");
+        else if (i == 1) listElement.classList.add("results-list-item-2");
+        else if (i == 2) listElement.classList.add("results-list-item-3");
+        GlobalLeaderboard.appendChild(listElement);
+
+        listElement.appendChild(document.createElement("span"));
+        listElement.children[0].classList.add("results-list-placement");
+        //listElement.children[0].textContent = (i + 1) + ". ";
+        listElement.appendChild(document.createElement("img"));
+        //listElement.children[1].setAttribute("src", PlayerAvatars[stringToIndex(data.data[i].ign) % PlayerAvatars.length]);
+        listElement.children[1].classList.add("results-list-avatar");
+        listElement.appendChild(document.createElement("span"));
+        listElement.children[2].classList.add("results-list-username");
+        //listElement.children[2].textContent = data.data[i].ign.split("#")[0];
+        listElement.appendChild(document.createElement("span"));
+        listElement.children[3].classList.add("results-list-info");
+
+        listElement.children[3].appendChild(document.createElement("span"));
+        listElement.children[3].children[0].classList.add("results-list-stars");
+        //listElement.children[3].children[0].textContent = data.data[i].stars + " ";
+        listElement.children[3].appendChild(document.createElement("img"));
+        listElement.children[3].children[1].classList.add("results-list-text-img");
+        listElement.children[3].children[1].setAttribute("src", "resources/textures/squid_star.svg");
+        listElement.children[3].appendChild(document.createElement("div"));
+        listElement.children[3].children[2].style.display = "inline-block";
+        listElement.children[3].children[2].style.width = "5px";
+        listElement.children[3].appendChild(document.createElement("span"));
+        listElement.children[3].children[3].classList.add("results-list-coins");
+        //listElement.children[3].children[3].textContent = data.data[i].coins + " ";
+        listElement.children[3].appendChild(document.createElement("img"));
+        listElement.children[3].children[4].classList.add("results-list-text-img");
+        listElement.children[3].children[4].setAttribute("src", "resources/textures/squid_coin.svg");
+    }
+
+    for (var i = 0; i < data.data.length; i++){
+        GlobalLeaderboard.children[i].children[0].textContent = (i + 1) + ". ";
+        GlobalLeaderboard.children[i].children[1].setAttribute("src", PlayerAvatars[stringToIndex(data.data[i].ign) % PlayerAvatars.length]);
+        GlobalLeaderboard.children[i].children[2].textContent = data.data[i].ign.split("#")[0];
+        GlobalLeaderboard.children[i].children[3].children[0].textContent = data.data[i].stars + " ";
+        GlobalLeaderboard.children[i].children[3].children[3].textContent = data.data[i].coins + " ";
+    }
+}
+
 function end_turn_server(data){
 
 }
@@ -2637,12 +3191,15 @@ var CurrentMinigame = "null";
 var CurrentMinigameLobby = [];
 function getLobbyTimeout(i){
     if (i > TIMEOUT_LIMIT) { disconnectError(); return; }
-    GetLobbyServerTimeout = setTimeout(() => {getLobbyTimeout(i+1)}, 1000);
+    GetLobbyServerTimeout = setTimeout(() => {getLobbyTimeout(i+1)}, 3000);
     Socket.send(JSON.stringify({ method: "get_lobby", token: TOKEN }));
 }
 function get_lobby_server(data){
     clearTimeout(GetLobbyServerTimeout);
     
+    document.getElementById("minigame-interactive").style.display = "initial";
+    document.getElementById("minigame-waiting").style.display = "none";
+
     CurrentMinigame = data.minigame;
     CurrentMinigameLobby = data.lobby;
 
@@ -2690,6 +3247,39 @@ function get_lobby_server(data){
             else if (MinigameChatHistory[i].message == "confirm"){
                 minigameSubmitButton.disabled = true;
                 minigameSubmitButton.textContent = "Score Locked";
+                
+                document.getElementById("minigame-interactive").style.display = "none";
+                document.getElementById("minigame-waiting").style.display = "initial";
+
+                //Waiting screen podiums
+                let podiums = document.getElementsByClassName("minigame-podium");
+                let maxReward = 0;
+                for (let j = 0; j < MinigameChatHistory[i].result.length; j++){
+                    if (MinigameData[CurrentMinigame].type == "coin"){
+                        maxReward = Math.max(maxReward, Math.floor(MinigameData[CurrentMinigame].rewards * MinigameChatHistory[i].result[j]));
+                    }
+                    else{
+                        maxReward = Math.max(maxReward, MinigameData[CurrentMinigame].rewards[MinigameChatHistory[i].result[j]]);
+                    }
+                }
+                for (let j = 0; j < podiums.length; j++){
+                    if (j < MinigameChatHistory[i].result.length){
+                        podiums[j].style.display = "inline-block";
+                        if (MinigameData[CurrentMinigame].type == "coin"){
+                            podiums[j].children[0].style.height = lerp(20, 90, Math.floor(MinigameData[CurrentMinigame].rewards * MinigameChatHistory[i].result[j]) / maxReward) + "px";
+                            podiums[j].children[0].children[1].children[0].textContent = Math.floor(MinigameData[CurrentMinigame].rewards * MinigameChatHistory[i].result[j]);
+                        }
+                        else{
+                            podiums[j].children[0].style.height = lerp(20, 90, MinigameData[CurrentMinigame].rewards[MinigameChatHistory[i].result[j]] / maxReward) + "px";
+                            podiums[j].children[0].children[1].children[0].textContent = MinigameData[CurrentMinigame].rewards[MinigameChatHistory[i].result[j]];
+                        }
+                        podiums[j].children[0].children[0].setAttribute("src", PlayerAvatars[stringToIndex(CurrentMinigameLobby[j].ign) % PlayerAvatars.length]);
+                        podiums[j].children[0].children[2].textContent = CurrentMinigameLobby[j].ign.split("#")[0];
+                    }
+                    else{
+                        podiums[j].style.display = "none";
+                    }
+                }
             }
         }
         else{
@@ -2705,7 +3295,7 @@ var checkedIn = false;
 var SignInServerTimeout;
 function signInTimeout(i){
     if (i > TIMEOUT_LIMIT) { disconnectError(); return; }
-    SignInServerTimeout = setTimeout(() => {signInTimeout(i+1)}, 1000);
+    SignInServerTimeout = setTimeout(() => {signInTimeout(i+1)}, 3000);
     Socket.send(JSON.stringify({ method:"sign_in", token: TOKEN }));
 }
 function sign_in_server(data){
@@ -2738,31 +3328,42 @@ var RegisterServerTimeout;
 function registerTimeout(discord, ign, i){
     if (i > TIMEOUT_LIMIT) { disconnectError(); return; }
     Socket.send(JSON.stringify({ method: "register", discord: discord, ign: ign }));
-    RegisterServerTimeout = setTimeout(() => {registerTimeout(discord, ign, i+1);}, 1000);
+    RegisterServerTimeout = setTimeout(() => {registerTimeout(discord, ign, i+1);}, 3000);
 }
-document.getElementById("loginbtn").onclick = function(e){
-    if (Socket.readyState == Socket.OPEN){
+function loginSubmit(){
+    if (Socket.readyState == Socket.OPEN || true){
         let discord = document.getElementById("login_discord_input").value;
         let ign = document.getElementById("login_ign_input").value;
+
+        if (discord.length == 0 || ign.length == 0){
+            document.getElementById("login-error-message").innerHTML = "Please fill out all fields";
+            return;
+        }
 
         let testIGN = ign.split("#");
         if (testIGN.length != 2){
             //Error, must contain numbers at end
-            console.error("IGN must contain identifying number (i.e. Username#1234)");
+            document.getElementById("login-error-message").innerHTML = "Splatoon Username must contain profile numbers<br>(e.g. Username<b>#1234</b>)";
             return;
         }
 
         document.cookie = "ign=" + ign + "; expires=" + new Date(2999, 12, 30).toUTCString();
         document.cookie = "discord=" + discord + "; expires=" + new Date(2999, 12, 30).toUTCString();
         loadCookies();
-        Socket.send(JSON.stringify({ method: "register", discord: discord, ign: ign }));
-        RegisterServerTimeout = setTimeout(() => {registerTimeout(discord, ign, 0);}, 1000);
+        registerTimeout(discord, ign, 0);
 
         UIState = "menu";
         UIPanels.login.style.display = "none";
         UIPanels.connecting.style.display = "initial";
     }
 }
+/*document.getElementById("loginbtn").onclick = function(e){
+    loginSubmit();
+};*/
+document.getElementById("login-form").onsubmit = function(e){
+    loginSubmit();
+    return false;
+};
 function register_server(data){
     clearTimeout(RegisterServerTimeout);
     if (data.success){
@@ -2794,12 +3395,12 @@ document.getElementById("checkinbtn").onclick = function(e){
     Socket.send(JSON.stringify({ method:"check_in", token: TOKEN }));
     document.getElementById("checkinbtn").disabled = true;
     document.getElementById("checkinbtn").textContent = "Please Wait";
-    CheckInServerTimeout = setTimeout(() => {checkInTimeout(0);}, 1000);
+    CheckInServerTimeout = setTimeout(() => {checkInTimeout(0);}, 3000);
 }
 function checkInTimeout(i){
     if (i > TIMEOUT_LIMIT) { disconnectError(); return; }
     Socket.send(JSON.stringify({ method:"check_in", token: TOKEN }));
-    CheckInServerTimeout = setTimeout(() => {checkInTimeout(i+1)}, 1000);
+    CheckInServerTimeout = setTimeout(() => {checkInTimeout(i+1)}, 3000);
 }
 
 var minigameCoinGiveCheck = false;
@@ -2807,7 +3408,7 @@ var GetPlayerDataServerTimeout;
 function getPlayerDataTimeout(i){
     if (i > TIMEOUT_LIMIT) { disconnectError(); return; }
     Socket.send(JSON.stringify({ method: "get_player_data", token: TOKEN }));
-    GetPlayerDataServerTimeout = setTimeout(() => {getPlayerDataTimeout(i + 1)}, 1000);
+    GetPlayerDataServerTimeout = setTimeout(() => {getPlayerDataTimeout(i + 1)}, 3000);
 }
 function get_player_data_server(data){
     clearTimeout(GetPlayerDataServerTimeout);
@@ -2827,6 +3428,15 @@ document.getElementById("minigame-chat-send-button").onclick = (e) => {
     if (message == "" || message == null) return;
 
     Socket.send(JSON.stringify({ method: "send_message", token: TOKEN, message: message }));
+};
+document.getElementById("minigame-chat-form").onsubmit = (e) => {
+    let message = document.getElementById("minigame-chat-input").value;
+    document.getElementById("minigame-chat-input").value = "";
+    if (message == "" || message == null) return;
+
+    Socket.send(JSON.stringify({ method: "send_message", token: TOKEN, message: message }));
+
+    return false;
 };
 var minigameChatNotification = document.getElementsByClassName("minigame-chat-notification")[0];
 var ServerMessages = {
@@ -2851,6 +3461,39 @@ function send_message_server(data){
         else if (data.data.message == "confirm"){
             minigameSubmitButton.disabled = true;
             minigameSubmitButton.textContent = "Score Locked";
+
+            document.getElementById("minigame-interactive").style.display = "none";
+            document.getElementById("minigame-waiting").style.display = "initial";
+
+            //Minigame wait podiums
+            let podiums = document.getElementsByClassName("minigame-podium");
+            let maxReward = 0;
+            for (let j = 0; j < data.data.result.length; j++){
+                if (MinigameData[CurrentMinigame].type == "coin"){
+                    maxReward = Math.max(maxReward, Math.floor(MinigameData[CurrentMinigame].rewards * data.data.result[j]));
+                }
+                else{
+                    maxReward = Math.max(maxReward, MinigameData[CurrentMinigame].rewards[data.data.result[j]]);
+                }
+            }
+            for (let j = 0; j < podiums.length; j++){
+                if (j < data.data.result.length){
+                    podiums[j].style.display = "inline-block";
+                    if (MinigameData[CurrentMinigame].type == "coin"){
+                        podiums[j].children[0].style.height = lerp(20, 90, Math.floor(MinigameData[CurrentMinigame].rewards * data.data.result[j]) / maxReward) + "px";
+                        podiums[j].children[0].children[1].children[0].textContent = Math.floor(MinigameData[CurrentMinigame].rewards * data.data.result[j]);
+                    }
+                    else{
+                        podiums[j].children[0].style.height = lerp(20, 90, MinigameData[CurrentMinigame].rewards[data.data.result[j]] / maxReward) + "px";
+                        podiums[j].children[0].children[1].children[0].textContent = MinigameData[CurrentMinigame].rewards[data.data.result[j]];
+                    }
+                    podiums[j].children[0].children[0].setAttribute("src", PlayerAvatars[stringToIndex(CurrentMinigameLobby[j].ign) % PlayerAvatars.length]);
+                    podiums[j].children[0].children[2].textContent = CurrentMinigameLobby[j].ign.split("#")[0];
+                }
+                else{
+                    podiums[j].style.display = "none";
+                }
+            }
         }
     }
     else{
@@ -2873,11 +3516,56 @@ function send_message_server(data){
     }
 }
 
+var leaderboardPlaces = document.getElementsByClassName("leaderboard-player");
+function update_player_data_server(data){
+    //Sort the data
+    for (var i = 0; i < data.data.length - 1; i++){
+        for (var j = 0; j < data.data.length - i - 1; j++){
+            if (data.data[j].stars < data.data[j+1].stars || (data.data[j].stars == data.data[j+1].stars && data.data[j].coins < data.data[j+1].coins)){
+                let temp = data.data[j];
+                data.data[j] = data.data[j+1];
+                data.data[j+1] = temp;
+            }
+        }
+    }
+
+    //Update leaderboard
+    for (var i = 0; i < leaderboardPlaces.length; i++){
+        if (i < data.data.length){
+            leaderboardPlaces[i].style.display = "block";
+            leaderboardPlaces[i].children[1].textContent = data.data[i].ign.split("#")[0];
+            leaderboardPlaces[i].children[3].textContent = data.data[i].stars;
+            leaderboardPlaces[i].children[5].textContent = data.data[i].coins;
+        }
+        else{
+            leaderboardPlaces[i].style.display = "none";
+        }
+    }
+
+    UpdateGlobalLeaderboard(data);
+}
+
 
 function disconnectError(){
     alert("Could not connect to server! Check your internet and refresh the page.");
 }
 
+function StartConfetti(){
+    const confettiWrapper = document.querySelector('.confetti-wrapper');
+    // Generate confetti
+    for (let i = 0; i < 50; i++) {
+        const confetti = document.createElement('div');
+        confetti.classList.add('confetti-piece');
+        confetti.style.left = `${Math.random() * 100}%`;
+        confetti.style.setProperty('--fall-duration', `${Math.random() * 3 + 3}s`);
+        confetti.style.setProperty('--confetti-color', getRandomColor());
+        confettiWrapper.appendChild(confetti);
+    }
+    function getRandomColor() {
+        const colors = ['#ff6347', '#ffa500', '#32cd32', '#1e90ff', '#ff69b4'];
+        return colors[Math.floor(Math.random() * colors.length)];
+    }
+}
 
 
 
@@ -2897,10 +3585,7 @@ for (let i = 0; i < debugSet.length; i++){
     debugSet[i].onclick = (e) => {debugSetState(debugSet[i].textContent);};
 }
 
-
-//TODO!!! Update minigames.json salmon run related descriptions to clarify weapon selection (if needed. Hoping there's a random option in game)
-//TODO!!! Make leaderboard functional
-//TODO!!! Update tableturf and scrims descriptions because TYPE was changed
+//TODO!!! Maybe add to MapData silverStarSpawnable property. Set it false for inaccessible areas (Maybe leave a couple of spots it can spawn so it's rare)
 
 //Backburner TODO list (Stuff that doesn't matter till after testing)
 //TODO!!! Auto Reconnect if socket disconnects (Maybe just a pop-up to refresh the page for now, I think websockets already auto-does this)
