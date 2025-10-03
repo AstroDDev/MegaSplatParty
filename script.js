@@ -2676,7 +2676,7 @@ function SilverStarsToStarAnimation(){
         }
         PlayerSilverStarObjs.splice(0, 5);
 
-        SilverStar.material.emissiveIntensity = 0.25;
+        SilverStar.children[1].material.emissiveIntensity = 0.25;
 
         EndTurn();
     }
@@ -2761,8 +2761,8 @@ var Socket;
 var SignedIn = false;
 function InitializeSocket(){
     //TODO!!! Swap this back
-    Socket = new WebSocket("wss://" + new URLSearchParams(window.location.search).get("socket") + ".ngrok-free.dev");
-    //Socket = new WebSocket("ws://localhost:6969");
+    //Socket = new WebSocket("wss://" + new URLSearchParams(window.location.search).get("socket") + ".ngrok-free.dev");
+    Socket = new WebSocket("ws://localhost:6969");
 
     Socket.onopen = function(e){
         console.log("Socket open");
@@ -3592,4 +3592,3 @@ for (let i = 0; i < debugSet.length; i++){
 //TODO!!! Rules Page
 //TODO!!! Full leaderboard (Button in top right) (Not high priority)
 //TODO!!! Low quality version of webpage (no animations, no lighting, no filters)
-
