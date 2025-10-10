@@ -104,6 +104,7 @@
                 <button class="down-move-button"></button>
                 <button class="left-move-button"></button>
                 <button class="right-move-button"></button>
+                <button class="board-map-button turn-button">Map</button>
             </div>
             <div class="item-menu" style="display: none;">
                 <div class="item-list">
@@ -158,7 +159,7 @@
                 <div id="shop-2-preview" class="map-shop" style="display: none;">
                     <h2>Shop Preview</h2>
                     <div class="map-shop-item">
-                        <img class="map-shop-item-image" src="resources/textures/mushroom.png">
+                        <img class="map-shop-item-image" src="resources/textures/tacticooler.png">
                         <h3 class="map-shop-price">3 <img src="resources/textures/squid_coin.svg" width="18px" height="18px"></h3>
                     </div>
                     <div class="map-shop-item">
@@ -204,6 +205,7 @@
             </div>
             <!--<button class="options-button"></button>-->
             <button class="leaderboard-button" style="display: none;"></button>
+            <button class="help-button" style="display: initial"></button>
         </div>
         <div class="popups">
             <div id="connecting" class="popup" style="display: initial;">
@@ -429,7 +431,7 @@
                                 </div>
                                 <div class="minigame-chat-text-bar">
                                     <form id="minigame-chat-form">
-                                        <input id="minigame-chat-input" type="text">
+                                        <input id="minigame-chat-input" type="text" autocomplete="off">
                                     </form>
                                     <button id="minigame-chat-send-button">Send</button>
                                 </div>
@@ -528,7 +530,7 @@
                     <h1>Shop</h1><br>
                     <div class="popup-shop">
                         <div class="shop-item">
-                            <button class="shop-button" item="mushroom" style="background-image: url('resources/textures/mushroom.png')"></button><br>
+                            <button class="shop-button" item="tacticooler" style="background-image: url('resources/textures/tacticooler.png')"></button><br>
                             <h3>3 <img class="coin-shop-image" src="resources/textures/squid_coin.svg"></h3>
                         </div>
                         <div class="shop-item">
@@ -588,7 +590,7 @@
                     <div class="lucky-option">5 <img class="coin-lucky-img" src="resources/textures/squid_coin.svg"></div>
                     <div class="lucky-option">Custom Dice</div>
                     <div class="lucky-option">15 <img class="coin-lucky-img" src="resources/textures/squid_coin.svg"></div>
-                    <div class="lucky-option">Mushroom</div><br>
+                    <div class="lucky-option">Tacticooler</div><br>
                     <button class="lucky-stop-button">Stop</button>
                 </div>
             </div>
@@ -648,6 +650,357 @@
                     <h1 style="font-size: 3.25em;">Leaderboard</h1>
                     <div class="global-leaderboard-list"></div><br>
                     <button class="global-leaderboard-close">Close</button>
+                </div>
+            </div>
+
+            <div id="help" class="popup" style="display: none;">
+                <div class="popup-inset-small">
+                    <div class="help-window">
+                        <div class="help-sidebar">
+                            <div class="help-sidebar-group">
+                                <span class="help-sidebar-group-title help-sidebar-selected">How to Play</span>
+                                <div class="help-sidebar-subgroup">
+                                    <span class="help-sidebar-subgroup-title">What is This?</span>
+                                    <span class="help-sidebar-subgroup-title">Requirements</span>
+                                    <span class="help-sidebar-subgroup-title">Sign-Up</span>
+                                    <span class="help-sidebar-subgroup-title">Check-In</span>
+                                    <span class="help-sidebar-subgroup-title">How to Win?</span>
+                                    <span class="help-sidebar-subgroup-title">Your Turn</span>
+                                    <span class="help-sidebar-subgroup-title">Minigames</span>
+                                    <span class="help-sidebar-subgroup-title">End of the Game</span>
+                                </div>
+                            </div>
+                            <div class="help-sidebar-group">
+                                <span class="help-sidebar-group-title">Code of Conduct</span>
+                                <div class="help-sidebar-subgroup">
+                                    <span class="help-sidebar-subgroup-title">Guidelines</span>
+                                    <span class="help-sidebar-subgroup-title">Moderation</span>
+                                    <span class="help-sidebar-subgroup-title">Bans</span>
+                                    <span class="help-sidebar-subgroup-title">Bug Reporting</span>
+                                </div>
+                            </div>
+                            <div class="help-sidebar-group">
+                                <span class="help-sidebar-group-title">Board Play</span>
+                                <div class="help-sidebar-subgroup">
+                                    <span class="help-sidebar-subgroup-title">Spaces</span>
+                                    <span class="help-sidebar-subgroup-title">Shops</span>
+                                    <span class="help-sidebar-subgroup-title">Map</span>
+                                    <span class="help-sidebar-subgroup-title">Silver Stars</span>
+                                    <span class="help-sidebar-subgroup-title">Time Limit</span>
+                                </div>
+                            </div>
+                            <div class="help-sidebar-group">
+                                <span class="help-sidebar-group-title">Items</span>
+                                <div class="help-sidebar-subgroup">
+                                    <span class="help-sidebar-subgroup-title">Double Dice</span>
+                                    <span class="help-sidebar-subgroup-title">Triple Dice</span>
+                                    <span class="help-sidebar-subgroup-title">Tacticooler</span>
+                                    <span class="help-sidebar-subgroup-title">Custom Dice</span>
+                                    <span class="help-sidebar-subgroup-title">Warp Pipe</span>
+                                    <span class="help-sidebar-subgroup-title">Gold Pipe</span>
+                                    <span class="help-sidebar-subgroup-title">Shop-Hop-Box</span>
+                                </div>
+                            </div>
+                            <div class="help-sidebar-group">
+                                <span class="help-sidebar-group-title">Minigames</span>
+                                <div class="help-sidebar-subgroup">
+                                    <span class="help-sidebar-subgroup-title">Joining a Room</span>
+                                    <span class="help-sidebar-subgroup-title">Results</span>
+                                    <span class="help-sidebar-subgroup-title">Time Limit</span>
+                                </div>
+                            </div>
+                            <div class="help-sidebar-group">
+                                <span class="help-sidebar-group-title">About & Extra</span>
+                                <div class="help-sidebar-subgroup">
+                                    <span class="help-sidebar-subgroup-title">Credits</span>
+                                    <span class="help-sidebar-subgroup-title">Discord</span>
+                                    <span class="help-sidebar-subgroup-title">Badge</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="help-info">
+                            <!--How to Play-->
+                            <div class="help-subject">
+                                <br><h2>What is This?</h2><br>
+                                <p>
+                                    Mega Splat Party (MSP for short) is a multiplayer party game that has no limits on how many players can play! 
+                                    MSP is played across both this website and Splatoon 3 and is based on the popular party game series Mario Party.
+                                    Move across the board to buy the star, beat your friends (and enemies) in minigames to earn coins, and use items to gain an advantage in the game.
+                                    Welcome to the party!<br><br>
+                                    Mega Splat Party is designed to be played on a computer, although it does work on most modern phones, the experience is best on PC.
+                                </p>
+                            </div>
+                            <div class="help-subject">
+                                <br><h2>Requirements</h2><br>
+                                <p>
+                                    Some minigames in Mega Splat Party will require a minimum amount of progress in Splatoon 3 to be playable. Make sure your profile meets all the requirements before signing up:
+                                </p>
+                                <ul>
+                                    <li>A copy of Splatoon 3 for the Nintendo Switch or Switch 2</li>
+                                    <li>An active Nintendo Switch Online (NSO) subscription</li>
+                                    <li>Completed story mode (aka Alterna)</li>
+                                    <li>Are at least level 10 in game</li>
+                                    <li>Have at least 30,000 coins</li>
+                                    <li>Have Table Turf unlocked</li>
+                                </ul>
+                            </div>
+                            <div class="help-subject">
+                                <br><h2>Sign-Up</h2><br>
+                                <p>The sign-up process is quite simple. If sign-ups are open for the next running of Mega Splat Party, the website will proceed to a "Login/Sign-up" page.</p>
+                                <img src="resources/help-images/sign-up-1.png" width="360px">
+                                <p>To sign-up you will need both your <b>discord account</b> name (i.e. astrodwarf) and your <b>Splatoon splashtag</b> name (i.e. AstroDwarf#1234). Your discord account name can be found below your username on your profile.</p>
+                                <img src="resources/help-images/sign-up-2.png" width="360px">
+                                <p>Your splatoon splashtag must include the "#" and the 4 or 5 numbers found on the bottom left of your splashtag in game.</p>
+                                <img src="resources/help-images/sign-up-3.png" width="360px">
+                            </div>
+                            <div class="help-subject">
+                                <br><h2>Check-In</h2><br>
+                                <p>After you have logged-in, a new screen will appear with the start time of the game. From 1 hour before MSP starts up until the start of MSP, on this screen you can check-in for the game. You will be required to be checked-in to participate in Mega Splat Party.</p>
+                                <img src="resources/help-images/check-in-1.png" width="360px">
+                            </div>
+                            <div class="help-subject">
+                                <br><h2>How to Win?</h2><br>
+                                <p>
+                                    The goal of Mega Splat Party is to have the most Stars (<img src="resources/textures/squid_star.svg" width="15px" height="15px" style="transform: translateY(2px);">)
+                                    at the end of the game. Stars can be obtained in 2 different ways. The first is reaching the star space and purchasing a star for 20 coins.
+                                </p>
+                                <img src="resources/help-images/how-to-win-1.png" width="300px">
+                                <p>The second is collecting 5 silver stars on the board.</p>
+                                <img src="resources/help-images/how-to-win-2.png" width="200px">
+                                <p>
+                                    In the event where 2 players are tied by having the same amount of stars, the player with more Coins (<img src="resources/textures/squid_coin.svg" width="15px" height="15px" style="transform: translateY(3px);">)
+                                    will win the tie.
+                                </p>
+                            </div>
+                            <div class="help-subject">
+                                <br><h2>Your Turn</h2><br>
+                                <p>
+                                    Your turn consists of rolling your dice and moving on the board. Before you roll your dice, you can use a single item that will affect your turn.
+                                    You can read more about them under <a class="help-group-link" index="3">Items</a>.
+                                    After rolling, you move on the board. You can move in any direction you want on the board as long as the way is not blocked.
+                                    Depending on the space you landed on, they can have different effects, you can read more about them under <a class="help-subgroup-link" index="12">Spaces</a>.
+                                    After you hit the <b>End Turn</b> button, your turn will end and any effects for the space you landed on will trigger. There are some spaces that trigger when you walk over them such as <b>Shops</b> and the <b>Star Space</b>.
+                                    You can also read about them under <a class="help-subgroup-link" index="12">Spaces</a>.
+                                </p>
+                            </div>
+                            <div class="help-subject">
+                                <br><h2>Minigames</h2><br>
+                                <p>
+                                    After all players have completed their turn, a minigame will begin. Minigames are your oppurtunity to earn coins by beating other players in a challenge.
+                                    <br><br>The Minigame UI has 3 tabs to be aware of. First the <b>Description</b> tab.
+                                </p>
+                                <img src="resources/help-images/minigames-1.png" width="360px">
+                                <p>
+                                    On this tab you will get an overview of the minigame, any rules you need to be aware of, and any rewards depending on how well you place in the minigame.
+                                    Many minigames will require you to be in a lobby with the other players, make sure to use the pool and password provided for creating rooms. You can also use the <b>Chat</b> tab to coordinate who will host the room.
+                                    If you need help joining a lobby you can learn more under <a class="help-subgroup-link" index="24">Joining a Room</a>.
+                                    <br><br> The next tab over is the <b>Results</b> tab.
+                                </p>
+                                <img src="resources/help-images/minigames-2.png" width="360px">
+                                <p>
+                                    Here you can see all of the players joining you for your minigame. As MSP has no limits on how many people can play, not everyone plays the minigame together like in other similar games.
+                                    On this tab you can also report the score of the minigame. If there are 4 or more players in a lobby, 2 players must report the same score to successfully lock it in. Otherwise only 1 player needs to report the score.
+                                    Ordered scores will automatically be adjusted by the server to be ordered correctly as players can sometimes report ties in differnt ways from each other.
+                                    <br><br> The last tab is the <b>Chat</b> tab.
+                                </p>
+                                <img src="resources/help-images/minigames-3.png" width="360px">
+                                <p>
+                                    This tab will not appear if you are playing a minigame by yourself. This tab can be used to communicate scores with each other, coordinate room hosting, or just to say hi to your friend. Some alerts can also be sent from the server here.
+                                    If there is a new message you have not read, a notification icon will appear in the corner of the tab.
+                                </p>
+                            </div>
+                            <div class="help-subject">
+                                <br><h2>End of the Game</h2><br>
+                                <p>
+                                    After the final minigame has concluded, a results screen will appear with crowning whoever had the most stars the victor of Mega Splat Party!
+                                    A leaderboard will also allow you to see how well you and all your friends did. MSP is now over and you can enjoy the rest of your evening.
+                                    If you happened to be the winner, you have earned yourself the grand prize of a sendou badge! Your badge will be automatically added to your profile if you have a sendou.ink account, no need to ask for it in the discord server.
+                                </p>
+                                <img src="resources/help-images/badgeapple.gif" width="240px">
+                                <p>
+                                    If you do not have a sendou.ink account and have now just made one to recieve the badge or you didn't recieve it automatically, send a help-desk request on the discord server.
+                                </p>
+                            </div>
+                            <!--Code of Conduct-->
+                            <div class="help-subject" style="display: none;">
+                                <br><h2>Guidelines</h2><br>
+                                <p>
+                                    This is yet to be written, please wait!
+                                </p>
+                            </div>
+                            <div class="help-subject" style="display: none;">
+                                <br><h2>Moderation</h2><br>
+                                <p>
+                                    This is yet to be written, please wait!
+                                </p>
+                            </div>
+                            <div class="help-subject" style="display: none;">
+                                <br><h2>Bans</h2><br>
+                                <p>
+                                    This is yet to be written, please wait!
+                                </p>
+                            </div>
+                            <div class="help-subject" style="display: none;">
+                                <br><h2>Bug Reporting</h2><br>
+                                <p>
+                                    This is yet to be written, please wait!
+                                </p>
+                            </div>
+                            <!--Board Play-->
+                            <div class="help-subject" style="display: none;">
+                                <br><h2>Spaces</h2><br>
+                                <p>
+                                    There are many different kinds of spaces you can land on that do various actions. Some trigger when ending your turn and others when you walk over them. This is a short overview of each space on the board.
+                                </p>
+
+                                <br><h3>Blue Space</h3>
+                                <img src="resources/help-images/blue-space.png" width="80px" style="image-rendering: pixelated;">
+                                <p>Blue Spaces are triggered when you end your turn on one. When triggered, you recieve 3 coins for landing on it.</p>
+
+                                <br><h3>Red Space</h3>
+                                <img src="resources/help-images/red-space.png" width="80px" style="image-rendering: pixelated;">
+                                <p>Red Spaces are triggered when you end your turn on one. When triggered, you lose 3 coins for landing on it.</p>
+
+                                <br><h3>Lucky Space</h3>
+                                <img src="resources/help-images/lucky-space.png" width="80px" style="image-rendering: pixelated;">
+                                <p>Lucky Spaces are triggered when you end your turn on one. When triggered, a roulette will appear giving you a chance at winning coins or an item.</p>
+
+                                <br><h3>Shop</h3>
+                                <img src="resources/help-images/shop-space.png" width="80px" style="image-rendering: pixelated;">
+                                <p>Shops are triggered when you walk onto one. When triggered, a shop ui will open allowing you to exchange coins for items.</p>
+
+                                <br><h3>Star</h3>
+                                <img src="resources/help-images/star-space.png" width="80px" style="image-rendering: pixelated;">
+                                <p>Star Spaces are triggered when you walk onto one. When triggered, a ui will open allowing you to purchase a star for 20 coins. If you purchase a star, you will be warped back to the start of the map.</p>
+                            </div>
+                            <div class="help-subject" style="display: none;">
+                                <br><h2>Shops</h2><br>
+                                <p>
+                                    Shops are a place to exchange your hard earned coins for powerful items. There are 4 shops on the board. Each one has a differnt stock of items, so be sure to check them all out.
+                                    Shops will open when you pass over a shop space. When looking at the map, if you hover over a shop, a preview of what the shop sells will appear in the top right corner of the screen.
+                                </p>
+                            </div>
+                            <div class="help-subject" style="display: none;">
+                                <br><h2>Map</h2><br>
+                                <p>
+                                    Your map is an invaluable tool to planning out your turn. You can look at your map before you roll and while you're moving on the board.
+                                    Hovering over some spaces can give you extra information about them. 
+                                </p>
+                                <img src="resources/help-images/map-1.png" width="200px">
+                                <p>A counter in the top left will also tell you how many moves away a space is from you.</p>
+                                <img src="resources/help-images/map-2.png" width="200px">
+                                <p>While viewing the map, you can also see where every silver star on the board is located.</p>
+                            </div>
+                            <div class="help-subject" style="display: none;">
+                                <br><h2>Silver Stars</h2><br>
+                                <p>
+                                    Silver stars are another way of getting your hands on stars. When you collect 5 silver stars, they will come together to form a star for you.
+                                    Every turn 1 silver star is placed randomly on the board. Silver stars will appear in the same location for all players. Some may spawn in impossible to reach locations, to get these you may have to use an item to reach them.
+                                </p>
+                            </div>
+                            <div class="help-subject" style="display: none;">
+                                <br><h2>Time Limit</h2><br>
+                                <p>
+                                    This is yet to be written, please wait!
+                                </p>
+                            </div>
+                            <!--Items-->
+                            <div class="help-subject" style="display: none;">
+                                <br><h2>Double Dice</h2><br>
+                                <img src="resources/textures/doubledice.png" width="124px" style="filter: drop-shadow(0 0 0.25rem black);">
+                                <p>
+                                    Double Dice is an item that allows the user to roll 2 dice and add their rolls together instead of rolling just 1.
+                                </p>
+                            </div>
+                            <div class="help-subject" style="display: none;">
+                                <br><h2>Triple Dice</h2><br>
+                                <img src="resources/textures/tripledice.png" width="124px" style="filter: drop-shadow(0 0 0.25rem black);">
+                                <p>
+                                    Triple Dice is an item that allows the user to roll 3 dice and add their rolls together instead of rolling just 1.
+                                </p>
+                            </div>
+                            <div class="help-subject" style="display: none;">
+                                <br><h2>Tacticooler</h2><br>
+                                <img src="resources/textures/tacticooler.png" width="124px" style="filter: drop-shadow(0 0 0.25rem black);">
+                                <p>
+                                    Tacticooler is an item that adds 3 onto your dice roll.
+                                </p>
+                            </div>
+                            <div class="help-subject" style="display: none;">
+                                <br><h2>Custom Dice</h2><br>
+                                <img src="resources/textures/customdice.png" width="124px" style="filter: drop-shadow(0 0 0.25rem black);">
+                                <p>
+                                    Custom Dice is an item that allows you to pick what number you will roll from between 1 and 10.
+                                </p>
+                            </div>
+                            <div class="help-subject" style="display: none;">
+                                <br><h2>Warp Pipe</h2><br>
+                                <img src="resources/textures/pipe.png" width="124px" style="filter: drop-shadow(0 0 0.25rem black);">
+                                <p>
+                                    Warp Pipe is an item that when used will warp you to a random space on the board. You will still roll and move after using this item.
+                                </p>
+                            </div>
+                            <div class="help-subject" style="display: none;">
+                                <br><h2>Gold Pipe</h2><br>
+                                <img src="resources/textures/goldpipe.png" width="124px" style="filter: drop-shadow(0 0 0.25rem black);">
+                                <p>
+                                    Gold Pipe is an item that when used will warp you to 1 space away from the star. You will still roll and move after using this item.
+                                </p>
+                            </div>
+                            <div class="help-subject" style="display: none;">
+                                <br><h2>Shop-Hop-Box</h2><br>
+                                <img src="resources/textures/shophopbox.png" width="124px" style="filter: drop-shadow(0 0 0.25rem black);">
+                                <p>
+                                    Shop-Hop-Box is an item that when used will warp you to 1 space away from a random shop on the board. You will still roll and move after using this item.
+                                </p>
+                            </div>
+                            <!--Minigames-->
+                            <div class="help-subject" style="display: none;">
+                                <br><h2>Joining a Room</h2><br>
+                                <p>
+                                    This is yet to be written, please wait!
+                                </p>
+                            </div>
+                            <div class="help-subject" style="display: none;">
+                                <br><h2>Results</h2><br>
+                                <p>
+                                    This is yet to be written, please wait!
+                                </p>
+                            </div>
+                            <div class="help-subject" style="display: none;">
+                                <br><h2>Time Limit</h2><br>
+                                <p>
+                                    This is yet to be written, please wait!
+                                </p>
+                            </div>
+                            <!--About & Extra-->
+                            <div class="help-subject" style="display: none;">
+                                <br><h2>Credits</h2><br>
+                                <p>
+                                    This is yet to be written, please wait!
+                                </p>
+                            </div>
+                            <div class="help-subject" style="display: none;">
+                                <br><h2>Discord</h2><br>
+                                <p>
+                                    This is yet to be written, please wait!
+                                </p>
+                            </div>
+                            <div class="help-subject" style="display: none;">
+                                <br><h2>Badge</h2><br>
+                                <p>
+                                    This is yet to be written, please wait!
+                                </p>
+                            </div>
+                        </div>
+                        <div class="help-bottombar">
+                            <a href="https://discord.com/invite/QtwjuQt6Nk" style="padding-left: 20px; line-height: 35px; color:white;">
+                                <img src="resources/textures/discord-icon.png" width="20px" height="20px" style="transform: translateY(5px);">
+                                Discord Link
+                            </a>
+                            <button class="help-close-button">Close</button>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
