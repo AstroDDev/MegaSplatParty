@@ -859,7 +859,7 @@ function buildMap(){
 
 loadMap();
 
-const ItemData = {
+var ItemData = {
     doubledice: {
         name: "Double Dice",
         description: "Roll 2 dice and move their total value",
@@ -895,12 +895,12 @@ const ItemData = {
         price: 10,
         image: TexLoader.load("resources/textures/customdice.png")
     },
-    mushroom: {
-        name: "Mushroom",
+    tacticooler: {
+        name: "Tacticooler",
         description: "Add 3 onto your next roll",
-        url: "resources/textures/mushroom.png",
+        url: "resources/textures/tacticooler.png",
         price: 3,
-        image: TexLoader.load("resources/textures/mushroom.png")
+        image: TexLoader.load("resources/textures/tacticooler.png")
     },
     shophopbox: {
         name: "Shop Hop Box",
@@ -908,8 +908,21 @@ const ItemData = {
         url: "resources/textures/shophopbox.png",
         price: 7,
         image: TexLoader.load("resources/textures/shophopbox.png")
+    },
+    inkjet: {
+        name: "Ink Jet",
+        description: "Use to reach previously inaccessible areas",
+        url: "resources/textures/inkjet.png",
+        price: 3,
+        image: TexLoader.load("resources/textures/inkjet.png")
     }
 };
+
+for (var [key, value] of Object.entries(ItemData)){
+    value.image.colorSpace = THREE.SRGBColorSpace;
+    value.image.minFilter = THREE.NearestFilter;
+    value.image.magFilter = THREE.NearestFilter;
+}
 
 var keys = {};
 window.onkeydown = function(e){ 
@@ -1346,7 +1359,7 @@ var customDiceRoll = 0;
 var luckyOptions = document.getElementsByClassName("lucky-option");
 var luckyTimer = 0;
 var luckyClickTimer = -1;
-const luckyItemOptions = ["doubledice", "tripledice", "mushroom", "customdice", "shophopbox", "pipe"];
+const luckyItemOptions = ["doubledice", "tripledice", "tacticooler", "customdice", "shophopbox", "pipe"];
 var luckyRouletteItems = [];
 function DoTurn(){
     if (turnStep == "menu"){
@@ -1354,6 +1367,7 @@ function DoTurn(){
     }
     else if (turnStep == "roll"){
         if (customDiceRoll == 0){
+            //Not using custom dice
             if (turnAnimTimer == 0){
                 Dice[rollsRemaining - 1].position.set(Player.position.x, Player.position.y + 0.85, Player.position.z);
                 Dice[rollsRemaining - 1].rotation.set(Date.now() / 96, Date.now() / 232, Date.now() / 181, "YXZ");
@@ -1363,6 +1377,7 @@ function DoTurn(){
                     turnAnimTimer = 1.5;
                     UIState = "override";
                     document.getElementsByClassName("roll-back-button")[0].style.display = "none";
+                    document.getElementsByClassName("board-inputs")[0].style.display = "none";
 
                     //Do Roll
                     currentRoll = Math.floor(Math.random() * 10) + 1;
@@ -1383,8 +1398,10 @@ function DoTurn(){
                     document.getElementsByClassName("roll-display")[0].style.transform = "scale(0%)";
                     moveHistory = [];
                     rollsRemaining--;
-                    SetMoveUI();
-                    saveCookies();
+                    if (rollsRemaining == 0){
+                        SetMoveUI();
+                        Socket.send(JSON.stringify({ method: "roll", token: TOKEN, roll: PlayerData.roll }));
+                    }
                 }
             }
             else{
@@ -1471,6 +1488,7 @@ function DoTurn(){
                     turnAnimTimer = 1.5;
                     UIState = "override";
                     document.getElementsByClassName("roll-back-button")[0].style.display = "none";
+                    document.getElementsByClassName("board-inputs")[0].style.display = "none";
 
                     //Do Roll
                     currentRoll = customDiceRoll;
@@ -1482,8 +1500,9 @@ function DoTurn(){
                     document.getElementsByClassName("roll-display")[0].style.transform = "scale(0%)";
                     moveHistory = [];
                     rollsRemaining--;
+
                     SetMoveUI();
-                    saveCookies();
+                    Socket.send(JSON.stringify({ method: "roll", token: TOKEN, roll: PlayerData.roll }));
 
                     document.getElementsByClassName("custom-dice-input")[0].style.display = "none";
                 }
@@ -1521,11 +1540,17 @@ function DoTurn(){
                     if (openShopPreview != "") document.getElementById(openShopPreview + "-preview").style.display = "none";
                     openShopPreview = mapData[intersectPos.y][intersectPos.x].popup;
                     document.getElementById(openShopPreview + "-preview").style.display = "initial";
+
+                    document.getElementsByClassName("leaderboard-button")[0].style.display = "none";
+                    document.getElementsByClassName("help-button")[0].style.display = "none";
                 }
             }
             else{
                 if (openShopPreview != "") document.getElementById(openShopPreview + "-preview").style.display = "none";
                 openShopPreview = "";
+
+                document.getElementsByClassName("leaderboard-button")[0].style.display = "initial";
+                document.getElementsByClassName("help-button")[0].style.display = "initial";
             }
         }
         else{
@@ -1888,7 +1913,7 @@ function UseItem(index){
                 case "goldpipe":
                     TriggerGoldPipeWarpAnimation();
                     break;
-                case "mushroom":
+                case "tacticooler":
                     addToRoll = 3;
                     turnStep = "menu";
                     document.getElementsByClassName("player-inputs")[0].style.display = "flex";
@@ -1944,6 +1969,7 @@ function ReplaceItem(index){
 
 document.getElementsByClassName("move-end-turn-button")[0].onclick = (e) => {
     if (turnStep == "move"){
+        document.getElementsByClassName("board-inputs")[0].style.display = "none";
         if (Object.hasOwn(mapData[PlayerData.position.y][PlayerData.position.x], "popup") && !mapData[PlayerData.position.y][PlayerData.position.x].walkOver){
             EndTurnPopup();
         }
@@ -2221,6 +2247,9 @@ function PipeWarpAnimation(){
         GreenPipe.position.set(0, 0, 0);
         UIState = "player";
         PlayerData.position = { x: pipeWarpLocation.x, y: pipeWarpLocation.y };
+
+        transitionValues.cameraPos = Camera.position;
+        transitionValues.cameraRot = Camera.rotation;
         
         if (turnStep == "pipe-warp-anim-end-turn"){
             SetMoveUI();
@@ -2300,6 +2329,9 @@ function GoldPipeWarpAnimation(){
         UIState = "player";
         PlayerData.position = { x: pipeWarpLocation.x, y: pipeWarpLocation.y };
         
+        transitionValues.cameraPos = Camera.position;
+        transitionValues.cameraRot = Camera.rotation;
+
         turnStep = "menu";
         document.getElementsByClassName("player-inputs")[0].style.display = "flex";
     }
@@ -2688,25 +2720,59 @@ function UpdatePlayerUI(){
     document.getElementsByClassName("player-name")[0].textContent = COOKIES["ign"].split("#")[0];
 }
 
-document.getElementById("map-button").onclick = function(e){
+var mapTriggeredFrom = "null";
+function OpenMap(){
+    mapTriggeredFrom = turnStep;
     if (turnStep == "menu"){
         UIState = "map";
         turnStep = "map";
         document.getElementsByClassName("player-inputs")[0].style.display = "none";
         document.getElementById("leaderboard").style.display = "none";
+        document.getElementById("turn-counter").style.display = "none";
+        document.getElementsByClassName("map-overlay")[0].style.display = "initial";
+    }
+    else if (turnStep == "move"){
+        UIState = "map";
+        turnStep = "map";
+        document.getElementsByClassName("board-inputs")[0].style.display = "none";
+        document.getElementsByClassName("move-undo-button")[0].style.display = "none";
+        document.getElementsByClassName("move-end-turn-button")[0].style.display = "none";
+        document.getElementsByClassName("roll-display")[0].style.transform = "scale(0%)";
+        document.getElementById("leaderboard").style.display = "none";
+        document.getElementById("turn-counter").style.display = "none";
         document.getElementsByClassName("map-overlay")[0].style.display = "initial";
     }
 }
+document.getElementById("map-button").onclick = OpenMap;
+document.getElementsByClassName("board-map-button")[0].onclick = OpenMap;
 
-document.getElementsByClassName("map-back-button")[0].onclick = function(e){
+function CloseMap(){
     if (turnStep == "map"){
-        UIState = "player";
-        turnStep = "menu";
-        document.getElementsByClassName("player-inputs")[0].style.display = "flex";
-        document.getElementById("leaderboard").style.display = "initial";
-        document.getElementsByClassName("map-overlay")[0].style.display = "none";
+        document.getElementsByClassName("leaderboard-button")[0].style.display = "initial";
+        document.getElementsByClassName("help-button")[0].style.display = "initial";
+
+        if (mapTriggeredFrom == "menu"){
+            UIState = "player";
+            turnStep = "menu";
+            document.getElementsByClassName("player-inputs")[0].style.display = "flex";
+            document.getElementById("leaderboard").style.display = "initial";
+            document.getElementById("turn-counter").style.display = "initial";
+            document.getElementsByClassName("map-overlay")[0].style.display = "none";
+        }
+        else if (mapTriggeredFrom == "move"){
+            UIState = "above";
+            turnStep = "move";
+            document.getElementsByClassName("board-inputs")[0].style.display = "initial";
+            document.getElementsByClassName("move-undo-button")[0].style.display = spacesMoved > 0 ? "initial" : "none";
+            document.getElementsByClassName("move-end-turn-button")[0].style.display = spacesMoved == PlayerData.roll ? "initial" : "none";
+            document.getElementsByClassName("roll-display")[0].style.transform = "scale(100%)";
+            document.getElementById("leaderboard").style.display = "initial";
+            document.getElementById("turn-counter").style.display = "initial";
+            document.getElementsByClassName("map-overlay")[0].style.display = "none";
+        }
     }
 }
+document.getElementsByClassName("map-back-button")[0].onclick = CloseMap;
 
 document.getElementsByClassName("minigame-navigator-button")[0].onclick = function(e){
     document.getElementsByClassName("minigame-navigator-button")[0].classList.add("minigame-navigator-button-selected");
@@ -2755,6 +2821,52 @@ document.getElementsByClassName("minigame-submit")[0].onclick = function(e){
     minigameSubmitButton.disabled = true;
     minigameSubmitButton.textContent = "Submitted";
 }
+
+var helpWindow = document.getElementsByClassName("help-info")[0];
+var helpSidebarSubjects = document.getElementsByClassName("help-sidebar-subgroup-title");
+var helpSubjects = document.getElementsByClassName("help-subject");
+var helpSidebarCategories = document.getElementsByClassName("help-sidebar-group-title");
+for (let i = 0; i < helpSidebarSubjects.length; i++){
+    helpSidebarSubjects[i].onclick = function(e){
+        document.getElementsByClassName("help-sidebar-selected")[0].classList.remove("help-sidebar-selected");
+        helpSidebarSubjects[i].classList.add("help-sidebar-selected");
+        for (let j = 0; j < helpSubjects.length; j++){
+            helpSubjects[j].style.display = i == j ? "block" : "none";
+        }
+        helpWindow.scrollTop = 0;
+    };
+}
+for (let i = 0; i < helpSidebarCategories.length; i++){
+    helpSidebarCategories[i].onclick = function(e){
+        document.getElementsByClassName("help-sidebar-selected")[0].classList.remove("help-sidebar-selected");
+        helpSidebarCategories[i].classList.add("help-sidebar-selected");
+        let subgroupIndex = 0;
+        for (let j = 0; j < helpSidebarCategories.length; j++){
+            let subgroups = helpSidebarCategories[j].parentElement.children[1].children;
+            for (let k = 0; k < subgroups.length; k++){
+                helpSubjects[subgroupIndex + k].style.display = i == j ? "block" : "none";
+            }
+            subgroupIndex += subgroups.length;
+        }
+        helpWindow.scrollTop = 0;
+    }
+}
+var helpGroupLinks = document.getElementsByClassName("help-group-link");
+var helpSubgroupLinks = document.getElementsByClassName("help-subgroup-link");
+for (let i = 0; i < helpGroupLinks.length; i++){
+    helpGroupLinks[i].onclick = function(e){ helpSidebarCategories[Number.parseInt(helpGroupLinks[i].getAttribute("index"))].onclick(); };
+}
+for (let i = 0; i < helpSubgroupLinks.length; i++){
+    helpSubgroupLinks[i].onclick = function(e){ helpSidebarSubjects[Number.parseInt(helpSubgroupLinks[i].getAttribute("index"))].onclick(); };
+}
+
+var helpElement = document.getElementById("help");
+document.getElementsByClassName("help-button")[0].onclick = function(e){
+    helpElement.style.display = helpElement.style.display == "none" ? "initial" : "none";
+};
+document.getElementsByClassName("help-close-button")[0].onclick = function(e){
+    helpElement.style.display = "none";
+};
 
 //NETWORKING!!!
 var Socket;
@@ -2875,12 +2987,22 @@ function get_status_server(data){
                         turnStep = "wait";
                         UIState = "player";
                     }
-                    else{
+                    else if (data.data.roll == 0){
                         document.getElementsByClassName("player-inputs")[0].style.display = "flex";
                         PlayerData.roll = 0;
                         turnStep = "menu";
                         UIState = "player";
                         UIPanels.waitMinigame.style.display = "none";
+                    }
+                    else{
+                        document.getElementsByClassName("player-inputs")[0].style.display = "none";
+                        PlayerData.roll = data.data.roll;
+                        turnStep = "move";
+                        UIState = "above";
+                        UIPanels.waitMinigame.style.display = "none";
+                        document.getElementsByClassName("roll-display")[0].style.transform = "scale(100%)";
+                        document.getElementsByClassName("board-inputs")[0].style.display = "initial";
+                        SetMoveUI();
                     }
                 }
                 else if (data.status == "MINIGAME"){
@@ -2935,7 +3057,6 @@ function get_status_server(data){
                     UIPanels.login.style.display = "initial";
                 }
                 else{
-                    UIState = "player";
                     UIPanels.checkin.style.display = "none";
                     UIPanels.connecting.style.display = "none";
                     UIPanels.login.style.display = "none";
@@ -2946,10 +3067,22 @@ function get_status_server(data){
                     //Check if done turn or not
                     if (PlayerData.turnsCompleted < ServerTurn){
                         //Play your turn
-                        document.getElementsByClassName("player-inputs")[0].style.display = "flex";
+                        if (data.data.roll == 0){
+                            UIState = "player";
+                            document.getElementsByClassName("player-inputs")[0].style.display = "flex";
+                        }
+                        else{
+                            UIState = "above";
+                            turnStep = "move";
+                            PlayerData.roll = data.data.roll;
+                            document.getElementsByClassName("roll-display")[0].style.transform = "scale(100%)";
+                            document.getElementsByClassName("board-inputs")[0].style.display = "initial";
+                            SetMoveUI();
+                        }
                     }
                     else{
                         //Wait for Minigame
+                        UIState = "menu";
                         UIPanels.waitMinigame.style.display = "initial";
                     }
                 }
@@ -2981,7 +3114,7 @@ function announcement_server(data){
         if (Object.hasOwn(data, "turn")) ServerTurn = data.turn;
 
         if (ServerStatus == "CHECK_IN"){
-            if (TOKEN != ""){
+            if (SignedIn){
                 UIPanels.checkin.children[0].children[2].textContent = checkedIn ? "You are checked-in!" : "Check-in is live";
                 document.getElementById("checkinbtn").disabled = checkedIn;
                 document.getElementById("checkinbtn").textContent = checkedIn ? "Checked-In" : "Check-in";
@@ -3127,7 +3260,6 @@ function GenerateResultsPage(data){
 }
 
 document.getElementsByClassName("leaderboard-button")[0].onclick = function(e){
-    console.log(GlobalLeaderboard.style.display);
     UIPanels.globalLeaderboard.style.display = UIPanels.globalLeaderboard.style.display == "none" ? "initial" : "none";
 };
 document.getElementsByClassName("global-leaderboard-close")[0].onclick = function(e){ UIPanels.globalLeaderboard.style.display = "none"; };
@@ -3228,7 +3360,12 @@ function get_lobby_server(data){
     document.getElementsByClassName("minigame-pass")[0].textContent = "Pass: " + data.pass;
 
     document.getElementsByClassName("minigame-title")[0].textContent = MinigameData[data.minigame].title;
-    document.getElementsByClassName("minigame-description")[0].innerHTML = MinigameData[data.minigame].description;
+    
+    let descrip = MinigameData[data.minigame].description;
+    for (let i = 0; i < data.setApartPlayers.length; i++){
+        descrip = descrip.replace("{Player}", data.lobby[data.setApartPlayers[i]].ign);
+    }
+    document.getElementsByClassName("minigame-description")[0].innerHTML = descrip;
 
     //Chat Stuff
     document.getElementsByClassName("minigame-chat")[0].innerHTML = "";
@@ -3592,4 +3729,3 @@ for (let i = 0; i < debugSet.length; i++){
 //TODO!!! Rules Page
 //TODO!!! Full leaderboard (Button in top right) (Not high priority)
 //TODO!!! Low quality version of webpage (no animations, no lighting, no filters)
-
