@@ -16,11 +16,10 @@
         <h2 class="debug" style="display: none;">debug</h2>
         <div class="debug-box" style="display: none;">
             <br><br>
-            <button class="debug-set">menu</button><br>
-            <button class="debug-set">orbit</button><br>
-            <button class="debug-set">player</button><br>
-            <button class="debug-set">above</button><br>
-            <button class="debug-set">map</button><br>
+            <button id="debug-player-button">Player</button>
+            <button id="debug-map-button">Map</button><br>
+            <textarea id="debug-text-input" style="text-align: left; vertical-align: top; width: 250px; height: 500px;"></textarea>
+            <br><button id="debug-set-button">Set Data</button>
         </div>
 
         <div class="confetti-wrapper" style="display: none;">
@@ -143,48 +142,48 @@
                 <div id="shop-1-preview" class="map-shop" style="display: none;">
                     <h2>Shop Preview</h2>
                     <div class="map-shop-item">
-                        <img class="map-shop-item-image" src="resources/textures/doubledice.png">
-                        <h3 class="map-shop-price">5 <img src="resources/textures/squid_coin.svg" width="18px" height="18px"></h3>
+                        <img class="map-shop-item-image" src="resources/textures/tacticooler.png">
+                        <h3 class="map-shop-price">3 <img src="resources/textures/squid_coin.svg" width="18px" height="18px"></h3>
                     </div>
                     <div class="map-shop-item">
                         <img class="map-shop-item-image" src="resources/textures/pipe.png">
                         <h3 class="map-shop-price">4 <img src="resources/textures/squid_coin.svg" width="18px" height="18px"></h3>
                     </div>
                     <div class="map-shop-item">
-                        <img class="map-shop-item-image" src="resources/textures/customdice.png">
-                        <h3 class="map-shop-price">10 <img src="resources/textures/squid_coin.svg" width="18px" height="18px"></h3>
+                        <img class="map-shop-item-image" src="resources/textures/doubledice.png">
+                        <h3 class="map-shop-price">7 <img src="resources/textures/squid_coin.svg" width="18px" height="18px"></h3>
                     </div>
                 </div>
 
                 <div id="shop-2-preview" class="map-shop" style="display: none;">
                     <h2>Shop Preview</h2>
                     <div class="map-shop-item">
-                        <img class="map-shop-item-image" src="resources/textures/tacticooler.png">
+                        <img class="map-shop-item-image" src="resources/textures/key.png">
                         <h3 class="map-shop-price">3 <img src="resources/textures/squid_coin.svg" width="18px" height="18px"></h3>
                     </div>
                     <div class="map-shop-item">
                         <img class="map-shop-item-image" src="resources/textures/tripledice.png">
-                        <h3 class="map-shop-price">10 <img src="resources/textures/squid_coin.svg" width="18px" height="18px"></h3>
+                        <h3 class="map-shop-price">15 <img src="resources/textures/squid_coin.svg" width="18px" height="18px"></h3>
                     </div>
                     <div class="map-shop-item">
-                        <img class="map-shop-item-image" src="resources/textures/shophopbox.png">
-                        <h3 class="map-shop-price">7 <img src="resources/textures/squid_coin.svg" width="18px" height="18px"></h3>
+                        <img class="map-shop-item-image" src="resources/textures/goldpipe.png">
+                        <h3 class="map-shop-price">25 <img src="resources/textures/squid_coin.svg" width="18px" height="18px"></h3>
                     </div>
                 </div>
 
                 <div id="shop-3-preview" class="map-shop" style="display: none;">
                     <h2>Shop Preview</h2>
                     <div class="map-shop-item">
-                        <img class="map-shop-item-image" src="resources/textures/goldpipe.png">
-                        <h3 class="map-shop-price">25 <img src="resources/textures/squid_coin.svg" width="18px" height="18px"></h3>
+                        <img class="map-shop-item-image" src="resources/textures/tacticooler.png">
+                        <h3 class="map-shop-price">3 <img src="resources/textures/squid_coin.svg" width="18px" height="18px"></h3>
                     </div>
                     <div class="map-shop-item">
-                        <img class="map-shop-item-image" src="resources/textures/customdice.png">
-                        <h3 class="map-shop-price">10 <img src="resources/textures/squid_coin.svg" width="18px" height="18px"></h3>
+                        <img class="map-shop-item-image" src="resources/textures/pipe.png">
+                        <h3 class="map-shop-price">4 <img src="resources/textures/squid_coin.svg" width="18px" height="18px"></h3>
                     </div>
                     <div class="map-shop-item">
-                        <img class="map-shop-item-image" src="resources/textures/tripledice.png">
-                        <h3 class="map-shop-price">10 <img src="resources/textures/squid_coin.svg" width="18px" height="18px"></h3>
+                        <img class="map-shop-item-image" src="resources/textures/shophopbox.png">
+                        <h3 class="map-shop-price">5 <img src="resources/textures/squid_coin.svg" width="18px" height="18px"></h3>
                     </div>
                 </div>
 
@@ -196,12 +195,20 @@
                     </div>
                 </div>
 
+                <div id="duel-preview" class="map-shop" style="display: none;">
+                    <h2>Duel</h2>
+                    <p style="padding: 20px; padding-top: 0;">Bet your coins or stars to duel another player.</p>
+                </div>
+
                 <h2 class="map-distance-text">9 Away</h2>
                 <button class="map-back-button">Back</button>
             </div>
             <div id="turn-counter" style="display: none;">
                 <h3 style="color: black; display: block; font-size: 1em; text-align: center; width: calc(100% - 30px); float: left; opacity: 50%;">Turn</h3>
                 <h2 id="turn-counter-text">1/10</h2>
+            </div>
+            <div id="wait-minigame-map" style="display: none;">
+                <button class="board-map-button turn-button">Map</button>
             </div>
             <!--<button class="options-button"></button>-->
             <button class="leaderboard-button" style="display: none;"></button>
@@ -243,197 +250,248 @@
                 </div>
             </div>
 
-            <div id="minigame" class="popup" style="display: none;">
+            <div id="new-minigame" class="popup" style="display: none;">
                 <div class="popup-inset">
-                    <div id="minigame-interactive" style="display: initial;">
-                        <h1 style="font-size: 3.25em;">Minigame</h1>
-                        <h2 class="minigame-title">Minigame Name</h2><br>
-                        <h3 class="minigame-pool">Pool: MSP0</h3>
-                        <div style="width: 100px; display: inline-block;"></div>
-                        <h3 class="minigame-pass">Pass: 5555</h3><br><br>
-                        <div class="minigame-navigator">
-                            <button class="minigame-navigator-button minigame-navigator-button-selected">Description</button>
-                            <button class="minigame-navigator-button">Submit Results</button>
-                            <button class="minigame-navigator-button">Chat<div class="minigame-chat-notification" style="display: none;"></div></button>
-                        </div>
-                        <div class="minigame-window">
-                            <div id="minigame-window-description" class="minigame-sub-window" style="display: initial;">
-                                <p class="minigame-description"></p>
-                            </div>
-                            <div id="minigame-window-results" class="minigame-sub-window" style="display: none;">
-                                <div class="minigame-players">
-                                    <div class="minigame-player" style="display: inline-block;">
-                                        <h4 class="minigame-player-name">AstroDwarf<br>#1234
-                                            <span class="minigame-player-tooltip">astrodwarf</span>
-                                        </h4>
-                                        <input type="number" class="minigame-player-result-coin" style="display: none;">
-                                        <select class="minigame-player-result-vs" style="display: none;">
-                                            <option value="0" class="vs-1">1st</option>
-                                            <option value="1" class="vs-2">2nd</option>
-                                            <option value="2" class="vs-3">3rd</option>
-                                            <option value="3" class="vs-4">4th</option>
-                                            <option value="4" class="vs-5">5th</option>
-                                            <option value="5" class="vs-6">6th</option>
-                                            <option value="6" class="vs-7">7th</option>
-                                            <option value="7" class="vs-8">8th</option>
-                                        </select>
-                                        <select class="minigame-player-result-coop" style="display: initial;">
-                                            <option value="0">Win</option>
-                                            <option value="1">Lose</option>
-                                        </select>
-                                    </div>
-                                    <div class="minigame-player" style="display: inline-block;">
-                                        <h4 class="minigame-player-name">AstroDwarf#1234
-                                            <span class="minigame-player-tooltip">astrodwarf</span>
-                                        </h4>
-                                        <input type="number" class="minigame-player-result-coin" style="display: none;">
-                                        <select class="minigame-player-result-vs" style="display: none;">
-                                            <option value="0" class="vs-1">1st</option>
-                                            <option value="1" class="vs-2">2nd</option>
-                                            <option value="2" class="vs-3">3rd</option>
-                                            <option value="3" class="vs-4">4th</option>
-                                            <option value="4" class="vs-5">5th</option>
-                                            <option value="5" class="vs-6">6th</option>
-                                            <option value="6" class="vs-7">7th</option>
-                                            <option value="7" class="vs-8">8th</option>
-                                        </select>
-                                        <select class="minigame-player-result-coop" style="display: initial;">
-                                            <option value="0">Win</option>
-                                            <option value="1">Lose</option>
-                                        </select>
-                                    </div>
-                                    <div class="minigame-player" style="display: inline-block;">
-                                        <h4 class="minigame-player-name">AstroDwarf#1234
-                                            <span class="minigame-player-tooltip">astrodwarf</span>
-                                        </h4>
-                                        <input type="number" class="minigame-player-result-coin" style="display: none;">
-                                        <select class="minigame-player-result-vs" style="display: none;">
-                                            <option value="0" class="vs-1">1st</option>
-                                            <option value="1" class="vs-2">2nd</option>
-                                            <option value="2" class="vs-3">3rd</option>
-                                            <option value="3" class="vs-4">4th</option>
-                                            <option value="4" class="vs-5">5th</option>
-                                            <option value="5" class="vs-6">6th</option>
-                                            <option value="6" class="vs-7">7th</option>
-                                            <option value="7" class="vs-8">8th</option>
-                                        </select>
-                                        <select class="minigame-player-result-coop" style="display: initial;">
-                                            <option value="0">Win</option>
-                                            <option value="1">Lose</option>
-                                        </select>
-                                    </div>
-                                    <div class="minigame-player" style="display: inline-block;">
-                                        <h4 class="minigame-player-name">AstroDwarf#1234
-                                            <span class="minigame-player-tooltip">astrodwarf</span>
-                                        </h4>
-                                        <input type="number" class="minigame-player-result-coin" style="display: none;">
-                                        <select class="minigame-player-result-vs" style="display: none;">
-                                            <option value="0" class="vs-1">1st</option>
-                                            <option value="1" class="vs-2">2nd</option>
-                                            <option value="2" class="vs-3">3rd</option>
-                                            <option value="3" class="vs-4">4th</option>
-                                            <option value="4" class="vs-5">5th</option>
-                                            <option value="5" class="vs-6">6th</option>
-                                            <option value="6" class="vs-7">7th</option>
-                                            <option value="7" class="vs-8">8th</option>
-                                        </select>
-                                        <select class="minigame-player-result-coop" style="display: initial;">
-                                            <option value="0">Win</option>
-                                            <option value="1">Lose</option>
-                                        </select>
-                                    </div>
-                                    <div class="minigame-player" style="display: inline-block;">
-                                        <h4 class="minigame-player-name">AstroDwarf#1234
-                                            <span class="minigame-player-tooltip">astrodwarf</span>
-                                        </h4>
-                                        <input type="number" class="minigame-player-result-coin" style="display: none;">
-                                        <select class="minigame-player-result-vs" style="display: none;">
-                                            <option value="0" class="vs-1">1st</option>
-                                            <option value="1" class="vs-2">2nd</option>
-                                            <option value="2" class="vs-3">3rd</option>
-                                            <option value="3" class="vs-4">4th</option>
-                                            <option value="4" class="vs-5">5th</option>
-                                            <option value="5" class="vs-6">6th</option>
-                                            <option value="6" class="vs-7">7th</option>
-                                            <option value="7" class="vs-8">8th</option>
-                                        </select>
-                                        <select class="minigame-player-result-coop" style="display: initial;">
-                                            <option value="0">Win</option>
-                                            <option value="1">Lose</option>
-                                        </select>
-                                    </div>
-                                    <div class="minigame-player" style="display: inline-block;">
-                                        <h4 class="minigame-player-name">AstroDwarf#1234
-                                            <span class="minigame-player-tooltip">astrodwarf</span>
-                                        </h4>
-                                        <input type="number" class="minigame-player-result-coin" style="display: none;">
-                                        <select class="minigame-player-result-vs" style="display: none;">
-                                            <option value="0" class="vs-1">1st</option>
-                                            <option value="1" class="vs-2">2nd</option>
-                                            <option value="2" class="vs-3">3rd</option>
-                                            <option value="3" class="vs-4">4th</option>
-                                            <option value="4" class="vs-5">5th</option>
-                                            <option value="5" class="vs-6">6th</option>
-                                            <option value="6" class="vs-7">7th</option>
-                                            <option value="7" class="vs-8">8th</option>
-                                        </select>
-                                        <select class="minigame-player-result-coop" style="display: initial;">
-                                            <option value="0">Win</option>
-                                            <option value="1">Lose</option>
-                                        </select>
-                                    </div>
-                                    <div class="minigame-player" style="display: inline-block;">
-                                        <h4 class="minigame-player-name">AstroDwarf#1234
-                                            <span class="minigame-player-tooltip">astrodwarf</span>
-                                        </h4>
-                                        <input type="number" class="minigame-player-result-coin" style="display: none;">
-                                        <select class="minigame-player-result-vs" style="display: none;">
-                                            <option value="0" class="vs-1">1st</option>
-                                            <option value="1" class="vs-2">2nd</option>
-                                            <option value="2" class="vs-3">3rd</option>
-                                            <option value="3" class="vs-4">4th</option>
-                                            <option value="4" class="vs-5">5th</option>
-                                            <option value="5" class="vs-6">6th</option>
-                                            <option value="6" class="vs-7">7th</option>
-                                            <option value="7" class="vs-8">8th</option>
-                                        </select>
-                                        <select class="minigame-player-result-coop" style="display: initial;">
-                                            <option value="0">Win</option>
-                                            <option value="1">Lose</option>
-                                        </select>
-                                    </div>
-                                    <div class="minigame-player" style="display: inline-block;">
-                                        <h4 class="minigame-player-name">AstroDwarf#1234
-                                            <span class="minigame-player-tooltip">astrodwarf</span>
-                                        </h4>
-                                        <input type="number" class="minigame-player-result-coin" style="display: none;">
-                                        <select class="minigame-player-result-vs" style="display: none;">
-                                            <option value="0" class="vs-1">1st</option>
-                                            <option value="1" class="vs-2">2nd</option>
-                                            <option value="2" class="vs-3">3rd</option>
-                                            <option value="3" class="vs-4">4th</option>
-                                            <option value="4" class="vs-5">5th</option>
-                                            <option value="5" class="vs-6">6th</option>
-                                            <option value="6" class="vs-7">7th</option>
-                                            <option value="7" class="vs-8">8th</option>
-                                        </select>
-                                        <select class="minigame-player-result-coop" style="display: initial;">
-                                            <option value="0">Win</option>
-                                            <option value="1">Lose</option>
-                                        </select>
-                                    </div>
-                                </div><br>
-                                <button class="minigame-submit">Submit Results</button>
-                            </div>
-                            <div id="minigame-window-chat" class="minigame-sub-window" style="display: none;">
-                                <div class="minigame-chat">
-                                    
+                    <div id="minigame-interactive" style="display: inline-block;">
+                        <h1 id="minigame-type-title" style="font-size: 3.25em;">Minigame</h1>
+                        <div class="new-minigame-rewards">
+                            <div class="new-minigame-reward-option">
+                                <span class="new-minigame-reward-placement">1st</span>
+                                <div>
+                                    <span class="new-minigame-reward-coins">10</span>
+                                    <img src="resources/textures/squid_coin.svg" width="24px" style="transform: translateY(3px);">
                                 </div>
-                                <div class="minigame-chat-text-bar">
-                                    <form id="minigame-chat-form">
-                                        <input id="minigame-chat-input" type="text" autocomplete="off">
-                                    </form>
-                                    <button id="minigame-chat-send-button">Send</button>
+                            </div>
+                            <div class="new-minigame-reward-option">
+                                <span class="new-minigame-reward-placement">2nd</span>
+                                <div>
+                                    <span class="new-minigame-reward-coins">7</span>
+                                    <img src="resources/textures/squid_coin.svg" width="24px" style="transform: translateY(3px);">
+                                </div>
+                            </div>
+                            <div class="new-minigame-reward-option">
+                                <span class="new-minigame-reward-placement">3rd</span>
+                                <div>
+                                    <span class="new-minigame-reward-coins">5</span>
+                                    <img src="resources/textures/squid_coin.svg" width="24px" style="transform: translateY(3px);">
+                                </div>
+                            </div>
+                            <div class="new-minigame-reward-option">
+                                <span class="new-minigame-reward-placement">4th</span>
+                                <div>
+                                    <span class="new-minigame-reward-coins">4</span>
+                                    <img src="resources/textures/squid_coin.svg" width="24px" style="transform: translateY(3px);">
+                                </div>
+                            </div>
+                            <div class="new-minigame-reward-option">
+                                <span class="new-minigame-reward-placement">5th</span>
+                                <div>
+                                    <span class="new-minigame-reward-coins">3</span>
+                                    <img src="resources/textures/squid_coin.svg" width="24px" style="transform: translateY(3px);">
+                                </div>
+                            </div>
+                            <div class="new-minigame-reward-option">
+                                <span class="new-minigame-reward-placement">6th</span>
+                                <div>
+                                    <span class="new-minigame-reward-coins">2</span>
+                                    <img src="resources/textures/squid_coin.svg" width="24px" style="transform: translateY(3px);">
+                                </div>
+                            </div>
+                            <div class="new-minigame-reward-option">
+                                <span class="new-minigame-reward-placement">7th</span>
+                                <div>
+                                    <span class="new-minigame-reward-coins">1</span>
+                                    <img src="resources/textures/squid_coin.svg" width="24px" style="transform: translateY(3px);">
+                                </div>
+                            </div>
+                            <div class="new-minigame-reward-option">
+                                <span class="new-minigame-reward-placement">8th</span>
+                                <div>
+                                    <span class="new-minigame-reward-coins">0</span>
+                                    <img src="resources/textures/squid_coin.svg" width="24px" style="transform: translateY(3px);">
+                                </div>
+                            </div>
+                        </div><br><br>
+                        <div class="new-minigame-window">
+                            <div class="new-minigame-navigator">
+                                <button class="new-minigame-navigator-button new-minigame-navigator-selected">Results</button>
+                                <button class="new-minigame-navigator-button">Chat<div class="new-minigame-chat-notification" style="display: none;"></div></button>
+                            </div>
+                            <div class="new-minigame-sidebar">
+                                <div id="new-minigame-result-window" style="display: initial;">
+                                    <div class="new-minigame-player">
+                                        <div class="new-minigame-player-ign">Username<br>#0001</div>
+                                        <select class="new-minigame-player-result-vs" style="display: initial;">
+                                            <option value="0">1st</option>
+                                            <option value="1">2nd</option>
+                                            <option value="2">3rd</option>
+                                            <option value="3">4th</option>
+                                            <option value="4">5th</option>
+                                            <option value="5">6th</option>
+                                            <option value="6">7th</option>
+                                            <option value="7">8th</option>
+                                        </select>
+                                        <select class="new-minigame-player-result-coop" style="display: none;">
+                                            <option value="0">Win</option>
+                                            <option value="1">Lose</option>
+                                        </select>
+                                        <input type="number" class="new-minigame-player-result-coin" style="display: none;">
+                                    </div>
+                                    <div class="new-minigame-player">
+                                        <div class="new-minigame-player-ign">Username<br>#0002</div>
+                                        <select class="new-minigame-player-result-vs" style="display: initial;">
+                                            <option value="0">1st</option>
+                                            <option value="1">2nd</option>
+                                            <option value="2">3rd</option>
+                                            <option value="3">4th</option>
+                                            <option value="4">5th</option>
+                                            <option value="5">6th</option>
+                                            <option value="6">7th</option>
+                                            <option value="7">8th</option>
+                                        </select>
+                                        <select class="new-minigame-player-result-coop" style="display: none;">
+                                            <option value="0">Win</option>
+                                            <option value="1">Lose</option>
+                                        </select>
+                                        <input type="number" class="new-minigame-player-result-coin" style="display: none;">
+                                    </div>
+                                    <div class="new-minigame-player">
+                                        <div class="new-minigame-player-ign">Username<br>#0003</div>
+                                        <select class="new-minigame-player-result-vs" style="display: initial;">
+                                            <option value="0">1st</option>
+                                            <option value="1">2nd</option>
+                                            <option value="2">3rd</option>
+                                            <option value="3">4th</option>
+                                            <option value="4">5th</option>
+                                            <option value="5">6th</option>
+                                            <option value="6">7th</option>
+                                            <option value="7">8th</option>
+                                        </select>
+                                        <select class="new-minigame-player-result-coop" style="display: none;">
+                                            <option value="0">Win</option>
+                                            <option value="1">Lose</option>
+                                        </select>
+                                        <input type="number" class="new-minigame-player-result-coin" style="display: none;">
+                                    </div>
+                                    <div class="new-minigame-player">
+                                        <div class="new-minigame-player-ign">Username<br>#0004</div>
+                                        <select class="new-minigame-player-result-vs" style="display: initial;">
+                                            <option value="0">1st</option>
+                                            <option value="1">2nd</option>
+                                            <option value="2">3rd</option>
+                                            <option value="3">4th</option>
+                                            <option value="4">5th</option>
+                                            <option value="5">6th</option>
+                                            <option value="6">7th</option>
+                                            <option value="7">8th</option>
+                                        </select>
+                                        <select class="new-minigame-player-result-coop" style="display: none;">
+                                            <option value="0">Win</option>
+                                            <option value="1">Lose</option>
+                                        </select>
+                                        <input type="number" class="new-minigame-player-result-coin" style="display: none;">
+                                    </div>
+                                    <div class="new-minigame-player">
+                                        <div class="new-minigame-player-ign">Username<br>#0005</div>
+                                        <select class="new-minigame-player-result-vs" style="display: initial;">
+                                            <option value="0">1st</option>
+                                            <option value="1">2nd</option>
+                                            <option value="2">3rd</option>
+                                            <option value="3">4th</option>
+                                            <option value="4">5th</option>
+                                            <option value="5">6th</option>
+                                            <option value="6">7th</option>
+                                            <option value="7">8th</option>
+                                        </select>
+                                        <select class="new-minigame-player-result-coop" style="display: none;">
+                                            <option value="0">Win</option>
+                                            <option value="1">Lose</option>
+                                        </select>
+                                        <input type="number" class="new-minigame-player-result-coin" style="display: none;">
+                                    </div>
+                                    <div class="new-minigame-player">
+                                        <div class="new-minigame-player-ign">Username<br>#0006</div>
+                                        <select class="new-minigame-player-result-vs" style="display: initial;">
+                                            <option value="0">1st</option>
+                                            <option value="1">2nd</option>
+                                            <option value="2">3rd</option>
+                                            <option value="3">4th</option>
+                                            <option value="4">5th</option>
+                                            <option value="5">6th</option>
+                                            <option value="6">7th</option>
+                                            <option value="7">8th</option>
+                                        </select>
+                                        <select class="new-minigame-player-result-coop" style="display: none;">
+                                            <option value="0">Win</option>
+                                            <option value="1">Lose</option>
+                                        </select>
+                                        <input type="number" class="new-minigame-player-result-coin" style="display: none;">
+                                    </div>
+                                    <div class="new-minigame-player">
+                                        <div class="new-minigame-player-ign">Username<br>#0007</div>
+                                        <select class="new-minigame-player-result-vs" style="display: initial;">
+                                            <option value="0">1st</option>
+                                            <option value="1">2nd</option>
+                                            <option value="2">3rd</option>
+                                            <option value="3">4th</option>
+                                            <option value="4">5th</option>
+                                            <option value="5">6th</option>
+                                            <option value="6">7th</option>
+                                            <option value="7">8th</option>
+                                        </select>
+                                        <select class="new-minigame-player-result-coop" style="display: none;">
+                                            <option value="0">Win</option>
+                                            <option value="1">Lose</option>
+                                        </select>
+                                        <input type="number" class="new-minigame-player-result-coin" style="display: none;">
+                                    </div>
+                                    <div class="new-minigame-player">
+                                        <div class="new-minigame-player-ign">Username<br>#0008</div>
+                                        <select class="new-minigame-player-result-vs" style="display: initial;">
+                                            <option value="0">1st</option>
+                                            <option value="1">2nd</option>
+                                            <option value="2">3rd</option>
+                                            <option value="3">4th</option>
+                                            <option value="4">5th</option>
+                                            <option value="5">6th</option>
+                                            <option value="6">7th</option>
+                                            <option value="7">8th</option>
+                                        </select>
+                                        <select class="new-minigame-player-result-coop" style="display: none;">
+                                            <option value="0">Win</option>
+                                            <option value="1">Lose</option>
+                                        </select>
+                                        <input type="number" class="new-minigame-player-result-coin" style="display: none;">
+                                    </div>
+                                    <div class="new-minigame-submit-container">
+                                        <button id="new-minigame-submit-button">Submit Results</button>
+                                    </div>
+                                </div>
+                                <div id="new-minigame-chat-window" style="display: none;">
+                                    <div id="new-minigame-chat">
+
+                                    </div>
+                                    <div id="new-minigame-message-bar">
+                                        <form id="new-minigame-chat-form">
+                                            <input id="new-minigame-message-textbox" type="text" autocomplete="off" placeholder="Type a message...">
+                                            <button id="new-minigame-message-button">Send</button>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="new-minigame-mainbox">
+                                <div id="new-minigame-info">
+                                    <div class="new-minigame-info-header">
+                                        <h2 class="minigame-title">Minigame Name</h2>
+                                        <div id="minigame-pool-pass-box" style="display: initial;">
+                                            <h3 class="minigame-pool">Pool: MSP0</h3>
+                                            <div style="width: 100px; display: inline-block;"></div>
+                                            <h3 class="minigame-pass">Pass: 5555</h3>
+                                            <br>
+                                        </div>
+                                    </div>
+                                    <div id="new-minigame-description">
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -444,56 +502,56 @@
                             <div class="minigame-podium">
                                 <div class="minigame-podium-block" style="height: 90px;">
                                     <img class="minigame-podium-image" src="resources/textures/AIRA_Pixel1.png">
-                                    <span class="minigame-podium-coins">+<span>10</span> <img class="minigame-podium-coins-image" src="resources/textures/squid_coin.svg"></span>
+                                    <span class="minigame-podium-coins"><span>10</span> <img class="minigame-podium-coins-image" src="resources/textures/squid_coin.svg"></span>
                                     <span class="minigame-podium-name">AstroDwarf</span>
                                 </div>
                             </div>
                             <div class="minigame-podium">
                                 <div class="minigame-podium-block" style="height: 90px;">
                                     <img class="minigame-podium-image" src="resources/textures/AIRA_Pixel1.png">
-                                    <span class="minigame-podium-coins">+<span>10</span> <img class="minigame-podium-coins-image" src="resources/textures/squid_coin.svg"></span>
+                                    <span class="minigame-podium-coins"><span>10</span> <img class="minigame-podium-coins-image" src="resources/textures/squid_coin.svg"></span>
                                     <span class="minigame-podium-name">AstroDwarf</span>
                                 </div>
                             </div>
                             <div class="minigame-podium">
                                 <div class="minigame-podium-block" style="height: 90px;">
                                     <img class="minigame-podium-image" src="resources/textures/AIRA_Pixel1.png">
-                                    <span class="minigame-podium-coins">+<span>10</span> <img class="minigame-podium-coins-image" src="resources/textures/squid_coin.svg"></span>
+                                    <span class="minigame-podium-coins"><span>10</span> <img class="minigame-podium-coins-image" src="resources/textures/squid_coin.svg"></span>
                                     <span class="minigame-podium-name">AstroDwarf</span>
                                 </div>
                             </div>
                             <div class="minigame-podium">
                                 <div class="minigame-podium-block" style="height: 90px;">
                                     <img class="minigame-podium-image" src="resources/textures/AIRA_Pixel1.png">
-                                    <span class="minigame-podium-coins">+<span>10</span> <img class="minigame-podium-coins-image" src="resources/textures/squid_coin.svg"></span>
+                                    <span class="minigame-podium-coins"><span>10</span> <img class="minigame-podium-coins-image" src="resources/textures/squid_coin.svg"></span>
                                     <span class="minigame-podium-name">AstroDwarf</span>
                                 </div>
                             </div>
                             <div class="minigame-podium">
                                 <div class="minigame-podium-block" style="height: 90px;">
                                     <img class="minigame-podium-image" src="resources/textures/AIRA_Pixel1.png">
-                                    <span class="minigame-podium-coins">+<span>10</span> <img class="minigame-podium-coins-image" src="resources/textures/squid_coin.svg"></span>
+                                    <span class="minigame-podium-coins"><span>10</span> <img class="minigame-podium-coins-image" src="resources/textures/squid_coin.svg"></span>
                                     <span class="minigame-podium-name">AstroDwarf</span>
                                 </div>
                             </div>
                             <div class="minigame-podium">
                                 <div class="minigame-podium-block" style="height: 90px;">
                                     <img class="minigame-podium-image" src="resources/textures/AIRA_Pixel1.png">
-                                    <span class="minigame-podium-coins">+<span>10</span> <img class="minigame-podium-coins-image" src="resources/textures/squid_coin.svg"></span>
+                                    <span class="minigame-podium-coins"><span>10</span> <img class="minigame-podium-coins-image" src="resources/textures/squid_coin.svg"></span>
                                     <span class="minigame-podium-name">AstroDwarf</span>
                                 </div>
                             </div>
                             <div class="minigame-podium">
                                 <div class="minigame-podium-block" style="height: 90px;">
                                     <img class="minigame-podium-image" src="resources/textures/AIRA_Pixel1.png">
-                                    <span class="minigame-podium-coins">+<span>10</span> <img class="minigame-podium-coins-image" src="resources/textures/squid_coin.svg"></span>
+                                    <span class="minigame-podium-coins"><span>10</span> <img class="minigame-podium-coins-image" src="resources/textures/squid_coin.svg"></span>
                                     <span class="minigame-podium-name">AstroDwarf</span>
                                 </div>
                             </div>
                             <div class="minigame-podium">
                                 <div class="minigame-podium-block" style="height: 90px;">
                                     <img class="minigame-podium-image" src="resources/textures/AIRA_Pixel1.png">
-                                    <span class="minigame-podium-coins">+<span>10</span> <img class="minigame-podium-coins-image" src="resources/textures/squid_coin.svg"></span>
+                                    <span class="minigame-podium-coins"><span>10</span> <img class="minigame-podium-coins-image" src="resources/textures/squid_coin.svg"></span>
                                     <span class="minigame-podium-name">AstroDwarf</span>
                                 </div>
                             </div>
@@ -503,21 +561,30 @@
                 </div>
             </div>
 
+            <div id="key-door" class="popup" style="display: none;">
+                <div class="popup-inset">
+                    <h2>This Door is Locked!</h2><br>
+                    <p style="color: white;">Would you like to use a <b>Skeleton Key</b> to open it?</p><br>
+                    <button id="key-door-yes-button">Yes</button>
+                    <button id="key-door-no-button">No</button>
+                </div>
+            </div>
+
             <div id="shop-1" class="popup shop-popup" style="display: none;">
                 <div class="popup-inset">
                     <h1>Shop</h1><br>
                     <div class="popup-shop">
                         <div class="shop-item">
-                            <button class="shop-button" item="doubledice" style="background-image: url('resources/textures/doubledice.png')"></button><br>
-                            <h3>5 <img class="coin-shop-image" src="resources/textures/squid_coin.svg"></h3>
+                            <button class="shop-button" item="tacticooler" style="background-image: url('resources/textures/tacticooler.png')"></button><br>
+                            <h3>3 <img class="coin-shop-image" src="resources/textures/squid_coin.svg"></h3>
                         </div>
                         <div class="shop-item">
                             <button class="shop-button" item="pipe" style="background-image: url('resources/textures/pipe.png')"></button><br>
                             <h3>4 <img class="coin-shop-image" src="resources/textures/squid_coin.svg"></h3>
                         </div>
                         <div class="shop-item">
-                            <button class="shop-button" item="customdice" style="background-image: url('resources/textures/customdice.png')"></button><br>
-                            <h3>10 <img class="coin-shop-image" src="resources/textures/squid_coin.svg"></h3>
+                            <button class="shop-button" item="doubledice" style="background-image: url('resources/textures/doubledice.png')"></button><br>
+                            <h3>7 <img class="coin-shop-image" src="resources/textures/squid_coin.svg"></h3>
                         </div><br>
                         <p class="shop-description">Hover over an item to learn about it</p><br>
                         <button class="shop-leave-button">Leave</button>
@@ -530,16 +597,16 @@
                     <h1>Shop</h1><br>
                     <div class="popup-shop">
                         <div class="shop-item">
-                            <button class="shop-button" item="tacticooler" style="background-image: url('resources/textures/tacticooler.png')"></button><br>
+                            <button class="shop-button" item="key" style="background-image: url('resources/textures/key.png')"></button><br>
                             <h3>3 <img class="coin-shop-image" src="resources/textures/squid_coin.svg"></h3>
                         </div>
                         <div class="shop-item">
                             <button class="shop-button" item="tripledice" style="background-image: url('resources/textures/tripledice.png')"></button><br>
-                            <h3>10 <img class="coin-shop-image" src="resources/textures/squid_coin.svg"></h3>
+                            <h3>15 <img class="coin-shop-image" src="resources/textures/squid_coin.svg"></h3>
                         </div>
                         <div class="shop-item">
-                            <button class="shop-button" item="shophopbox" style="background-image: url('resources/textures/shophopbox.png')"></button><br>
-                            <h3>7 <img class="coin-shop-image" src="resources/textures/squid_coin.svg"></h3>
+                            <button class="shop-button" item="goldpipe" style="background-image: url('resources/textures/goldpipe.png')"></button><br>
+                            <h3>25 <img class="coin-shop-image" src="resources/textures/squid_coin.svg"></h3>
                         </div><br>
                         <p class="shop-description">Hover over an item to learn about it</p><br>
                         <button class="shop-leave-button">Leave</button>
@@ -552,16 +619,16 @@
                     <h1>Shop</h1><br>
                     <div class="popup-shop">
                         <div class="shop-item">
-                            <button class="shop-button" item="goldpipe" style="background-image: url('resources/textures/goldpipe.png')"></button><br>
-                            <h3>25 <img class="coin-shop-image" src="resources/textures/squid_coin.svg"></h3>
+                            <button class="shop-button" item="tacticooler" style="background-image: url('resources/textures/tacticooler.png')"></button><br>
+                            <h3>3 <img class="coin-shop-image" src="resources/textures/squid_coin.svg"></h3>
                         </div>
                         <div class="shop-item">
-                            <button class="shop-button" item="customdice" style="background-image: url('resources/textures/customdice.png')"></button><br>
-                            <h3>10 <img class="coin-shop-image" src="resources/textures/squid_coin.svg"></h3>
+                            <button class="shop-button" item="pipe" style="background-image: url('resources/textures/pipe.png')"></button><br>
+                            <h3>4 <img class="coin-shop-image" src="resources/textures/squid_coin.svg"></h3>
                         </div>
                         <div class="shop-item">
-                            <button class="shop-button" item="tripledice" style="background-image: url('resources/textures/tripledice.png')"></button><br>
-                            <h3>10 <img class="coin-shop-image" src="resources/textures/squid_coin.svg"></h3>
+                            <button class="shop-button" item="shophopbox" style="background-image: url('resources/textures/shophopbox.png')"></button><br>
+                            <h3>5 <img class="coin-shop-image" src="resources/textures/squid_coin.svg"></h3>
                         </div><br>
                         <p class="shop-description">Hover over an item to learn about it</p><br>
                         <button class="shop-leave-button">Leave</button>
@@ -578,6 +645,23 @@
                         <button class="purchase-star-button">Yes</button>
                         <button class="shop-leave-button">No</button>
                     </div>
+                </div>
+            </div>
+
+            <div id="duel" class="popup" style="display: none;">
+                <div id="canduel" class="popup-inset" style="display: inline-block;">
+                    <h1>Duel Minigame</h1><br>
+                    <p style="color: white;"><b>Landing on this space allows you to duel another player for coins or a star next minigame.</b></p><br>
+                    <button class="duel-button" style="background-image: url('resources/textures/10coin_ui.svg');"></button>
+                    <button class="duel-button" style="background-image: url('resources/textures/allcoin_ui.svg');"></button>
+                    <button class="duel-button" style="background-image: url('resources/textures/squid_star.svg'); background-size: 80% 80%; background-repeat: no-repeat; background-position: 50% 50%;"></button>
+                    <br><br>
+                    <button id="duel-leave-button">I don't want to duel</button>
+                </div>
+                <div id="cantduel" class="popup-inset" style="display: none;">
+                    <h1>Duel Minigame</h1><br>
+                    <p style="color: white;">Sorry, you can only duel <b>once</b> per star purchase.<br>Come back after buying another star.</p><br>
+                    <button id="cant-duel-leave-button">Okay</button>
                 </div>
             </div>
 
@@ -686,7 +770,6 @@
                                     <span class="help-sidebar-subgroup-title">Shops</span>
                                     <span class="help-sidebar-subgroup-title">Map</span>
                                     <span class="help-sidebar-subgroup-title">Silver Stars</span>
-                                    <span class="help-sidebar-subgroup-title">Time Limit</span>
                                 </div>
                             </div>
                             <div class="help-sidebar-group">
@@ -793,7 +876,7 @@
                                 <p>
                                     On this tab you will get an overview of the minigame, any rules you need to be aware of, and any rewards depending on how well you place in the minigame.
                                     Many minigames will require you to be in a lobby with the other players, make sure to use the pool and password provided for creating rooms. You can also use the <b>Chat</b> tab to coordinate who will host the room.
-                                    If you need help joining a lobby you can learn more under <a class="help-subgroup-link" index="24">Joining a Room</a>.
+                                    If you need help joining a lobby you can learn more under <a class="help-subgroup-link" index="23">Joining a Room</a>.
                                     <br><br> The next tab over is the <b>Results</b> tab.
                                 </p>
                                 <img src="resources/help-images/minigames-2.png" width="360px">
@@ -824,26 +907,49 @@
                             <!--Code of Conduct-->
                             <div class="help-subject" style="display: none;">
                                 <br><h2>Guidelines</h2><br>
-                                <p>
-                                    This is yet to be written, please wait!
-                                </p>
+                                <h3>Player Conduct</h3>
+                                <ul>
+                                    <li>Have respect for each other both inside and out of the game.</li>
+                                    <li>Be considerate and accommodating of other players.</li>
+                                    <li>Do not report false scores in minigames.</li>
+                                    <li>Do not exploit issues with the game, report them as soon as they are found.</li>
+                                    <li>The point of this is to have fun. It's not a tournament.</li>
+                                </ul><br>
+                                <h3>Gameplay</h3>
+                                <ul>
+                                    <li>Use of voice calls both public and private are always permitted.</li>
+                                    <li>Do not attempt to lose your minigames.</li>
+                                    <li>If a rule doesn't make sense to an entire lobby, the lobby will go with the understanding that is the most fun.</li>
+                                    <li>You have 3 minutes to finish your turn before the game will move on without you.</li>
+                                    <li>You have limited time to submit results for your minigame. You can read more under <a class="help-subgroup-link" index="25">Time Limit</a>.</li>
+                                </ul>
                             </div>
                             <div class="help-subject" style="display: none;">
                                 <br><h2>Moderation</h2><br>
                                 <p>
-                                    This is yet to be written, please wait!
+                                    MSP has some measures to keep all players safe and for MSP to stay fun. Although for us to moderate MSP, we need you to let us know if there is a problem.
+                                    On our discord server, you can send a message in <b>help-desk</b> if you have any concerns or run into a problem.
                                 </p>
                             </div>
                             <div class="help-subject" style="display: none;">
                                 <br><h2>Bans</h2><br>
                                 <p>
-                                    This is yet to be written, please wait!
+                                    For some offenses, players can be banned from playing in Mega Splat Party. MSP also shares a ban list with multiple other tournament organizers to keep it's player base safe.
+                                    If you feel you have been wrongfully banned from playing in MSP, you can send an unban request in the <b>help-desk</b> on the MSP discord server.
                                 </p>
                             </div>
                             <div class="help-subject" style="display: none;">
                                 <br><h2>Bug Reporting</h2><br>
                                 <p>
-                                    This is yet to be written, please wait!
+                                    If you run into an issue with MSP and want to help make it better, send in a bug report on the discord server. When sending a bug report make sure to include a few things.
+                                </p>
+                                <ol>
+                                    <li>A description of the issue in detail</li>
+                                    <li>The steps that led up to the issue</li>
+                                    <li>If applicable, a screenshot of the issue</li>
+                                </ol>
+                                <p>
+                                    The developer of the website may have a couple of questions regarding the issue, so make sure to keep an eye on your bug report post. Thank you for helping make MSP better!
                                 </p>
                             </div>
                             <!--Board Play-->
@@ -896,12 +1002,6 @@
                                 <p>
                                     Silver stars are another way of getting your hands on stars. When you collect 5 silver stars, they will come together to form a star for you.
                                     Every turn 1 silver star is placed randomly on the board. Silver stars will appear in the same location for all players. Some may spawn in impossible to reach locations, to get these you may have to use an item to reach them.
-                                </p>
-                            </div>
-                            <div class="help-subject" style="display: none;">
-                                <br><h2>Time Limit</h2><br>
-                                <p>
-                                    This is yet to be written, please wait!
                                 </p>
                             </div>
                             <!--Items-->
@@ -1008,4 +1108,3 @@
         <script type="module" src="script.js" defer></script>
     </body>
 </html>
-
