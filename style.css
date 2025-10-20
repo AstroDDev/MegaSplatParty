@@ -6,7 +6,7 @@
     font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
 }
 li{
-    margin-left: 20px;
+    margin-left: 30px;
 }
 body, html{
     overflow: hidden;
@@ -553,7 +553,7 @@ button{
     margin: 10px;
 }
 
-.shop-button{
+.shop-button, .duel-button{
     width: 120px;
     height: 120px;
     background-size: 100% 100%;
@@ -562,11 +562,11 @@ button{
     border: 5px solid #CCC;
 }
 
-.shop-button:active{
+.shop-button:active, .duel-button:active{
     opacity: 80%;
 }
 
-.shop-button:hover{
+.shop-button:hover, .duel-button:hover{
     border: 5px solid rgb(255, 235, 125);
 }
 
@@ -1303,8 +1303,219 @@ button{
     cursor: pointer;
 }
 
+/*Some Naming changes will happen here later*/
+#new-minigame{
+    max-height: 90%;
+}
 
+#minigame-interactive{
+    width: 90vmin;
+}
 
+.new-minigame-window{
+    position: relative;
+    height: calc(90vmin - 360px);
+    border-radius: 20px;
+    border-width: 5px;
+    border-style: solid;
+    border-color: rgba(255, 255, 255, 0.65);
+    background-color: rgba(0, 0, 0, 0.5);
+    overflow: hidden;
+}
+
+.new-minigame-navigator{
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 250px;
+    height: 35px;
+    border-bottom: solid 5px rgba(255, 255, 255, 0.65);
+    border-right: solid 5px rgba(255, 255, 255, 0.65);
+    overflow: hidden;
+}
+
+.new-minigame-navigator-button{
+    position: absolute;
+    background-color: transparent;
+    color: white;
+    font-weight: 500;
+    height: 100%;
+    width: 50%;
+    margin: 0;
+    padding: 0;
+    border: none;
+    cursor: pointer;
+}
+.new-minigame-navigator-button:nth-child(1){
+    left: 0;
+}
+.new-minigame-navigator-button:nth-child(2){
+    right: 0;
+}
+.new-minigame-navigator-selected{
+    background-color: rgba(255, 255, 255, 0.5);
+}
+
+.new-minigame-sidebar{
+    position: absolute;
+    width: 250px;
+    height: calc(100% - 40px);
+    left: 0;
+    bottom: 0;
+    border-right: solid rgba(255, 255, 255, 0.65) 5px;
+    overflow-y: scroll;
+    scrollbar-width: none;
+}
+
+.new-minigame-mainbox{
+    position: absolute;
+    width: calc(100% - 250px - 5px);
+    height: 100%;
+    right: 0;
+    top: 0;
+}
+
+.new-minigame-player{
+    position: relative;
+    width: 100%;
+    color: white;
+    border-bottom: solid 3px rgba(255, 255, 255, 0.65);
+    padding-bottom: 3px;
+    text-align: left;
+}
+
+.new-minigame-player-ign{
+    display: block;
+    padding-left: 5px;
+    font-weight: 600;
+    width: 125px;
+}
+
+.new-minigame-player-result-coop, .new-minigame-player-result-vs, .new-minigame-player-result-coin {
+    position: absolute;
+    right: 5px;
+    top: calc(50% + 2px);
+    transform: translateY(-50%);
+    width: 60px;
+    height: 30px;
+    font-size: 1em;
+}
+
+.new-minigame-submit-container {
+    width: 100%;
+    color: white;
+    padding-top: 5px;
+    padding-bottom: 5px;
+}
+
+#new-minigame-info{
+    display: flex;
+    flex-flow: column;
+    height: 100%;
+}
+
+.new-minigame-info-header{
+    flex: 0 1 auto;
+}
+
+#new-minigame-description{
+    flex: 1 1 auto;
+    color: white;
+    padding: 5px;
+    text-align: left;
+    width: calc(100% - 10px);
+    border-top: solid rgba(255, 255, 255, 0.65) 3px;
+    margin-top: 5px;
+    overflow-y: auto;
+    scrollbar-width: 5px;
+    scrollbar-color: white transparent;
+    height: calc(100% - 90px);
+}
+
+.new-minigame-rewards{
+    display: inline-block;
+    margin-top: 15px;
+    padding: 3px;
+    border: solid rgba(255, 255, 255, 0.65) 3px;
+    border-radius: 10px;
+}
+
+.new-minigame-reward-option{
+    display: inline-block;
+    width: 70px;
+}
+
+.new-minigame-reward-placement{
+    color: white;
+    font-weight: 700;
+    font-size: 1.25em;
+    border-bottom: solid rgba(255, 255, 255, 0.65) 3px;
+}
+
+.new-minigame-reward-coins{
+    color: white;
+    font-weight: 500;
+    font-size: 1.5em;
+}
+
+.new-minigame-chat-notification{
+    position: absolute;
+    width: 16px;
+    height: 16px;
+    border-radius: 10px;
+    background-color: white;
+    top: 50%;
+    right: 7.5px;
+    transform: translateY(-50%);
+}
+
+#new-minigame-message-bar{
+    position: absolute;
+    width: 100%;
+    height: 30px;
+    bottom: 0;
+    border-top: solid rgba(255, 255, 255, 0.65) 3px;
+}
+
+#new-minigame-chat{
+    position: absolute;
+    width: calc(100% - 10px);
+    height: calc(100% - 33px);
+    top: 0;
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: white transparent;
+    text-align: left;
+    color: white;
+    padding: 5px;
+}
+
+#new-minigame-message-textbox{
+    position: absolute;
+    width: calc(100% - 60px);
+    height: 30px;
+    border: none;
+    background-color: transparent;
+    left: 0;
+    font-size: 1em;
+    line-height: 100%;
+    color: white;
+    text-align: left;
+    padding-left: 5px;
+}
+
+#new-minigame-message-button{
+    position: absolute;
+    width: 57px;
+    height: 30px;
+    right: 0;
+    padding: 0;
+    margin: 0;
+    background-color: rgba(255, 255, 255, 0.25);
+    border: none;
+    border-left: solid rgba(255, 255, 255, 0.65) 3px;
+    color: white;
+}
 
 
 
