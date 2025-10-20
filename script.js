@@ -191,6 +191,18 @@ var StarRingParticle = new THREE.Mesh(new THREE.PlaneGeometry(1, 1), new THREE.M
 var ItemRingParticle = new THREE.Mesh(new THREE.PlaneGeometry(1, 1), new THREE.MeshBasicMaterial({ map: RingParticleTex, transparent: true, opacity: 0, color: 0xffffff }));
 Scene.add(StarRingParticle);
 
+var KeyGateModel;
+ModelLoader.load("resources/models/KeyGate.fbx", (object) => {
+    KeyGateModel = object;
+    KeyGateModel.traverse(function (child) {
+        if (child.isMesh){
+            if (child.material.map !== null){
+                child.material.map.colorSpace = THREE.SRGBColorSpace;
+            }
+        }
+    });
+});
+
 const GreenPipeTex = TexLoader.load("resources/models/green-pipe.png");
 GreenPipeTex.colorSpace = THREE.SRGBColorSpace;
 GreenPipeTex.minFilter = THREE.NearestFilter;
@@ -260,20 +272,18 @@ var ItemPreview = new THREE.Mesh(new THREE.PlaneGeometry(0.5, 0.5), new THREE.Me
 
 var ambient = new THREE.AmbientLight(0xFFFFFF, 1);
 var light = new THREE.DirectionalLight(0xFFFFFF, 2);
+var lightTarget = new THREE.Group();
+
+light.target = lightTarget;
+Scene.add(lightTarget);
 
 light.castShadow = true;
-light.position.y = 20;
-light.position.z = 10;
 
-light.shadow.mapSize.width = 1024;
-light.shadow.mapSize.height = 1024;
 light.shadow.camera.near = 0.5; // default
 light.shadow.camera.far = 500; // default
 
-light.target = Player;
-
-Player.add(ambient);
-Player.add(light);
+Scene.add(ambient);
+Scene.add(light);
 
 
 var selectorTex = TexLoader.load("resources/textures/selector.png");
@@ -360,7 +370,27 @@ function loadMap(){
 }
 
 var MapMesh;
+var BlockList = new THREE.Group();
+var KeyDoors = new THREE.Group();
 function buildMap(){
+    //Make sure everything is loaded first
+    if (SilverStar == null || Star == null || KeyGateModel == null || GreenPipe == null || GoldPipe == null){
+        console.log("Waiting for models to load...");
+        setTimeout(buildMap, 100);
+        return;
+    }
+
+    light.shadow.mapSize.width = 1024;
+    light.shadow.mapSize.height = 1024;
+    light.position.set(mapSize.x / 2, 10, mapSize.y / 2 + 5);
+    lightTarget.position.set(mapSize.x / 2, 0, mapSize.y / 2);
+
+    light.shadow.camera.left = -(Math.max(mapSize.x, mapSize.y) + 1) / 2;
+    light.shadow.camera.right = (Math.max(mapSize.x, mapSize.y) + 1) / 2;
+    light.shadow.camera.top = (Math.max(mapSize.x, mapSize.y) + 1) / 2;
+    light.shadow.camera.bottom = -(Math.max(mapSize.x, mapSize.y) + 1) / 2;
+    light.shadow.camera.updateProjectionMatrix();
+
     var geometry = new THREE.BufferGeometry();
 
     var vertices = [];
@@ -615,52 +645,70 @@ function buildMap(){
                 indices.push(indexStart, indexStart + 3, indexStart + 1);
                 indices.push(indexStart, indexStart + 2, indexStart + 3);
 
-                if (x == 0 || (!mapData[y][x-1].ramp && mapData[y][x].height > mapData[y][x-1].height) || (mapData[y][x-1].ramp && mapData[y][x].height > (mapData[y][x-1].height.pos + mapData[y][x-1].height.neg) / 2)){
+                if (x == 0 || (!mapData[y][x-1].ramp && mapData[y][x].height > mapData[y][x-1].height) || (mapData[y][x-1].ramp && mapData[y][x].height > Math.min(mapData[y][x-1].height.pos, mapData[y][x-1].height.neg))){
                     buildWall(x, y, -1, 0, false);
                 }
-                if (x == mapSize.x - 1 || (!mapData[y][x+1].ramp && mapData[y][x].height > mapData[y][x+1].height) || (mapData[y][x+1].ramp && mapData[y][x].height > (mapData[y][x+1].height.pos + mapData[y][x+1].height.neg) / 2)){
+                if (x == mapSize.x - 1 || (!mapData[y][x+1].ramp && mapData[y][x].height > mapData[y][x+1].height) || (mapData[y][x+1].ramp && mapData[y][x].height > Math.min(mapData[y][x+1].height.pos, mapData[y][x+1].height.neg))){
                     buildWall(x, y, 1, 0, false);
                 }
-                if (y == 0 || (!mapData[y-1][x].ramp && mapData[y][x].height > mapData[y-1][x].height) || (mapData[y-1][x].ramp && mapData[y][x].height > (mapData[y-1][x].height.pos + mapData[y-1][x].height.neg) / 2)){
+                if (y == 0 || (!mapData[y-1][x].ramp && mapData[y][x].height > mapData[y-1][x].height) || (mapData[y-1][x].ramp && mapData[y][x].height > Math.min(mapData[y-1][x].height.pos, mapData[y-1][x].height.neg))){
                     buildWall(x, y, 0, -1, false);
                 }
-                if (y == mapSize.y - 1 || (!mapData[y+1][x].ramp && mapData[y][x].height > mapData[y+1][x].height) || (mapData[y+1][x].ramp && mapData[y][x].height > (mapData[y+1][x].height.pos + mapData[y+1][x].height.neg) / 2)){
+                if (y == mapSize.y - 1 || (!mapData[y+1][x].ramp && mapData[y][x].height > mapData[y+1][x].height) || (mapData[y+1][x].ramp && mapData[y][x].height > Math.min(mapData[y+1][x].height.pos, mapData[y+1][x].height.neg))){
                     buildWall(x, y, 0, 1, false);
                 }
             }
 
             //Block placements
-            if (x > 0 && !mapData[y][x].connections.w && !mapData[y][x].ramp && !mapData[y][x-1].ramp && mapData[y][x].height > mapData[y][x-1].height){
+            if (x > 0 && !mapData[y][x].connections.w && !mapData[y][x].ramp && !mapData[y][x-1].ramp){
                 //Place a block there
-                let block = new THREE.Mesh(new THREE.BoxGeometry(1/4, 1/4, 1), BlockMat);
-                block.position.set(x - 0.5 + 1/8, mapData[y][x].height + 1/8, y);
-                block.castShadow = true;
-                block.receiveShadow = true;
-                Scene.add(block);
+                if (mapData[y][x].height > mapData[y][x-1].height){
+                    let block = new THREE.Mesh(new THREE.BoxGeometry(1/8, 1/8, 1), BlockMat);
+                    block.position.set(x - 0.5 + 1/16, mapData[y][x].height + 1/16, y);
+                    block.castShadow = true;
+                    block.receiveShadow = true;
+                    BlockList.add(block);
+                }
+                else if (mapData[y][x].height == mapData[y][x-1].height){
+                    let block = new THREE.Mesh(new THREE.BoxGeometry(1/8, 1/8, 1), BlockMat);
+                    block.position.set(x - 0.5, mapData[y][x].height + 1/16, y);
+                    block.castShadow = true;
+                    block.receiveShadow = true;
+                    BlockList.add(block);
+                }
             }
             if (x < mapSize.x - 1 && !mapData[y][x].connections.e && !mapData[y][x].ramp && !mapData[y][x+1].ramp && mapData[y][x].height > mapData[y][x+1].height){
                 //Place a block there
-                let block = new THREE.Mesh(new THREE.BoxGeometry(1/4, 1/4, 1), BlockMat);
-                block.position.set(x + 0.5 - 1/8, mapData[y][x].height + 1/8, y);
+                let block = new THREE.Mesh(new THREE.BoxGeometry(1/8, 1/8, 1), BlockMat);
+                block.position.set(x + 0.5 - 1/16, mapData[y][x].height + 1/16, y);
                 block.castShadow = true;
                 block.receiveShadow = true;
-                Scene.add(block);
+                BlockList.add(block);
             }
-            if (y > 0 && !mapData[y][x].connections.n && !mapData[y][x].ramp && !mapData[y-1][x].ramp && mapData[y][x].height > mapData[y-1][x].height){
+            if (y > 0 && !mapData[y][x].connections.n && !mapData[y][x].ramp && !mapData[y-1][x].ramp){
                 //Place a block there
-                let block = new THREE.Mesh(new THREE.BoxGeometry(1, 1/4, 1/4), BlockMat);
-                block.position.set(x, mapData[y][x].height + 1/8, y- 0.5 + 1/8);
-                block.castShadow = true;
-                block.receiveShadow = true;
-                Scene.add(block);
+                if (mapData[y][x].height > mapData[y-1][x].height){
+                    let block = new THREE.Mesh(new THREE.BoxGeometry(1, 1/8, 1/8), BlockMat);
+                    block.position.set(x, mapData[y][x].height + 1/16, y - 0.5 + 1/16);
+                    block.castShadow = true;
+                    block.receiveShadow = true;
+                    BlockList.add(block);
+                }
+                else if (mapData[y][x].height == mapData[y-1][x].height){
+                    let block = new THREE.Mesh(new THREE.BoxGeometry(1, 1/8, 1/8), BlockMat);
+                    block.position.set(x, mapData[y][x].height + 1/16, y - 0.5);
+                    block.castShadow = true;
+                    block.receiveShadow = true;
+                    BlockList.add(block);
+                }
             }
             if (y < mapSize.y - 1 && !mapData[y][x].connections.s && !mapData[y][x].ramp && !mapData[y+1][x].ramp && mapData[y][x].height > mapData[y+1][x].height){
                 //Place a block there
-                let block = new THREE.Mesh(new THREE.BoxGeometry(1, 1/4, 1/4), BlockMat);
-                block.position.set(x, mapData[y][x].height + 1/8, y + 0.5 - 1/8);
+                let block = new THREE.Mesh(new THREE.BoxGeometry(1, 1/8, 1/8), BlockMat);
+                block.position.set(x, mapData[y][x].height + 1/16, y + 0.5 - 1/16);
                 block.castShadow = true;
                 block.receiveShadow = true;
-                Scene.add(block);
+                BlockList.add(block);
             }
 
             //Trim placements
@@ -708,7 +756,7 @@ function buildMap(){
                 }
                 block.castShadow = true;
                 block.receiveShadow = true;
-                Scene.add(block);
+                BlockList.add(block);
             }
             if (x == mapSize.x - 1 || mapData[y][x+1].height == 0){
                 //Place a block there
@@ -754,7 +802,7 @@ function buildMap(){
                 } 
                 block.castShadow = true;
                 block.receiveShadow = true;
-                Scene.add(block);
+                BlockList.add(block);
             }
             if (y == 0 || mapData[y-1][x].height == 0){
                 //Place a block there
@@ -792,7 +840,7 @@ function buildMap(){
                 } 
                 block.castShadow = true;
                 block.receiveShadow = true;
-                Scene.add(block);
+                BlockList.add(block);
             }
             if (y == mapSize.y - 1 || mapData[y+1][x].height == 0){
                 //Place a block there
@@ -830,7 +878,42 @@ function buildMap(){
                 } 
                 block.castShadow = true;
                 block.receiveShadow = true;
-                Scene.add(block);
+                BlockList.add(block);
+            }
+
+            //Key door placements
+            if (x > 0 && mapData[y][x].connections.w == "lock" && mapData[y][x - 1].connections.e == "lock"){
+                //Clone keygate here
+                let gate = KeyGateModel.clone(true);
+                KeyDoors.add(gate);
+                gate.scale.set(0.1 / 16, 0.1 / 16, 0.1 / 16);
+                gate.rotation.set(0, Math.PI / 2, 0);
+                if (getHeightTile(x, y) > getHeightTile(x - 1, y)){
+                    gate.position.set(x - 0.4375, getHeightTile(x, y), y);
+                }
+                else if (getHeightTile(x, y) < getHeightTile(x - 1, y)){
+                    gate.position.set(x - 1 + 0.4375, getHeightTile(x - 1, y), y);
+                    gate.rotation.set(0, -Math.PI / 2, 0);
+                }
+                else{
+                    gate.position.set(x - 0.5, getHeightTile(x, y), y);
+                }
+            }
+            if (y > 0 && mapData[y][x].connections.n == "lock" && mapData[y - 1][x].connections.s == "lock"){
+                let gate = KeyGateModel.clone(true);
+                KeyDoors.add(gate);
+                gate.scale.set(0.1 / 16, 0.1 / 16, 0.1 / 16);
+                gate.rotation.set(0, 0, 0);
+                if (getHeightTile(x, y) > getHeightTile(x, y - 1)){
+                    gate.position.set(x, getHeightTile(x, y), y - 0.4375);
+                }
+                else if (getHeightTile(x, y) < getHeightTile(x, y - 1)){
+                    gate.position.set(x, getHeightTile(x, y - 1), y - 1 + 0.4375);
+                    gate.rotation.set(0, Math.PI, 0);
+                }
+                else{
+                    gate.position.set(x, getHeightTile(x, y), y - 0.5);
+                }
             }
         }
     }
@@ -845,7 +928,10 @@ function buildMap(){
     MapMesh = new THREE.Mesh(geometry, mat);
     MapMesh.castShadow = true;
     MapMesh.receiveShadow = true;
+
     Scene.add(MapMesh);
+    Scene.add(BlockList);
+    Scene.add(KeyDoors);
 
     Renderer.domElement.style.filter = "blur(10px) opacity(50%)";
     let angle = Date.now() / 10000;
@@ -864,14 +950,16 @@ var ItemData = {
         name: "Double Dice",
         description: "Roll 2 dice and move their total value",
         url: "resources/textures/doubledice.png",
-        price: 5,
+        price: 7,
+        usable: true,
         image: TexLoader.load("resources/textures/doubledice.png")
     },
     tripledice: {
         name: "Triple Dice",
         description: "Roll 3 dice and move their total value",
         url: "resources/textures/tripledice.png",
-        price: 10,
+        price: 12,
+        usable: true,
         image: TexLoader.load("resources/textures/tripledice.png")
     },
     pipe: {
@@ -879,6 +967,7 @@ var ItemData = {
         description: "Warps you to a random tile on the board",
         url: "resources/textures/pipe.png",
         price: 4,
+        usable: true,
         image: TexLoader.load("resources/textures/pipe.png")
     },
     goldpipe: {
@@ -886,13 +975,15 @@ var ItemData = {
         description: "Warps you directly to the star",
         url: "resources/textures/goldpipe.png",
         price: 25,
+        usable: true,
         image: TexLoader.load("resources/textures/goldpipe.png")
     },
     customdice: {
         name: "Custom Dice",
         description: "Choose any number between 1 and 10 to roll",
         url: "resources/textures/customdice.png",
-        price: 10,
+        price: 5,
+        usable: true,
         image: TexLoader.load("resources/textures/customdice.png")
     },
     tacticooler: {
@@ -900,13 +991,15 @@ var ItemData = {
         description: "Add 3 onto your next roll",
         url: "resources/textures/tacticooler.png",
         price: 3,
+        usable: true,
         image: TexLoader.load("resources/textures/tacticooler.png")
     },
     shophopbox: {
         name: "Shop Hop Box",
         description: "Warp to a random shop",
         url: "resources/textures/shophopbox.png",
-        price: 7,
+        price: 5,
+        usable: true,
         image: TexLoader.load("resources/textures/shophopbox.png")
     },
     inkjet: {
@@ -914,7 +1007,16 @@ var ItemData = {
         description: "Use to reach previously inaccessible areas",
         url: "resources/textures/inkjet.png",
         price: 3,
+        usable: true,
         image: TexLoader.load("resources/textures/inkjet.png")
+    },
+    key: {
+        name: "Skeleton Key",
+        description: "Can be used at locked gates to open them",
+        url: "resources/textures/key.png",
+        price: 3,
+        usable: false,
+        image: TexLoader.load("resources/textures/key.png")
     }
 };
 
@@ -928,9 +1030,19 @@ var keys = {};
 window.onkeydown = function(e){ 
     keys[e.keyCode] = true; 
 
-    if (e.keyCode == 13){
-        //Enter
-        
+    if (turnStep == "move" && spacesMoved < PlayerData.roll){
+        if (e.key == "w" || e.key == "ArrowUp"){
+            TestMoveSpace(0, -1);
+        }
+        else if (e.key == "a" || e.key == "ArrowLeft"){
+            TestMoveSpace(-1, 0);
+        }
+        else if (e.key == "s" || e.key == "ArrowDown"){
+            TestMoveSpace(0, 1);
+        }
+        else if (e.key == "d" || e.key == "ArrowRight"){
+            TestMoveSpace(1, 0);
+        }
     }
 
     //Map Build Stuff
@@ -941,19 +1053,18 @@ window.onkeydown = function(e){
         Scene.remove(MapMesh);
         buildMap();
     }*/
-    /*if (e.keyCode == 27){
+    if (e.keyCode == 27){
         //ESC
         navigator.clipboard.writeText(JSON.stringify(mapData, null, "\t"));
         console.log("COPY!!!!");
-    }*/
+    }
 }
 window.onkeyup = function(e){ keys[e.keyCode] = false; }
 
 const StartingTile = { x: 15, y: 30 };
 const ShopWarpTiles = [
     {x: 4, y: 11},
-    {x: 6, y: 17},
-    {x: 14, y: 15},
+    {x: 12, y: 15},
     {x: 16, y: 21}
 ];
 
@@ -963,12 +1074,13 @@ var PlayerData = {
         y: 30
     },
     roll: 0,
-    items: ["doubledice"],
+    items: ["doubledice", "key"],
     coins: 10,
     stars: 0,
     collectedSilverStars: [],
     currentTurn: 1,
-    turnsCompleted: 0
+    turnsCompleted: 0,
+    canDuel: true
 };
 
 var PlayerSilverStarObjs = [];
@@ -995,11 +1107,11 @@ const UIPanels = {
     login: document.getElementById("login"),
     checkin: document.getElementById("checkin"),
     waitMinigame: document.getElementById("waiting-minigame"),
-    minigame: document.getElementById("minigame"),
+    minigame: document.getElementById("new-minigame"),
     globalLeaderboard: document.getElementById("global-leaderboard")
 };
 
-const MinigameChatElement = document.getElementsByClassName("minigame-chat")[0];
+const MinigameChatElement = document.getElementById("new-minigame-chat");
 var isMinigameChatScrolledToBottom = true;
 var DeltaTime = 0;
 function update(){
@@ -1018,9 +1130,31 @@ function update(){
     UpdateUI();
 
     AnimateSilverStars();
+
+    updateDoorOpenings();
+
+    //UpdateLight();
     
     Renderer.render(Scene, Camera);
     requestAnimationFrame(update);
+}
+
+function UpdateLight(){
+    //No longer in use
+    raycaster.setFromCamera(new THREE.Vector2(0, 0), Camera);
+    var intersections = raycaster.intersectObjects([Player, MapMesh, BlockList], true);
+    if (intersections.length > 0){
+        light.position.set(intersections[0].point.x, intersections[0].point.y + 10, intersections[0].point.z + 5);
+        lightTarget.position.set(intersections[0].point.x, intersections[0].point.y, intersections[0].point.z);
+
+        let dist = Math.sqrt(Math.pow(Camera.position.x - intersections[0].point.x, 2) + Math.pow(Camera.position.y - intersections[0].point.y, 2) + Math.pow(Camera.position.z - intersections[0].point.z, 2)) / 2;
+
+        light.shadow.camera.left = -dist;
+        light.shadow.camera.right = dist;
+        light.shadow.camera.top = dist;
+        light.shadow.camera.bottom = -dist;
+        light.shadow.camera.updateProjectionMatrix();
+    }
 }
 
 var UIState = "menu";
@@ -1038,7 +1172,11 @@ const transitionLength = {
     player: 500,
     above: 200,
     roll: 200,
-    map: 500
+    map: 500,
+    doorn: 500,
+    doors: 500,
+    doore: 500,
+    doorw: 500
 };
 var transitionStart = 0;
 function UpdateUI(){
@@ -1099,6 +1237,38 @@ function UpdateUI(){
         playerPos = new THREE.Vector3(PlayerData.position.x, yPos + 0.02, PlayerData.position.y);
         cameraPos = new THREE.Vector3(mapSize.x / 2 - 0.5, 32, mapSize.y / 2 - 0.5);
         cameraRot = new THREE.Euler(-Math.PI / 2, 0, 0);
+    }
+    else if (UIState == "doorn"){
+        filter = 0;
+        playerRot = new THREE.Euler(0, 0, 0);
+        let yPos = getHeightTile(PlayerData.position.x, PlayerData.position.y);
+        playerPos = new THREE.Vector3(PlayerData.position.x, yPos + 0.375, PlayerData.position.y);
+        cameraPos = new THREE.Vector3(PlayerData.position.x, getHeightTile(PlayerData.position.x, PlayerData.position.y - 1) + 0.4, PlayerData.position.y - 1 + 1.5);
+        cameraRot = new THREE.Euler(0, 0, 0);
+    }
+    else if (UIState == "doors"){
+        filter = 0;
+        playerRot = new THREE.Euler(0, Math.PI, 0);
+        let yPos = getHeightTile(PlayerData.position.x, PlayerData.position.y);
+        playerPos = new THREE.Vector3(PlayerData.position.x, yPos + 0.375, PlayerData.position.y);
+        cameraPos = new THREE.Vector3(PlayerData.position.x, getHeightTile(PlayerData.position.x, PlayerData.position.y + 1) + 0.4, PlayerData.position.y + 1 - 1.5);
+        cameraRot = new THREE.Euler(0, Math.PI, 0);
+    }
+    else if (UIState == "doore"){
+        filter = 0;
+        playerRot = new THREE.Euler(0, -Math.PI / 2, 0);
+        let yPos = getHeightTile(PlayerData.position.x, PlayerData.position.y);
+        playerPos = new THREE.Vector3(PlayerData.position.x, yPos + 0.375, PlayerData.position.y);
+        cameraPos = new THREE.Vector3(PlayerData.position.x + 1 - 1.5, getHeightTile(PlayerData.position.x + 1, PlayerData.position.y) + 0.4, PlayerData.position.y);
+        cameraRot = new THREE.Euler(0, -Math.PI / 2, 0);
+    }
+    else if (UIState == "doorw"){
+        filter = 0;
+        playerRot = new THREE.Euler(0, Math.PI / 2, 0);
+        let yPos = getHeightTile(PlayerData.position.x, PlayerData.position.y);
+        playerPos = new THREE.Vector3(PlayerData.position.x, yPos + 0.375, PlayerData.position.y);
+        cameraPos = new THREE.Vector3(PlayerData.position.x - 1 + 1.5, getHeightTile(PlayerData.position.x - 1, PlayerData.position.y) + 0.4, PlayerData.position.y);
+        cameraRot = new THREE.Euler(0, Math.PI / 2, 0);
     }
 
     if (lastUIState != UIState){
@@ -1163,7 +1333,6 @@ function SpawnSilverStarBoard(starPos, cameFromMinigame){
     Object.defineProperty(ServerSilverStars[ServerSilverStars.length - 1], "buffer", { enumerable: false, writable: true, value: { pos: new THREE.Vector3(), rot: new THREE.Vector3(), scale: new THREE.Vector3() } });
     Scene.add(star);
 
-    //TODO!!! trigger a "star place" animation
     UIState = "override";
     turnStep = "spawn-silver-star-anim";
     animTimer = 5;
@@ -1359,7 +1528,7 @@ var customDiceRoll = 0;
 var luckyOptions = document.getElementsByClassName("lucky-option");
 var luckyTimer = 0;
 var luckyClickTimer = -1;
-const luckyItemOptions = ["doubledice", "tripledice", "tacticooler", "customdice", "shophopbox", "pipe"];
+const luckyItemOptions = ["doubledice", "tripledice", "tacticooler", "customdice", "shophopbox", "pipe", "key"];
 var luckyRouletteItems = [];
 function DoTurn(){
     if (turnStep == "menu"){
@@ -1400,7 +1569,7 @@ function DoTurn(){
                     rollsRemaining--;
                     if (rollsRemaining == 0){
                         SetMoveUI();
-                        Socket.send(JSON.stringify({ method: "roll", token: TOKEN, roll: PlayerData.roll }));
+                        Socket.send(JSON.stringify({ method: "set_player_data", token: TOKEN, roll: PlayerData.roll }));
                     }
                 }
             }
@@ -1502,7 +1671,7 @@ function DoTurn(){
                     rollsRemaining--;
 
                     SetMoveUI();
-                    Socket.send(JSON.stringify({ method: "roll", token: TOKEN, roll: PlayerData.roll }));
+                    Socket.send(JSON.stringify({ method: "set_player_data", token: TOKEN, roll: PlayerData.roll }));
 
                     document.getElementsByClassName("custom-dice-input")[0].style.display = "none";
                 }
@@ -1562,6 +1731,9 @@ function DoTurn(){
     }
     else if (turnStep == "star-get-anim"){
         StarGetAnimation();
+    }
+    else if (turnStep == "star-lose-anim"){
+        StarLoseAnimation();
     }
     else if (turnStep == "pipe-warp-anim" || turnStep == "pipe-warp-anim-end-turn"){
         PipeWarpAnimation();
@@ -1710,7 +1882,8 @@ window.onpointermove = function(e){
     pointer.y = -(e.clientY / window.innerHeight) * 2 + 1;
 }
 //THIS IS A MAP BUILDING FUNCTION
-/*window.onmousedown = function(e){
+var targetDebugPos;
+window.onmousedown = function(e){
     if (turnStep == "map"){
         raycaster.setFromCamera(pointer, Camera);
         var intersections = raycaster.intersectObject(MapMesh, false);
@@ -1718,33 +1891,86 @@ window.onpointermove = function(e){
         if (intersections.length > 0){
             let intersectPos = new THREE.Vector2(Math.round(intersections[0].point.x), Math.round(intersections[0].point.z));
             //let newMat = Number.parseInt(prompt("Enter New Material", mapData[intersectPos.y][intersectPos.x].material));
-            let spawnable = window.confirm("Spawnable? " + mapData[intersectPos.y][intersectPos.x].silverStarSpawnable);
-            mapData[intersectPos.y][intersectPos.x].silverStarSpawnable = spawnable;
-            console.log(spawnable);
-            if (mapData[intersectPos.y][intersectPos.x].material != newMat){
-                mapData[intersectPos.y][intersectPos.x].material = newMat;
+            //let spawnable = window.confirm("Spawnable? " + mapData[intersectPos.y][intersectPos.x].silverStarSpawnable);
+
+            document.getElementById("debug-text-input").value = JSON.stringify(mapData[intersectPos.y][intersectPos.x], null, "\t");
+            targetDebugPos = intersectPos;
+            console.log("HI");
+            console.log(intersectPos);
+
+            //let data = JSON.parse(prompt("MapData", JSON.stringify(mapData[intersectPos.y][intersectPos.x])));
+            //mapData[intersectPos.y][intersectPos.x] = data;
+            //mapData[intersectPos.y][intersectPos.x].silverStarSpawnable = spawnable;
+            //console.log(spawnable);
+            //if (mapData[intersectPos.y][intersectPos.x].material != newMat){
+            //    mapData[intersectPos.y][intersectPos.x].material = newMat;
 
                 //Then update face appearance
-                Scene.remove(MapMesh);
-                buildMap();
-            }
+                //Scene.remove(MapMesh);
+                //buildMap();
+            //}
+            
         }
     }
-}*/
+}
+document.getElementById("debug-set-button").onclick = function(e){
+    let data = JSON.parse(document.getElementById("debug-text-input").value);
+    mapData[targetDebugPos.y][targetDebugPos.x] = data;
+    
+    MapMesh.geometry.dispose();
+    MapMesh.material.dispose();
+    Scene.remove(MapMesh);
+
+    while (BlockList.children.length > 0){
+        let child = BlockList.children[0];
+        child.geometry.dispose();
+        BlockList.remove(child);
+    }
+    Scene.remove(BlockList);
+
+    while (KeyDoors.children.length > 0){
+        let child = KeyDoors.children[0];
+        KeyDoors.remove(child);
+    }
+    Scene.remove(KeyDoors);
+
+    buildMap();
+}
+document.getElementById("debug-map-button").onclick = function(e){
+    UIState = "map";
+    turnStep = "map";
+}
+document.getElementById("debug-player-button").onclick = function(e){
+    UIState = "player";
+    turnStep = "null";
+}
 
 function SetMoveUI(){
-    if (spacesMoved < PlayerData.roll){
+    if (turnStep == "key"){
+        document.getElementsByClassName("move-undo-button")[0].style.display = "none";
+        document.getElementsByClassName("move-end-turn-button")[0].style.display = "none";
+        document.getElementsByClassName("roll-display")[0].children[0].textContent = "";
+        document.getElementsByClassName("left-move-button")[0].style.display = "none";
+        document.getElementsByClassName("right-move-button")[0].style.display = "none";
+        document.getElementsByClassName("up-move-button")[0].style.display = "none";
+        document.getElementsByClassName("down-move-button")[0].style.display = "none";
+    }
+    else if (spacesMoved < PlayerData.roll){
         document.getElementsByClassName("move-undo-button")[0].style.display = spacesMoved > 0 ? "initial" : "none";
         document.getElementsByClassName("move-end-turn-button")[0].style.display = "none";
         document.getElementsByClassName("roll-display")[0].children[0].textContent = PlayerData.roll - spacesMoved;
         document.getElementsByClassName("left-move-button")[0].style.display = 
-            PlayerData.position.x > 0 && mapData[PlayerData.position.y][PlayerData.position.x].connections.w && mapData[PlayerData.position.y][PlayerData.position.x - 1].height != 0 ? "initial" : "none";
+            PlayerData.position.x > 0 && (mapData[PlayerData.position.y][PlayerData.position.x].connections.w == true || (mapData[PlayerData.position.y][PlayerData.position.x].connections.w == "lock" && PlayerData.items.includes("key")) || doorUnlocked(PlayerData.position.x, PlayerData.position.y, "w")) 
+            && mapData[PlayerData.position.y][PlayerData.position.x - 1].height != 0 ? "initial" : "none";
         document.getElementsByClassName("right-move-button")[0].style.display = 
-            PlayerData.position.x < mapSize.x - 1 && mapData[PlayerData.position.y][PlayerData.position.x].connections.e && mapData[PlayerData.position.y][PlayerData.position.x + 1].height != 0 ? "initial" : "none";
+            PlayerData.position.x < mapSize.x - 1 && (mapData[PlayerData.position.y][PlayerData.position.x].connections.e == true || (mapData[PlayerData.position.y][PlayerData.position.x].connections.e == "lock" && PlayerData.items.includes("key")) || doorUnlocked(PlayerData.position.x, PlayerData.position.y, "e"))
+            && mapData[PlayerData.position.y][PlayerData.position.x + 1].height != 0 ? "initial" : "none";
         document.getElementsByClassName("up-move-button")[0].style.display = 
-            PlayerData.position.y > 0 && mapData[PlayerData.position.y][PlayerData.position.x].connections.n && mapData[PlayerData.position.y - 1][PlayerData.position.x].height != 0 ? "initial" : "none";
+            PlayerData.position.y > 0 && (mapData[PlayerData.position.y][PlayerData.position.x].connections.n == true || (mapData[PlayerData.position.y][PlayerData.position.x].connections.n == "lock" && PlayerData.items.includes("key")) || doorUnlocked(PlayerData.position.x, PlayerData.position.y, "n"))
+            && mapData[PlayerData.position.y - 1][PlayerData.position.x].height != 0 ? "initial" : "none";
         document.getElementsByClassName("down-move-button")[0].style.display = 
-            PlayerData.position.y < mapSize.y - 1 && mapData[PlayerData.position.y][PlayerData.position.x].connections.s && mapData[PlayerData.position.y + 1][PlayerData.position.x].height != 0 ? "initial" : "none";
+            PlayerData.position.y < mapSize.y - 1 && (mapData[PlayerData.position.y][PlayerData.position.x].connections.s == true || (mapData[PlayerData.position.y][PlayerData.position.x].connections.s == "lock" && PlayerData.items.includes("key")) || doorUnlocked(PlayerData.position.x, PlayerData.position.y, "s"))
+            && mapData[PlayerData.position.y + 1][PlayerData.position.x].height != 0 ? "initial" : "none";
     }
     else{
         document.getElementsByClassName("move-undo-button")[0].style.display = "initial";
@@ -1756,23 +1982,90 @@ function SetMoveUI(){
         document.getElementsByClassName("down-move-button")[0].style.display = "none";
     }
 }
+
+function updateDoorOpenings(){
+    for (var i = 0; i < KeyDoors.children.length; i++){
+        let x1 = Math.floor(KeyDoors.children[i].position.x);
+        let y1 = Math.floor(KeyDoors.children[i].position.z);
+        let x2 = Math.ceil(KeyDoors.children[i].position.x);
+        let y2 = Math.ceil(KeyDoors.children[i].position.z);
+        let dir = (x2 - x1) == 1 ? "h" : "v";
+        //console.log(x1 + ", " + y1);
+        let j = doorUnlockedIndex(x1, y1, dir == "h" ? "e" : "s");
+        if (j != -1){
+            unlockedDoors[j].t = Math.min(unlockedDoors[j].t + (DeltaTime * 2), 1.5);
+            let eio = easeInOut(Math.max(0, unlockedDoors[j].t - 0.5));
+            KeyDoors.children[i].children[0].rotation.set(0, lerp(0, Math.PI / 2, eio), 0);
+            KeyDoors.children[i].children[2].rotation.set(0, lerp(0, -Math.PI / 2, eio), 0);
+        }
+        else{
+            KeyDoors.children[i].children[0].rotation.set(0, 0, 0);
+            KeyDoors.children[i].children[2].rotation.set(0, 0, 0);
+        }
+    }
+}
+
+function doorUnlocked(x, y, dir){
+    let xOffset = dir == "w" ? -1 : (dir == "e" ? 1 : 0);
+    let yOffset = dir == "n" ? -1 : (dir == "s" ? 1 : 0);
+    let negDir = (dir == "w" ? "e" : (dir == "e" ? "w" : (dir == "n" ? "s" : "n")));
+    for (var i = 0; i < unlockedDoors.length; i++){
+        if (unlockedDoors[i].x == x && unlockedDoors[i].y == y && unlockedDoors[i].dir == dir){
+            return true;
+        }
+        if (unlockedDoors[i].x == x + xOffset && unlockedDoors[i].y == y + yOffset && unlockedDoors[i].dir == negDir){
+            return true;
+        }
+    }
+    return false;
+}
+function doorUnlockedIndex(x, y, dir){
+    let xOffset = dir == "w" ? -1 : (dir == "e" ? 1 : 0);
+    let yOffset = dir == "n" ? -1 : (dir == "s" ? 1 : 0);
+    let negDir = (dir == "w" ? "e" : (dir == "e" ? "w" : (dir == "n" ? "s" : "n")));
+    for (var i = 0; i < unlockedDoors.length; i++){
+        if (unlockedDoors[i].x == x && unlockedDoors[i].y == y && unlockedDoors[i].dir == dir){
+            return i;
+        }
+        if (unlockedDoors[i].x == x + xOffset && unlockedDoors[i].y == y + yOffset && unlockedDoors[i].dir == negDir){
+            return i;
+        }
+    }
+    return -1;
+}
+
+function resetDoorUnlocks(){
+    unlockedDoors = [];
+}
+
 var spacesMoved = 0;
 var moveHistory = [];
+var unlockedDoors = [];
+var targetLockedDoor;
 function TestMoveSpace(xOffset, yOffset){
     if (turnStep == "move"){
         let x = PlayerData.position.x + xOffset;
         let y = PlayerData.position.y + yOffset;
         
         if (x < 0 || y < 0 || x > mapSize.x - 1 || y > mapSize.y - 1) return;
-        if ((xOffset == -1 && mapData[PlayerData.position.y][PlayerData.position.x].connections.w) ||
-            (xOffset == 1 && mapData[PlayerData.position.y][PlayerData.position.x].connections.e) ||
-            (yOffset == -1 && mapData[PlayerData.position.y][PlayerData.position.x].connections.n) ||
-            (yOffset == 1 && mapData[PlayerData.position.y][PlayerData.position.x].connections.s)){
+
+        if ((xOffset == -1 && mapData[PlayerData.position.y][PlayerData.position.x].connections.w == true) ||
+        (xOffset == 1 && mapData[PlayerData.position.y][PlayerData.position.x].connections.e == true) ||
+        (yOffset == -1 && mapData[PlayerData.position.y][PlayerData.position.x].connections.n == true) ||
+        (yOffset == 1 && mapData[PlayerData.position.y][PlayerData.position.x].connections.s == true) ||
+        (xOffset == -1 && mapData[PlayerData.position.y][PlayerData.position.x].connections.w == "lock" && doorUnlocked(PlayerData.position.x, PlayerData.position.y, "w")) || 
+        (xOffset == 1 && mapData[PlayerData.position.y][PlayerData.position.x].connections.e == "lock" && doorUnlocked(PlayerData.position.x, PlayerData.position.y, "e")) ||
+        (yOffset == -1 && mapData[PlayerData.position.y][PlayerData.position.x].connections.n == "lock" && doorUnlocked(PlayerData.position.x, PlayerData.position.y, "n")) ||
+        (yOffset == 1 && mapData[PlayerData.position.y][PlayerData.position.x].connections.s == "lock" && doorUnlocked(PlayerData.position.x, PlayerData.position.y, "s"))){
             let newItemArray = [];
             for (let i = 0; i < PlayerData.items.length; i++) newItemArray.push(PlayerData.items[i]);
             let newSilverStarArray = [];
             for (let i = 0; i < PlayerData.collectedSilverStars.length; i++) newSilverStarArray.push(PlayerData.collectedSilverStars[i]);
-            moveHistory.push({ position: PlayerData.position, coins: PlayerData.coins, stars: PlayerData.stars, items: newItemArray, collectedSilverStars: newSilverStarArray });
+            let newUnlockedDoorsArray = [];
+            for (let i = 0; i < unlockedDoors.length; i++) newUnlockedDoorsArray.push(unlockedDoors[i]);
+            moveHistory.push({ position: PlayerData.position, coins: PlayerData.coins, stars: PlayerData.stars, items: newItemArray, collectedSilverStars: newSilverStarArray,
+                unlockedDoors: newUnlockedDoorsArray, canDuel: PlayerData.canDuel
+             });
             PlayerData.position = { x: x, y: y };
             spacesMoved++;
             SetMoveUI();
@@ -1792,8 +2085,37 @@ function TestMoveSpace(xOffset, yOffset){
                 OpenPopup();
             }
         }
+        else if (PlayerData.items.includes("key") && 
+        ((xOffset == -1 && mapData[PlayerData.position.y][PlayerData.position.x].connections.w == "lock") || 
+        (xOffset == 1 && mapData[PlayerData.position.y][PlayerData.position.x].connections.e == "lock") ||
+        (yOffset == -1 && mapData[PlayerData.position.y][PlayerData.position.x].connections.n == "lock") ||
+        (yOffset == 1 && mapData[PlayerData.position.y][PlayerData.position.x].connections.s == "lock"))){
+            UIState = xOffset == 0 ? (yOffset == 1 ? "doors" : "doorn") : (xOffset == 1 ? "doore" : "doorw");
+            turnStep = "key";
+            document.getElementById("key-door").style.display = "initial";
+            targetLockedDoor = { x: PlayerData.position.x, y: PlayerData.position.y, 
+                dir: (mapData[PlayerData.position.y][PlayerData.position.x].connections.w == "lock" ? "w" : (mapData[PlayerData.position.y][PlayerData.position.x].connections.e == "lock" ? "e" : (mapData[PlayerData.position.y][PlayerData.position.x].connections.n == "lock" ? "n" : "s"))), 
+                t: 0 };
+            SetMoveUI();
+        }
     }
 }
+document.getElementById("key-door-yes-button").onclick = (e) => {
+    PlayerData.items.splice(PlayerData.items.indexOf("key"), 1);
+    turnStep = "move";
+    UIState = "above";
+    document.getElementById("key-door").style.display = "none";
+    unlockedDoors.push(targetLockedDoor);
+    targetLockedDoor = null;
+    UpdateItemUI();
+    SetMoveUI();
+};
+document.getElementById("key-door-no-button").onclick = (e) => {
+    turnStep = "move";
+    UIState = "above";
+    document.getElementById("key-door").style.display = "none";
+    SetMoveUI();
+};
 document.getElementsByClassName("roll-back-button")[0].onclick = (e) => {
     if (turnStep == "roll"){
         turnStep = "menu";
@@ -1815,6 +2137,8 @@ document.getElementsByClassName("move-undo-button")[0].onclick = (e) => {
         PlayerData.coins = data.coins;
         PlayerData.items = data.items;
         if (PlayerData.collectedSilverStars > data.collectedSilverStars) UncollectLatestSilverStar();
+        unlockedDoors = data.unlockedDoors;
+        PlayerData.canDuel = data.canDuel;
         UpdatePlayerUI();
         UpdateItemUI();
         SetMoveUI();
@@ -1856,7 +2180,7 @@ function UpdateItemUI(){
         playerItemDisplays[i].src = PlayerData.items.length > i ? ItemData[PlayerData.items[i]].url : "resources/textures/noitem.png";
     }
     for (var i = 0; i < itemHover.length; i++){
-        itemElems[i].disabled = !(PlayerData.items.length > i);
+        itemElems[i].disabled = !(PlayerData.items.length > i) || !ItemData[PlayerData.items[i]].usable;
         if (PlayerData.items.length > i){
             itemElems[i].style.backgroundImage = "url(\"" + ItemData[PlayerData.items[i]].url + "\")";
             if (itemHover[i]){
@@ -1896,42 +2220,53 @@ document.getElementsByClassName("item-option")[2].onclick = (e) => { UseItem(2);
 function UseItem(index){
     if (turnStep == "item"){
         if (PlayerData.items.length > index){
-            switch (PlayerData.items[index]){
+            let item = PlayerData.items[index];
+            PlayerData.items.splice(index, 1);
+            let loc;
+            switch (item){
                 case "doubledice":
                     rollsRemaining = 2;
                     turnStep = "menu";
                     document.getElementsByClassName("player-inputs")[0].style.display = "flex";
+                    Socket.send(JSON.stringify({ method: "set_player_data", token: TOKEN, usedItem: item, items: PlayerData.items }));
                     break;
                 case "tripledice":
                     rollsRemaining = 3;
                     turnStep = "menu";
                     document.getElementsByClassName("player-inputs")[0].style.display = "flex";
+                    Socket.send(JSON.stringify({ method: "set_player_data", token: TOKEN, usedItem: item, items: PlayerData.items }));
                     break;
                 case "pipe":
-                    TriggerPipeWarpAnimation(RandomMapSpace(), false);
+                    loc = RandomMapSpace();
+                    TriggerPipeWarpAnimation(loc, false);
+                    Socket.send(JSON.stringify({ method: "set_player_data", token: TOKEN, usedItem: item, position: loc, items: PlayerData.items }));
                     break;
                 case "goldpipe":
                     TriggerGoldPipeWarpAnimation();
+                    Socket.send(JSON.stringify({ method: "set_player_data", token: TOKEN, usedItem: item, position: StarWarpLocation, items: PlayerData.items }));
                     break;
                 case "tacticooler":
                     addToRoll = 3;
                     turnStep = "menu";
                     document.getElementsByClassName("player-inputs")[0].style.display = "flex";
+                    Socket.send(JSON.stringify({ method: "set_player_data", token: TOKEN, usedItem: item, items: PlayerData.items }));
                     break;
                 case "customdice":
                     customDiceRoll = 5;
                     UpdateCustomDiceFace();
                     turnStep = "menu";
                     document.getElementsByClassName("player-inputs")[0].style.display = "flex";
+                    Socket.send(JSON.stringify({ method: "set_player_data", token: TOKEN, usedItem: item, items: PlayerData.items }));
                     break;
                 case "shophopbox":
-                    TriggerPipeWarpAnimation(ShopWarpTiles[Math.floor(Math.random() * ShopWarpTiles.length)], false);
+                    loc = ShopWarpTiles[Math.floor(Math.random() * ShopWarpTiles.length)];
+                    TriggerPipeWarpAnimation(loc, false);
+                    Socket.send(JSON.stringify({ method: "set_player_data", token: TOKEN, usedItem: item, position: loc, items: PlayerData.items }));
                     break;
                 default:
-                    console.error("Cannot Recognize item: " + PlayerData.items[index]);
+                    console.error("Cannot Recognize item: " + item);
                     break;
             }
-            PlayerData.items.splice(index, 1);
             document.getElementsByClassName("item-menu")[0].style.display = "none";
             document.getElementById("items-button").disabled = true;
             UpdateItemUI();
@@ -1944,6 +2279,34 @@ function UseItem(index){
         document.getElementsByClassName("item-menu")[0].style.display = "none";
         UpdatePlayerUI();
         TriggerGiveItemAnimation(shopItemBuffer, true);
+    }
+}
+function ServerUseItem(item){
+    if (PlayerData.roll > 0 || item == null) return;
+    document.getElementById("items-button").disabled = true;
+    switch (item){
+        case "doubledice":
+            rollsRemaining = 2;
+            break;
+        case "tripledice":
+            rollsRemaining = 3;
+            break;
+        case "pipe":
+            break;
+        case "goldpipe":
+            break;
+        case "tacticooler":
+            addToRoll = 3;
+            break;
+        case "customdice":
+            customDiceRoll = 5;
+            UpdateCustomDiceFace();
+            break;
+        case "shophopbox":
+            break;
+        default:
+            console.error("Cannot Recognize item: " + item);
+            break;
     }
 }
 
@@ -2020,8 +2383,10 @@ function EndTurn(){
         document.getElementsByClassName("move-end-turn-button")[0].style.display = "none";
         document.getElementsByClassName("move-undo-button")[0].style.display = "none";
         UIPanels.waitMinigame.style.display = "initial";
+        document.getElementById("wait-minigame-map").style.display = "initial";
         saveCookies();
-        Socket.send(JSON.stringify({ method: "end_turn", token: TOKEN, position: PlayerData.position, stars: PlayerData.stars, coins: PlayerData.coins, items: PlayerData.items, collectedSilverStars: PlayerData.collectedSilverStars }));
+        resetDoorUnlocks();
+        Socket.send(JSON.stringify({ method: "end_turn", token: TOKEN, position: PlayerData.position, stars: PlayerData.stars, coins: PlayerData.coins, items: PlayerData.items, collectedSilverStars: PlayerData.collectedSilverStars, duel: duelBet, canDuel: PlayerData.canDuel }));
     }
 }
 
@@ -2043,6 +2408,16 @@ function OpenPopup(){
         for (var i = 0; i < shopItems.length; i++){
             shopItems[i].disabled = ItemData[shopItems[i].getAttribute("item")].price > PlayerData.coins;
         }
+    }
+    else if (mapData[PlayerData.position.y][PlayerData.position.x].popup == "duel"){
+        duelButtons[0].disabled = PlayerData.coins < 10;
+        duelButtons[1].disabled = PlayerData.coins <= 0;
+        duelButtons[2].disabled = PlayerData.stars < 1;
+
+        console.log(PlayerData.canDuel);
+
+        document.getElementById("canduel").style.display = PlayerData.canDuel ? "inline-block" : "none";
+        document.getElementById("cantduel").style.display = PlayerData.canDuel ? "none" : "inline-block";
     }
 }
 function ClosePopup(){
@@ -2105,31 +2480,42 @@ function PurchaseItem(item){
     }
 }
 
-document.getElementsByClassName("purchase-star-button")[0].onclick = function(e){
+function PurchaseStar(){
     if (turnStep == "popup" && PlayerData.coins >= 20){
         PlayerData.coins -= 20;
         PlayerData.stars++;
         document.getElementById(mapData[PlayerData.position.y][PlayerData.position.x].popup).style.display = "none";
-        TriggerStarGetAnimation();
+        TriggerStarGetAnimation(true);
+        PlayerData.canDuel = true;
     }
 }
 
+document.getElementsByClassName("purchase-star-button")[0].onclick = PurchaseStar;
+
 
 var animTimer = 0;
+var starGetAnimWarp = false;
+function TriggerStarGetAnimation(warp){
+    starGetAnimWarp = warp;
 
-function TriggerStarGetAnimation(){
-    UIState = "override";
+    UIState = "player";
     turnStep = "star-get-anim";
-    animTimer = 4;
+    animTimer = warp ? 4 : 5;
 
     StarRingParticle.scale.set(0, 0, 0);
     StarRingParticle.position.set(Player.position.x, Player.position.y, Player.position.z + 0.05);
 }
+
 function StarGetAnimation(){
     animTimer -= DeltaTime;
     let targetPlayerPos = new THREE.Vector3(PlayerData.position.x, getHeightTile(PlayerData.position.x, PlayerData.position.y) + 0.375, PlayerData.position.y);
 
-    if (animTimer > 3){
+    if (animTimer > 4){
+        //Wait if warp is false
+        StarRingParticle.scale.set(0, 0, 0);
+        StarRingParticle.position.set(Player.position.x, Player.position.y, Player.position.z + 0.05);
+    }
+    else if (animTimer > 3){
         let t = 1 - ((animTimer - 3) / 1);
         Star.position.set(targetPlayerPos.x, targetPlayerPos.y + 0.575, targetPlayerPos.z);
         Star.scale.set(lerp(0, 0.0015, t), lerp(0, 0.0015, t), lerp(0, 0.0015, t));
@@ -2167,7 +2553,68 @@ function StarGetAnimation(){
         StarRingParticle.scale.set(0, 0, 0);
     }
     else{
-        TriggerPipeWarpAnimation(StartingTile, true);
+        if (starGetAnimWarp) TriggerPipeWarpAnimation(StartingTile, true);
+        else{
+            UIState = "player";
+            turnStep = "menu";
+            document.getElementsByClassName("player-inputs")[0].style.display = "flex";
+        }
+    }
+}
+
+function TriggerStarLoseAnimation(){
+    UIState = "player";
+    turnStep = "star-lose-anim";
+    animTimer = 3;
+
+    StarRingParticle.scale.set(0, 0, 0);
+    StarRingParticle.position.set(Player.position.x, Player.position.y, Player.position.z + 0.05);
+
+    PlayerData.stars--;
+    UpdatePlayerUI();
+}
+function StarLoseAnimation(){
+    const animLength = 3;
+    animTimer -= DeltaTime;
+
+    let targetPos = new THREE.Vector3(PlayerData.position.x, getHeightTile(PlayerData.position.x, PlayerData.position.y) + 0.375, PlayerData.position.y);
+
+    if (animTimer > animLength - 0.75){
+        let t = 1 - ((animTimer - animLength + 0.75) / 0.75);
+        let eo = easeOut(t);
+        let ei = easeIn(t);
+
+        Star.position.set(targetPos.x, targetPos.y, targetPos.z + 0.1);
+        Star.scale.set(lerp(0, 0.001, eo), lerp(0, 0.001, eo), lerp(0, 0.001, eo));
+        StarRingParticle.scale.set(lerp(0, 0.65, t), lerp(0, 0.65, t), lerp(0, 0.65, t));
+        StarRingParticle.material.opacity = t;
+    }
+    else if (animTimer > animLength - 1.25){
+        let t = 1 - ((animTimer - animLength + 1.25) / 0.5);
+        let eo = easeOut(t);
+        
+        StarRingParticle.scale.set(lerp(0.65, 1, t), lerp(0.65, 1, t), lerp(0.65, 1, t));
+        StarRingParticle.material.opacity = lerp(1, 0, eo);
+    }
+    else if (animTimer > animLength - 1.75){
+        StarRingParticle.material.opacity = 0;
+        StarRingParticle.scale.set(0, 0, 0);
+    }
+    else if (animTimer > animLength - 2.5){
+        let t = 1 - ((animTimer - animLength + 2.5) / 0.75);
+        let ei = easeIn(t);
+
+        Star.position.set(targetPos.x, targetPos.y + lerp(0, 2, ei), targetPos.z + 0.1);
+    }
+    else if (animTimer > animLength - 3){
+        Star.position.set(0, 0, 0);
+        Star.scale.set(0, 0, 0);
+    }
+    else{
+        UIState = "above";
+        turnStep = "popup";
+        
+        ClosePopup();
     }
 }
 
@@ -2273,6 +2720,7 @@ function TriggerGoldPipeWarpAnimation(){
     turnStep = "gold-pipe-warp-anim";
     animTimer = 6;
     pipeWarpLocation = StarWarpLocation;
+    Socket.send(JSON.stringify({ method: "set_player_data", token: TOKEN, position: StarWarpLocation, items: PlayerData.items }));
 }
 function GoldPipeWarpAnimation(){
     const animLength = 6;
@@ -2535,7 +2983,16 @@ function LoseCoinsAnimation(){
 
         UIState = "player";
         turnStep = coinsAnimTurnStepBuffer;
-        if (coinsAnimTurnStepBuffer == "popup") EndTurn();
+        if (coinsAnimTurnStepBuffer == "popup"){
+            if (mapData[PlayerData.position.y][PlayerData.position.x].popup == "duel"){
+                UIState = "above";
+                ClosePopup();
+            }
+            else EndTurn();
+        } 
+        else if (coinsAnimTurnStepBuffer == "menu"){
+            document.getElementsByClassName("player-inputs")[0].style.display = "flex";
+        }
     }
 }
 
@@ -2742,9 +3199,26 @@ function OpenMap(){
         document.getElementById("turn-counter").style.display = "none";
         document.getElementsByClassName("map-overlay")[0].style.display = "initial";
     }
+    else if (turnStep == "wait"){
+        UIState = "map";
+        turnStep = "map";
+        document.getElementById("leaderboard").style.display = "none";
+        document.getElementById("turn-counter").style.display = "none";
+        document.getElementsByClassName("map-overlay")[0].style.display = "initial";
+        document.getElementById("wait-minigame-map").style.display = "none";
+        UIPanels.waitMinigame.style.display = "none";
+    }
+    else if (turnStep == "minigame"){
+        UIState = "map";
+        turnStep = "map";
+        document.getElementsByClassName("map-overlay")[0].style.display = "initial";
+        document.getElementById("wait-minigame-map").style.display = "none";
+        UIPanels.minigame.style.display = "none";
+    }
 }
 document.getElementById("map-button").onclick = OpenMap;
 document.getElementsByClassName("board-map-button")[0].onclick = OpenMap;
+document.getElementsByClassName("board-map-button")[1].onclick = OpenMap;
 
 function CloseMap(){
     if (turnStep == "map"){
@@ -2770,49 +3244,48 @@ function CloseMap(){
             document.getElementById("turn-counter").style.display = "initial";
             document.getElementsByClassName("map-overlay")[0].style.display = "none";
         }
+        else if (mapTriggeredFrom == "wait"){
+            UIState = "menu";
+            turnStep = "wait";
+            document.getElementById("leaderboard").style.display = "initial";
+            document.getElementById("turn-counter").style.display = "initial";
+            document.getElementsByClassName("map-overlay")[0].style.display = "none";
+            document.getElementById("wait-minigame-map").style.display = "initial";
+            UIPanels.waitMinigame.style.display = "initial";
+        }
+        else if (mapTriggeredFrom == "minigame"){
+            UIState = "menu";
+            turnStep = "minigame";
+            document.getElementsByClassName("map-overlay")[0].style.display = "none";
+            document.getElementById("wait-minigame-map").style.display = "initial";
+            UIPanels.minigame.style.display = "initial";
+        }
     }
 }
 document.getElementsByClassName("map-back-button")[0].onclick = CloseMap;
 
-document.getElementsByClassName("minigame-navigator-button")[0].onclick = function(e){
-    document.getElementsByClassName("minigame-navigator-button")[0].classList.add("minigame-navigator-button-selected");
-    document.getElementsByClassName("minigame-navigator-button")[1].classList.remove("minigame-navigator-button-selected");
-    document.getElementsByClassName("minigame-navigator-button")[2].classList.remove("minigame-navigator-button-selected");
+var minigameNavButtons = document.getElementsByClassName("new-minigame-navigator-button");
+minigameNavButtons[0].onclick = function(e){
+    minigameNavButtons[0].classList.add("new-minigame-navigator-selected");
+    minigameNavButtons[1].classList.remove("new-minigame-navigator-selected");
 
-    document.getElementsByClassName("minigame-sub-window")[0].style.display = "initial";
-    document.getElementsByClassName("minigame-sub-window")[1].style.display = "none";
-    document.getElementsByClassName("minigame-sub-window")[2].style.display = "none";
-}
-document.getElementsByClassName("minigame-navigator-button")[1].onclick = function(e){
-    document.getElementsByClassName("minigame-navigator-button")[0].classList.remove("minigame-navigator-button-selected");
-    document.getElementsByClassName("minigame-navigator-button")[1].classList.add("minigame-navigator-button-selected");
-    document.getElementsByClassName("minigame-navigator-button")[2].classList.remove("minigame-navigator-button-selected");
+    document.getElementById("new-minigame-result-window").style.display = "initial";
+    document.getElementById("new-minigame-chat-window").style.display = "none";
+};
+minigameNavButtons[1].onclick = function(e){
+    minigameNavButtons[1].classList.add("new-minigame-navigator-selected");
+    minigameNavButtons[0].classList.remove("new-minigame-navigator-selected");
 
-    document.getElementsByClassName("minigame-sub-window")[0].style.display = "none";
-    document.getElementsByClassName("minigame-sub-window")[1].style.display = "initial";
-    document.getElementsByClassName("minigame-sub-window")[2].style.display = "none";
-}
-document.getElementsByClassName("minigame-navigator-button")[2].onclick = function(e){
-    //Chat Button
-    document.getElementsByClassName("minigame-navigator-button")[0].classList.remove("minigame-navigator-button-selected");
-    document.getElementsByClassName("minigame-navigator-button")[1].classList.remove("minigame-navigator-button-selected");
-    document.getElementsByClassName("minigame-navigator-button")[2].classList.add("minigame-navigator-button-selected");
-
-    document.getElementsByClassName("minigame-sub-window")[0].style.display = "none";
-    document.getElementsByClassName("minigame-sub-window")[1].style.display = "none";
-    document.getElementsByClassName("minigame-sub-window")[2].style.display = "initial";
-
-    if(isMinigameChatScrolledToBottom){
-         MinigameChatElement.scrollTop = MinigameChatElement.scrollHeight - MinigameChatElement.clientHeight;
-    }
-}
+    document.getElementById("new-minigame-result-window").style.display = "none";
+    document.getElementById("new-minigame-chat-window").style.display = "initial";
+};
 
 
-document.getElementsByClassName("minigame-submit")[0].onclick = function(e){
+document.getElementById("new-minigame-submit-button").onclick = function(e){
     var result = [];
 
     for (var i = 0; i < CurrentMinigameLobby.length; i++){
-        result.push(Number.parseFloat(document.getElementsByClassName("minigame-player-result-" + MinigameData[CurrentMinigame].type)[i].value));
+        result.push(Number.parseFloat(document.getElementsByClassName("new-minigame-player-result-" + MinigameData[CurrentMinigame].type)[i].value));
     }
 
     Socket.send(JSON.stringify({ method: "submit_results", token: TOKEN, result: result }));
@@ -2820,7 +3293,7 @@ document.getElementsByClassName("minigame-submit")[0].onclick = function(e){
 
     minigameSubmitButton.disabled = true;
     minigameSubmitButton.textContent = "Submitted";
-}
+};
 
 var helpWindow = document.getElementsByClassName("help-info")[0];
 var helpSidebarSubjects = document.getElementsByClassName("help-sidebar-subgroup-title");
@@ -2868,13 +3341,48 @@ document.getElementsByClassName("help-close-button")[0].onclick = function(e){
     helpElement.style.display = "none";
 };
 
+var duelBet = false;
+var duelButtons = document.getElementsByClassName("duel-button");
+duelButtons[0].onclick = function(e){ 
+    if (PlayerData.coins >= 10 && PlayerData.canDuel){
+        duelBet = { type: "coins", amount: 10 };
+        UpdatePlayerUI();
+        document.getElementById(mapData[PlayerData.position.y][PlayerData.position.x].popup).style.display = "none";
+        TriggerCoinChangeAnimation(-10);
+        PlayerData.canDuel = false;
+    }
+};
+duelButtons[1].onclick = function(e){ 
+    if (PlayerData.coins > 0 && PlayerData.canDuel){
+        duelBet = { type: "coins", amount: PlayerData.coins };
+        UpdatePlayerUI();
+        document.getElementById(mapData[PlayerData.position.y][PlayerData.position.x].popup).style.display = "none";
+        TriggerCoinChangeAnimation(-duelBet.amount);
+        PlayerData.canDuel = false;
+    }
+};
+duelButtons[2].onclick = function(e){ 
+    if (PlayerData.stars >= 1 && PlayerData.canDuel){
+        duelBet = { type: "stars", amount: 1 };
+        UpdatePlayerUI();
+        document.getElementById(mapData[PlayerData.position.y][PlayerData.position.x].popup).style.display = "none";
+        TriggerStarLoseAnimation();
+        PlayerData.canDuel = false;
+    }
+};
+document.getElementById("duel-leave-button").onclick = function(e){
+    ClosePopup();
+};
+document.getElementById("cant-duel-leave-button").onclick = function(e){
+    ClosePopup();
+};
+
 //NETWORKING!!!
 var Socket;
 var SignedIn = false;
 function InitializeSocket(){
-    //TODO!!! Swap this back
-    Socket = new WebSocket("wss://" + new URLSearchParams(window.location.search).get("socket") + ".ngrok-free.dev");
-    //Socket = new WebSocket("ws://localhost:6969");
+    //Changes the Socket connection based on if it's local hosted or not
+    Socket = new WebSocket(window.location.hostname == "127.0.0.1" ? "ws://localhost:6969" : ("wss://" + new URLSearchParams(window.location.search).get("socket") + ".ngrok-free.dev"));
 
     Socket.onopen = function(e){
         console.log("Socket open");
@@ -2974,8 +3482,10 @@ function get_status_server(data){
                     coins: data.data.coins,
                     stars: data.data.stars,
                     collectedSilverStars: data.data.collectedSilverStars,
-                    turnsCompleted: data.data.turnsCompleted
+                    turnsCompleted: data.data.turnsCompleted,
+                    canDuel: data.data.canDuel
                 };
+                if (data.data.usedItem != null) ServerUseItem(data.data.usedItem);
                 transitionValues.playerPos = new THREE.Vector3(PlayerData.position.x, getHeightTile(PlayerData.position.x, PlayerData.position.y) + 0.375, PlayerData.position.y);
 
                 if (data.status == "TURN"){
@@ -2984,6 +3494,7 @@ function get_status_server(data){
                     if (PlayerData.turnsCompleted == ServerTurn){
                         document.getElementsByClassName("player-inputs")[0].style.display = "none";
                         UIPanels.waitMinigame.style.display = "initial";
+                        document.getElementById("wait-minigame-map").style.display = "initial";
                         turnStep = "wait";
                         UIState = "player";
                     }
@@ -3122,13 +3633,15 @@ function announcement_server(data){
         }
         else if (ServerStatus == "TURN"){
             document.getElementsByClassName("leaderboard-button")[0].style.display = "initial";
+            duelBet = false;
+            if (turnStep == "map") CloseMap();
+            document.getElementById("wait-minigame-map").style.display = "none";
             if (TOKEN == ""){
                 UIState = "menu";
                 UIPanels.connecting.style.display = "none";
                 UIPanels.login.style.display = "initial";
             }
             else{
-                SpawnSilverStarBoard(data.silverStar, lastStatus == "MINIGAME");
                 rollsRemaining = 1;
                 UIPanels.checkin.style.display = "none";
                 UIPanels.connecting.style.display = "none";
@@ -3139,16 +3652,30 @@ function announcement_server(data){
                 document.getElementById("items-button").disabled = false;
                 document.getElementById("turn-counter").style.display = "initial";
                 document.getElementById("turn-counter-text").textContent = ServerTurn + "/10";
+
+                if (Object.hasOwn(data, "silverStar")){
+                    SpawnSilverStarBoard(data.silverStar, lastStatus == "MINIGAME");
+                }
+                else if (ServerTurn == 1){
+                    UIState = "player";
+                    turnStep = "menu";
+                    document.getElementsByClassName("player-inputs")[0].style.display = "flex";
+                }
+                else if (lastStatus == "MINIGAME"){
+                    UIState = "player";
+                    turnStep = "menu";
+                    minigameCoinGiveCheck = true;
+                    getPlayerDataTimeout(0);
+                }
+                else{
+                    document.getElementsByClassName("player-inputs")[0].style.display = "flex";
+                }
             }
         }
         else if (ServerStatus == "MINIGAME"){
             document.getElementsByClassName("leaderboard-button")[0].style.display = "initial";
-            document.getElementsByClassName("minigame-navigator-button")[0].classList.add("minigame-navigator-button-selected");
-            document.getElementsByClassName("minigame-navigator-button")[1].classList.remove("minigame-navigator-button-selected");
-            document.getElementsByClassName("minigame-navigator-button")[2].classList.remove("minigame-navigator-button-selected");
-            document.getElementsByClassName("minigame-sub-window")[0].style.display = "initial";
-            document.getElementsByClassName("minigame-sub-window")[1].style.display = "none";
-            document.getElementsByClassName("minigame-sub-window")[2].style.display = "none";
+
+            minigameNavButtons[0].onclick();
 
             minigameSubmitButton.disabled = false;
             minigameSubmitButton.textContent = "Submit Results";
@@ -3162,6 +3689,7 @@ function announcement_server(data){
 }
 
 function GenerateResultsPage(data){
+    document.getElementById("wait-minigame-map").style.display = "none";
     UIPanels.minigame.style.display = "none";
     UIPanels.checkin.style.display = "none";
     UIPanels.connecting.style.display = "none";
@@ -3317,10 +3845,11 @@ function end_turn_server(data){
 
 }
 
-const minigamePopupPlayers = document.getElementsByClassName("minigame-player");
+const minigamePopupPlayers = document.getElementsByClassName("new-minigame-player");
 var GetLobbyServerTimeout;
 var CurrentMinigame = "null";
 var CurrentMinigameLobby = [];
+var ServerDuelBet = false;
 function getLobbyTimeout(i){
     if (i > TIMEOUT_LIMIT) { disconnectError(); return; }
     GetLobbyServerTimeout = setTimeout(() => {getLobbyTimeout(i+1)}, 3000);
@@ -3328,9 +3857,19 @@ function getLobbyTimeout(i){
 }
 function get_lobby_server(data){
     clearTimeout(GetLobbyServerTimeout);
-    
-    document.getElementById("minigame-interactive").style.display = "initial";
+
+    if (turnStep == "map") CloseMap();
+    turnStep = "minigame";
+
+    document.getElementById("wait-minigame-map").style.display = "none";
+    document.getElementsByClassName("map-overlay")[0].style.display = "none";
+
+    document.getElementById("leaderboard").style.display = "none";
+    document.getElementById("turn-counter").style.display = "none";
+
+    document.getElementById("minigame-interactive").style.display = "inline-block";
     document.getElementById("minigame-waiting").style.display = "none";
+    document.getElementById("minigame-pool-pass-box").style.display = data.lobby.length > 1 ? "initial" : "none";
 
     CurrentMinigame = data.minigame;
     CurrentMinigameLobby = data.lobby;
@@ -3344,17 +3883,17 @@ function get_lobby_server(data){
     for (let i = 0; i < minigamePopupPlayers.length; i++){
         if (i < data.lobby.length){
             minigamePopupPlayers[i].style.display = "inline-block";
-            minigamePopupPlayers[i].getElementsByClassName("minigame-player-name")[0].innerHTML = data.lobby[i].ign.split("#", 2).join("<br>#") + "<span class=\"minigame-player-tooltip\">" + data.lobby[i].discord + "</span>";
-            minigamePopupPlayers[i].getElementsByClassName("minigame-player-result-vs")[0].style.display = MinigameData[data.minigame].type == "vs" ? "initial" : "none";
-            minigamePopupPlayers[i].getElementsByClassName("minigame-player-result-coop")[0].style.display = MinigameData[data.minigame].type == "coop" ? "initial" : "none";
-            minigamePopupPlayers[i].getElementsByClassName("minigame-player-result-coin")[0].style.display = MinigameData[data.minigame].type == "coin" ? "initial" : "none";
+            minigamePopupPlayers[i].getElementsByClassName("new-minigame-player-ign")[0].innerHTML = data.lobby[i].ign.split("#", 2).join("<br>#") + "<span class=\"minigame-player-tooltip\">" + data.lobby[i].discord + "</span>";
+            minigamePopupPlayers[i].getElementsByClassName("new-minigame-player-result-vs")[0].style.display = MinigameData[data.minigame].type == "vs" ? "initial" : "none";
+            minigamePopupPlayers[i].getElementsByClassName("new-minigame-player-result-coop")[0].style.display = MinigameData[data.minigame].type == "coop" ? "initial" : "none";
+            minigamePopupPlayers[i].getElementsByClassName("new-minigame-player-result-coin")[0].style.display = MinigameData[data.minigame].type == "coin" ? "initial" : "none";
         }
         else{
             minigamePopupPlayers[i].style.display = "none";
         }
     }
 
-    document.getElementsByClassName("minigame-navigator-button")[2].style.display = data.lobby.length > 1 ? "initial" : "none";
+    minigameNavButtons[1].style.display = data.lobby.length > 1 ? "initial" : "none";
 
     document.getElementsByClassName("minigame-pool")[0].textContent = "Pool: " + data.pool;
     document.getElementsByClassName("minigame-pass")[0].textContent = "Pass: " + data.pass;
@@ -3365,23 +3904,82 @@ function get_lobby_server(data){
     for (let i = 0; i < data.setApartPlayers.length; i++){
         descrip = descrip.replace("{Player}", data.lobby[data.setApartPlayers[i]].ign);
     }
-    document.getElementsByClassName("minigame-description")[0].innerHTML = descrip;
+    document.getElementById("new-minigame-description").innerHTML = descrip;
+
+    //DUEL STUFF
+    let rewardOptions = document.getElementsByClassName("new-minigame-reward-option");
+    if (Object.hasOwn(data, "bet")){
+        ServerDuelBet = data.bet;
+        document.getElementById("minigame-type-title").textContent = "Duel Minigame";
+
+        //Set rewards
+        for (let i = 0; i < rewardOptions.length; i++){
+            rewardOptions[i].style.display = i < 2 ? "inline-block" : "none";
+        }
+        rewardOptions[0].getElementsByClassName("new-minigame-reward-placement")[0].textContent = "Win";
+        rewardOptions[1].getElementsByClassName("new-minigame-reward-placement")[0].textContent = "Lose";
+        rewardOptions[0].getElementsByClassName("new-minigame-reward-coins")[0].textContent = ServerDuelBet.amount;
+        rewardOptions[1].getElementsByClassName("new-minigame-reward-coins")[0].textContent = -ServerDuelBet.amount;
+        rewardOptions[0].getElementsByTagName("img")[0].setAttribute("src", "resources/textures/" + (ServerDuelBet.type == "coins" ? "squid_coin.svg" : "squid_star.svg"));
+        rewardOptions[1].getElementsByTagName("img")[0].setAttribute("src", "resources/textures/" + (ServerDuelBet.type == "coins" ? "squid_coin.svg" : "squid_star.svg"));
+    }
+    else{
+        ServerDuelBet = false;
+        document.getElementById("minigame-type-title").textContent = "Minigame";
+
+        //Set rewards
+        if (MinigameData[CurrentMinigame].type == "coin"){
+            for (let i = 0; i < rewardOptions.length; i++){
+                rewardOptions[i].style.display = i == 0 ? "inline-block" : "none";
+            }
+            rewardOptions[0].getElementsByClassName("new-minigame-reward-placement")[0].textContent = MinigameData[CurrentMinigame].rewardText;
+            rewardOptions[0].getElementsByClassName("new-minigame-reward-coins")[0].textContent = 1;
+            rewardOptions[0].getElementsByTagName("img")[0].setAttribute("src", "resources/textures/squid_coin.svg");
+        }
+        else if (MinigameData[CurrentMinigame].type == "vs"){
+            const placementText = ["1st", "2nd", "3rd", "4th", "5th", "6th", "7th", "8th"];
+            for (let i = 0; i < rewardOptions.length; i++){
+                if (i < data.lobby.length){
+                    rewardOptions[i].style.display = "inline-block";
+                    rewardOptions[i].getElementsByClassName("new-minigame-reward-placement")[0].textContent = placementText[i];
+                    rewardOptions[i].getElementsByClassName("new-minigame-reward-coins")[0].textContent = MinigameData[CurrentMinigame].rewards[Math.min(i, MinigameData[CurrentMinigame].rewards.length - 1)];
+                    rewardOptions[i].getElementsByTagName("img")[0].setAttribute("src", "resources/textures/squid_coin.svg");
+                }
+                else{
+                    rewardOptions[i].style.display = "none";
+                }
+            }
+        }
+        else if (MinigameData[CurrentMinigame].type == "coop"){
+            for (let i = 0; i < rewardOptions.length; i++){
+                rewardOptions[i].style.display = i < 2 ? "inline-block" : "none";
+            }
+            rewardOptions[0].getElementsByClassName("new-minigame-reward-placement")[0].textContent = "Win";
+            rewardOptions[1].getElementsByClassName("new-minigame-reward-placement")[0].textContent = "Lose";
+            rewardOptions[0].getElementsByClassName("new-minigame-reward-coins")[0].textContent = MinigameData[CurrentMinigame].rewards[0];
+            rewardOptions[1].getElementsByClassName("new-minigame-reward-coins")[0].textContent = MinigameData[CurrentMinigame].rewards[1];
+            rewardOptions[0].getElementsByTagName("img")[0].setAttribute("src", "resources/textures/squid_coin.svg");
+            rewardOptions[1].getElementsByTagName("img")[0].setAttribute("src", "resources/textures/squid_coin.svg");
+        }
+    }
 
     //Chat Stuff
-    document.getElementsByClassName("minigame-chat")[0].innerHTML = "";
+    document.getElementById("new-minigame-chat").innerHTML = "";
     minigameChatNotification.style.display = "none";
     MinigameChatHistory = data.chatHistory;
     for (let i = 0; i < MinigameChatHistory.length; i++){
         if (MinigameChatHistory[i].sender == "SERVER"){
             let p = document.createElement("p");
             p.innerHTML = "<b style=\"color:rgba(255,255,255,0.75);\">" + ServerMessages[MinigameChatHistory[i].message].replace("{subject}", MinigameChatHistory[i].subject.split("#")[0]) + "</b>";
-            document.getElementsByClassName("minigame-chat")[0].appendChild(p);
+            document.getElementById("new-minigame-chat").appendChild(p);
 
             if (MinigameChatHistory[i].message == "submit"){
                 minigameSubmitButton.disabled = MinigameChatHistory[i].subject == COOKIES["ign"];
                 minigameSubmitButton.textContent = MinigameChatHistory[i].subject == COOKIES["ign"] ? "Submitted" : "Submit Results";
             }
             else if (MinigameChatHistory[i].message == "confirm"){
+                document.getElementById("wait-minigame-map").style.display = "initial";
+
                 minigameSubmitButton.disabled = true;
                 minigameSubmitButton.textContent = "Score Locked";
                 
@@ -3392,7 +3990,10 @@ function get_lobby_server(data){
                 let podiums = document.getElementsByClassName("minigame-podium");
                 let maxReward = 0;
                 for (let j = 0; j < MinigameChatHistory[i].result.length; j++){
-                    if (MinigameData[CurrentMinigame].type == "coin"){
+                    if (ServerDuelBet){
+                        maxReward = Math.max(maxReward, MinigameChatHistory[i].result[j] == 0 ? ServerDuelBet.amount * 2 : 0);
+                    }
+                    else if (MinigameData[CurrentMinigame].type == "coin"){
                         maxReward = Math.max(maxReward, Math.floor(MinigameData[CurrentMinigame].rewards * MinigameChatHistory[i].result[j]));
                     }
                     else{
@@ -3402,13 +4003,21 @@ function get_lobby_server(data){
                 for (let j = 0; j < podiums.length; j++){
                     if (j < MinigameChatHistory[i].result.length){
                         podiums[j].style.display = "inline-block";
-                        if (MinigameData[CurrentMinigame].type == "coin"){
+                        if (ServerDuelBet){
+                            let tie = MinigameChatHistory[i].result[0] == MinigameChatHistory[i].result[1];
+                            podiums[j].children[0].style.height = tie ? "55px" : lerp(20, 90, (MinigameChatHistory[i].result[j] == 0 ? ServerDuelBet.amount * 2 : 0) / maxReward) + "px";
+                            podiums[j].children[0].children[1].children[0].textContent = tie ? "0" : (MinigameChatHistory[i].result[j] == 0 ? "+" + ServerDuelBet.amount : -ServerDuelBet.amount);
+                            podiums[j].getElementsByClassName("minigame-podium-coins-image")[0].setAttribute("src", ServerDuelBet.type == "stars" ? "resources/textures/squid_star.svg" : "resources/textures/squid_coin.svg");
+                        }
+                        else if (MinigameData[CurrentMinigame].type == "coin"){
                             podiums[j].children[0].style.height = lerp(20, 90, Math.floor(MinigameData[CurrentMinigame].rewards * MinigameChatHistory[i].result[j]) / maxReward) + "px";
-                            podiums[j].children[0].children[1].children[0].textContent = Math.floor(MinigameData[CurrentMinigame].rewards * MinigameChatHistory[i].result[j]);
+                            podiums[j].children[0].children[1].children[0].textContent = "+" + Math.floor(MinigameData[CurrentMinigame].rewards * MinigameChatHistory[i].result[j]);
+                            podiums[j].getElementsByClassName("minigame-podium-coins-image")[0].setAttribute("src", "resources/textures/squid_coin.svg");
                         }
                         else{
                             podiums[j].children[0].style.height = lerp(20, 90, MinigameData[CurrentMinigame].rewards[MinigameChatHistory[i].result[j]] / maxReward) + "px";
-                            podiums[j].children[0].children[1].children[0].textContent = MinigameData[CurrentMinigame].rewards[MinigameChatHistory[i].result[j]];
+                            podiums[j].children[0].children[1].children[0].textContent = "+" + MinigameData[CurrentMinigame].rewards[MinigameChatHistory[i].result[j]];
+                            podiums[j].getElementsByClassName("minigame-podium-coins-image")[0].setAttribute("src", "resources/textures/squid_coin.svg");
                         }
                         podiums[j].children[0].children[0].setAttribute("src", PlayerAvatars[stringToIndex(CurrentMinigameLobby[j].ign) % PlayerAvatars.length]);
                         podiums[j].children[0].children[2].textContent = CurrentMinigameLobby[j].ign.split("#")[0];
@@ -3422,7 +4031,7 @@ function get_lobby_server(data){
         else{
             let p = document.createElement("p");
             p.innerHTML = "<b>" + MinigameChatHistory[i].sender.split("#")[0] + ": </b>" + MinigameChatHistory[i].message;
-            document.getElementsByClassName("minigame-chat")[0].appendChild(p);
+            document.getElementById("new-minigame-chat").appendChild(p);
         }
     }
     MinigameChatElement.scrollTop = MinigameChatElement.scrollHeight - MinigameChatElement.clientHeight;
@@ -3550,7 +4159,15 @@ function getPlayerDataTimeout(i){
 function get_player_data_server(data){
     clearTimeout(GetPlayerDataServerTimeout);
     if (minigameCoinGiveCheck){
-        TriggerCoinSpaceAnimation(data.data.coins - PlayerData.coins);
+        if (data.data.stars < PlayerData.stars){
+            PlayerData.stars = data.data.stars;
+            TriggerStarLoseAnimation();
+        }
+        else if (data.data.stars > PlayerData.stars){
+            PlayerData.stars = data.data.stars;
+            TriggerStarGetAnimation(false);
+        }
+        else TriggerCoinSpaceAnimation(data.data.coins - PlayerData.coins);
     }
     else{
         //TODO!!! Mod Check Verify Here!
@@ -3559,43 +4176,38 @@ function get_player_data_server(data){
 }
 
 var MinigameChatHistory = [];
-document.getElementById("minigame-chat-send-button").onclick = (e) => {
-    let message = document.getElementById("minigame-chat-input").value;
-    document.getElementById("minigame-chat-input").value = "";
-    if (message == "" || message == null) return;
-
-    Socket.send(JSON.stringify({ method: "send_message", token: TOKEN, message: message }));
-};
-document.getElementById("minigame-chat-form").onsubmit = (e) => {
-    let message = document.getElementById("minigame-chat-input").value;
-    document.getElementById("minigame-chat-input").value = "";
+document.getElementById("new-minigame-chat-form").onsubmit = (e) => {
+    let message = document.getElementById("new-minigame-message-textbox").value;
+    document.getElementById("new-minigame-message-textbox").value = "";
     if (message == "" || message == null) return;
 
     Socket.send(JSON.stringify({ method: "send_message", token: TOKEN, message: message }));
 
     return false;
 };
-var minigameChatNotification = document.getElementsByClassName("minigame-chat-notification")[0];
+var minigameChatNotification = document.getElementsByClassName("new-minigame-chat-notification")[0];
 var ServerMessages = {
     submit: "{subject} has reported the score. Waiting for a second player to confirm the score.",
     confirm: "{subject} has locked in the score.",
     warn3min: "There are 3 minutes left to submit the results for your minigame.",
     warn1min: "There is 1 minute left to submit the results for your minigame."
 };
-var minigameSubmitButton = document.getElementsByClassName("minigame-submit")[0];
+var minigameSubmitButton = document.getElementById("new-minigame-submit-button");
 function send_message_server(data){
     MinigameChatHistory.push(data.data);
 
     if (data.data.sender == "SERVER"){
         let p = document.createElement("p");
         p.innerHTML = "<b style=\"color:rgba(255,255,255,0.75);\">" + ServerMessages[data.data.message].replace("{subject}", data.data.subject.split("#")[0]) + "</b>";
-        document.getElementsByClassName("minigame-chat")[0].appendChild(p);
+        document.getElementById("new-minigame-chat").appendChild(p);
 
         if (data.data.message == "submit"){
             minigameSubmitButton.disabled = data.data.subject == COOKIES["ign"];
             minigameSubmitButton.textContent = data.data.subject == COOKIES["ign"] ? "Submitted" : "Submit Results";
         }
         else if (data.data.message == "confirm"){
+            document.getElementById("wait-minigame-map").style.display = "initial";
+
             minigameSubmitButton.disabled = true;
             minigameSubmitButton.textContent = "Score Locked";
 
@@ -3606,7 +4218,10 @@ function send_message_server(data){
             let podiums = document.getElementsByClassName("minigame-podium");
             let maxReward = 0;
             for (let j = 0; j < data.data.result.length; j++){
-                if (MinigameData[CurrentMinigame].type == "coin"){
+                if (ServerDuelBet){
+                    maxReward = Math.max(maxReward, data.data.result[j] == 0 ? ServerDuelBet.amount * 2 : 0);
+                }
+                else if (MinigameData[CurrentMinigame].type == "coin"){
                     maxReward = Math.max(maxReward, Math.floor(MinigameData[CurrentMinigame].rewards * data.data.result[j]));
                 }
                 else{
@@ -3616,13 +4231,21 @@ function send_message_server(data){
             for (let j = 0; j < podiums.length; j++){
                 if (j < data.data.result.length){
                     podiums[j].style.display = "inline-block";
-                    if (MinigameData[CurrentMinigame].type == "coin"){
+                    if (ServerDuelBet){
+                        let tie = data.data.result[0] == data.data.result[1];
+                        podiums[j].children[0].style.height = tie ? "55px" : lerp(20, 90, (data.data.result[j] == 0 ? ServerDuelBet.amount * 2 : 0) / maxReward) + "px";
+                        podiums[j].children[0].children[1].children[0].textContent = tie ? "0" : (data.data.result[j] == 0 ? "+" + ServerDuelBet.amount : -ServerDuelBet.amount);
+                        podiums[j].getElementsByClassName("minigame-podium-coins-image")[0].setAttribute("src", ServerDuelBet.type == "stars" ? "resources/textures/squid_star.svg" : "resources/textures/squid_coin.svg");
+                    }
+                    else if (MinigameData[CurrentMinigame].type == "coin"){
                         podiums[j].children[0].style.height = lerp(20, 90, Math.floor(MinigameData[CurrentMinigame].rewards * data.data.result[j]) / maxReward) + "px";
-                        podiums[j].children[0].children[1].children[0].textContent = Math.floor(MinigameData[CurrentMinigame].rewards * data.data.result[j]);
+                        podiums[j].children[0].children[1].children[0].textContent = "+" + Math.floor(MinigameData[CurrentMinigame].rewards * data.data.result[j]);
+                        podiums[j].getElementsByClassName("minigame-podium-coins-image")[0].setAttribute("src", "resources/textures/squid_coin.svg");
                     }
                     else{
                         podiums[j].children[0].style.height = lerp(20, 90, MinigameData[CurrentMinigame].rewards[data.data.result[j]] / maxReward) + "px";
-                        podiums[j].children[0].children[1].children[0].textContent = MinigameData[CurrentMinigame].rewards[data.data.result[j]];
+                        podiums[j].children[0].children[1].children[0].textContent = "+" + MinigameData[CurrentMinigame].rewards[data.data.result[j]];
+                        podiums[j].getElementsByClassName("minigame-podium-coins-image")[0].setAttribute("src", "resources/textures/squid_coin.svg");
                     }
                     podiums[j].children[0].children[0].setAttribute("src", PlayerAvatars[stringToIndex(CurrentMinigameLobby[j].ign) % PlayerAvatars.length]);
                     podiums[j].children[0].children[2].textContent = CurrentMinigameLobby[j].ign.split("#")[0];
@@ -3636,7 +4259,7 @@ function send_message_server(data){
     else{
         let p = document.createElement("p");
         p.innerHTML = "<b>" + data.data.sender.split("#")[0] + ": </b>" + data.data.message;
-        document.getElementsByClassName("minigame-chat")[0].appendChild(p);
+        document.getElementById("new-minigame-chat").appendChild(p);
     }
 
     if(isMinigameChatScrolledToBottom){
@@ -3722,10 +4345,6 @@ for (let i = 0; i < debugSet.length; i++){
     debugSet[i].onclick = (e) => {debugSetState(debugSet[i].textContent);};
 }
 
-//TODO!!! Maybe add to MapData silverStarSpawnable property. Set it false for inaccessible areas (Maybe leave a couple of spots it can spawn so it's rare)
 
 //Backburner TODO list (Stuff that doesn't matter till after testing)
-//TODO!!! Auto Reconnect if socket disconnects (Maybe just a pop-up to refresh the page for now, I think websockets already auto-does this)
-//TODO!!! Rules Page
-//TODO!!! Full leaderboard (Button in top right) (Not high priority)
 //TODO!!! Low quality version of webpage (no animations, no lighting, no filters)
