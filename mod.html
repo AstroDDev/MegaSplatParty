@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Mega Mod Party</title>
+        <link rel="icon" type="image/x-icon" href="resources/favicon.ico">
+        <style>
+            body{
+                background-color: rgb(25, 25, 25);
+            }
+
+            form > div{
+                display: inline-block;
+                padding: 10px;
+                border: 2px solid black;
+                border-radius: 7.5px;
+            }
+
+            .mod-group{
+                display: inline-block;
+                padding: 10px;
+                border-radius: 10px;
+                background-color: rgb(100, 100, 255);
+            }
+        </style>
+    </head>
+    <body>
+        <button onclick="changeModKey()">Change Mod Key</button><br>
+        <b id="disconnect" style="color: red; display: none;">Warning! Disconnected from server, please refresh!<br></b>
+        <div class="mod-group">
+            <h3 style="text-align: center;">Metadata</h3>
+            Turn: <b id="turn">0 / 0</b><br>
+            Status: <b id="status">STATUS</b>
+        </div>
+        <br><br>
+        <div class="mod-group">
+            <h3 style="text-align: center;">Blacklist</h3>
+            <form id="blacklist" onsubmit="return false;">
+                <div>
+                    Discord: <input id="blacklist-discord" type="text"><br>
+                    IGN: <input id="blacklist-ign" type="text"><br>
+                    <button id="blacklist-ban">Ban</button>
+                    <button id="blacklist-unban">Unban</button>
+                </div>
+            </form>
+        </div>
+        <br><br>
+        <div class="mod-group">
+            <h3 style="text-align: center;">Player Data</h3>
+            <div>
+                Player: 
+                <select id="player-selector" selected="BuffStrikesSpam">
+                    <option value="" selected disabled hidden>Select a Player</option>
+                </select>
+                <button id="player-uncheck-in">Uncheck-In</button>
+                <button id="player-remove">Remove</button>
+                <button id="player-ban">Ban</button>
+            </div>
+            <br><br>
+            <form id="player-data" style="display: none;" onsubmit="return false;">
+                <div>
+                    Token: <b id="player-token">BuffStrikesSpam</b><br>
+                    Discord: <input id="player-discord" type="text" value="astrodwarf"><br>
+                    IGN: <input id="player-ign" type="text" value="AstroDwarf#1234"><br>
+                    Checked-In: <input id="player-checkedin" type="checkbox" value="false"><br>
+                    Coins: <input id="player-coins" type="number" value="10"><br>
+                    Stars: <input id="player-stars" type="number" value="1"><br>
+                    Can Duel: <input id="player-canduel" type="checkbox" value="true"><br>
+                    Turns Completed: <input id="player-turnscompleted" type="number" value="2"><br>
+                    <button id="update-player-data-button">Update Player Data</button>
+                </div>
+            </form>
+        </div>
+        <br><br>
+        <div class="mod-group">
+            <h3 style="text-align: center;">Minigame Data</h3>
+            <select id="minigame-selector" style="display: none;">
+                <option value="" selected disabled hidden>Select a Minigame</option>
+            </select>
+            <br><br>
+            <form id="minigame-data" style="display: none;" onsubmit="return false;">
+                <div>
+                    <b id="minigame-title" style="text-align: center; display: block;">Minigame</b><br>
+                    <div class="minigame-player">
+                        <span>Username</span>:
+                        <select class="result-vs" style="display: none;">
+                            <option value="0">1st</option>
+                            <option value="1">2nd</option>
+                            <option value="2">3rd</option>
+                            <option value="3">4th</option>
+                            <option value="4">5th</option>
+                            <option value="5">6th</option>
+                            <option value="6">7th</option>
+                            <option value="7">8th</option>
+                        </select>
+                        <select class="result-coop" style="display: initial;">
+                            <option value="0">Win</option>
+                            <option value="1">Lose</option>
+                        </select>
+                        <input type="number" class="result-coin" style="display: none; width: 100px"><br>
+                    </div>
+                    <div class="minigame-player">
+                        <span>Username</span>:
+                        <select class="result-vs" style="display: none;">
+                            <option value="0">1st</option>
+                            <option value="1">2nd</option>
+                            <option value="2">3rd</option>
+                            <option value="3">4th</option>
+                            <option value="4">5th</option>
+                            <option value="5">6th</option>
+                            <option value="6">7th</option>
+                            <option value="7">8th</option>
+                        </select>
+                        <select class="result-coop" style="display: initial;">
+                            <option value="0">Win</option>
+                            <option value="1">Lose</option>
+                        </select>
+                        <input type="number" class="result-coin" style="display: none; width: 100px"><br>
+                    </div>
+                    <div class="minigame-player">
+                        <span>Username</span>:
+                        <select class="result-vs" style="display: none;">
+                            <option value="0">1st</option>
+                            <option value="1">2nd</option>
+                            <option value="2">3rd</option>
+                            <option value="3">4th</option>
+                            <option value="4">5th</option>
+                            <option value="5">6th</option>
+                            <option value="6">7th</option>
+                            <option value="7">8th</option>
+                        </select>
+                        <select class="result-coop" style="display: initial;">
+                            <option value="0">Win</option>
+                            <option value="1">Lose</option>
+                        </select>
+                        <input type="number" class="result-coin" style="display: none; width: 100px"><br>
+                    </div>
+                    <div class="minigame-player">
+                        <span>Username</span>:
+                        <select class="result-vs" style="display: none;">
+                            <option value="0">1st</option>
+                            <option value="1">2nd</option>
+                            <option value="2">3rd</option>
+                            <option value="3">4th</option>
+                            <option value="4">5th</option>
+                            <option value="5">6th</option>
+                            <option value="6">7th</option>
+                            <option value="7">8th</option>
+                        </select>
+                        <select class="result-coop" style="display: initial;">
+                            <option value="0">Win</option>
+                            <option value="1">Lose</option>
+                        </select>
+                        <input type="number" class="result-coin" style="display: none; width: 100px"><br>
+                    </div>
+                    <div class="minigame-player">
+                        <span>Username</span>:
+                        <select class="result-vs" style="display: none;">
+                            <option value="0">1st</option>
+                            <option value="1">2nd</option>
+                            <option value="2">3rd</option>
+                            <option value="3">4th</option>
+                            <option value="4">5th</option>
+                            <option value="5">6th</option>
+                            <option value="6">7th</option>
+                            <option value="7">8th</option>
+                        </select>
+                        <select class="result-coop" style="display: initial;">
+                            <option value="0">Win</option>
+                            <option value="1">Lose</option>
+                        </select>
+                        <input type="number" class="result-coin" style="display: none; width: 100px"><br>
+                    </div>
+                    <div class="minigame-player">
+                        <span>Username</span>:
+                        <select class="result-vs" style="display: none;">
+                            <option value="0">1st</option>
+                            <option value="1">2nd</option>
+                            <option value="2">3rd</option>
+                            <option value="3">4th</option>
+                            <option value="4">5th</option>
+                            <option value="5">6th</option>
+                            <option value="6">7th</option>
+                            <option value="7">8th</option>
+                        </select>
+                        <select class="result-coop" style="display: initial;">
+                            <option value="0">Win</option>
+                            <option value="1">Lose</option>
+                        </select>
+                        <input type="number" class="result-coin" style="display: none; width: 100px"><br>
+                    </div>
+                    <div class="minigame-player">
+                        <span>Username</span>:
+                        <select class="result-vs" style="display: none;">
+                            <option value="0">1st</option>
+                            <option value="1">2nd</option>
+                            <option value="2">3rd</option>
+                            <option value="3">4th</option>
+                            <option value="4">5th</option>
+                            <option value="5">6th</option>
+                            <option value="6">7th</option>
+                            <option value="7">8th</option>
+                        </select>
+                        <select class="result-coop" style="display: initial;">
+                            <option value="0">Win</option>
+                            <option value="1">Lose</option>
+                        </select>
+                        <input type="number" class="result-coin" style="display: none; width: 100px"><br>
+                    </div>
+                    <div class="minigame-player">
+                        <span>Username</span>:
+                        <select class="result-vs" style="display: none;">
+                            <option value="0">1st</option>
+                            <option value="1">2nd</option>
+                            <option value="2">3rd</option>
+                            <option value="3">4th</option>
+                            <option value="4">5th</option>
+                            <option value="5">6th</option>
+                            <option value="6">7th</option>
+                            <option value="7">8th</option>
+                        </select>
+                        <select class="result-coop" style="display: initial;">
+                            <option value="0">Win</option>
+                            <option value="1">Lose</option>
+                        </select>
+                        <input type="number" class="result-coin" style="display: none; width: 100px"><br>
+                    </div><br>
+                    <button id="set-minigame-results-button">Set Results</button>
+                </div>
+            </form>
+        </div>
+        <br><br>
+        <div class="mod-group" style="line-height: 0.75em;">
+            <h3 style="text-align: center;">Minigame Chat</h3>
+            <div id="minigame-chat-history">
+
+            </div>
+        </div>
+        <script defer>
+            var COOKIES = {};
+            function loadCookies(){
+                if (document.cookie == "") return;
+                var rawCooks = document.cookie.split("; ");
+                if (rawCooks.length == 0) return;
+                for (let i = 0; i < rawCooks.length; i++){
+                    let d = rawCooks[i].split("=");
+                    COOKIES[d[0]] = d[1];
+                }
+            }
+            loadCookies();
+
+            var MOD_KEY = COOKIES["mod_key"];
+
+            function changeModKey(){
+                MOD_KEY = prompt("Enter moderator key");
+                document.cookie = "mod_key=" + MOD_KEY + "; expires=" + new Date(3000, 12, 31, 12, 0).toUTCString();
+            }
+
+            if (MOD_KEY == "" || MOD_KEY == undefined || MOD_KEY == null){
+                changeModKey();
+            }
+
+            var MinigameData;
+            fetch("resources/minigames.json").then(r => r.text()).then(t => MinigameData = JSON.parse(t));
+
+            const blacklistForm = document.getElementById("blacklist");
+            const playerForm = document.getElementById("player-data");
+            const minigameForm = document.getElementById("minigame-data");
+
+            const turnText = document.getElementById("turn");
+            const statusText = document.getElementById("status");
+
+            const blacklistDiscord = document.getElementById("blacklist-discord");
+            const blacklistIGN = document.getElementById("blacklist-ign");
+            document.getElementById("blacklist-ban").onclick = function(e){
+                let discord = blacklistDiscord.value;
+                let ign = blacklistIGN.value;
+                blacklistDiscord.value = "";
+                blacklistIGN.value = "";
+
+                if (discord == "" && ign == ""){
+                    return;
+                }
+                else if (discord == ""){
+                    Socket.send(JSON.stringify({ method: "mod_ban_player", modKey: MOD_KEY, ign: ign }));
+                }
+                else if (ign == ""){
+                    Socket.send(JSON.stringify({ method: "mod_ban_player", modKey: MOD_KEY, discord: discord }));
+                }
+                else{
+                    Socket.send(JSON.stringify({ method: "mod_ban_player", modKey: MOD_KEY, ign: ign, discord: discord }));
+                }
+            };
+            document.getElementById("blacklist-unban").onclick = function(e){
+                let discord = blacklistDiscord.value;
+                let ign = blacklistIGN.value;
+                blacklistDiscord.value = "";
+                blacklistIGN.value = "";
+
+                if (discord == "" && ign == ""){
+                    return;
+                }
+                else if (discord == ""){
+                    Socket.send(JSON.stringify({ method: "mod_unban_player", modKey: MOD_KEY, ign: ign }));
+                }
+                else if (ign == ""){
+                    Socket.send(JSON.stringify({ method: "mod_unban_player", modKey: MOD_KEY, discord: discord }));
+                }
+                else{
+                    Socket.send(JSON.stringify({ method: "mod_unban_player", modKey: MOD_KEY, ign: ign, discord: discord }));
+                }
+            };
+
+            const playerSelector = document.getElementById("player-selector");
+            playerSelector.onchange = function(e){
+                Socket.send(JSON.stringify({ method: "mod_get_player", modKey: MOD_KEY, token: playerSelector.value }));
+            };
+            document.getElementById("player-uncheck-in").onclick = function(e){
+                if (playerSelector.value != ""){
+                    Socket.send(JSON.stringify({ method: "mod_remove_player", modKey: MOD_KEY, token: playerSelector.value }));
+                    document.getElementById("player-checkedin").checked = false;
+                }
+            };
+            document.getElementById("player-remove").onclick = function(e){
+                if (playerSelector.value != ""){
+                    Socket.send(JSON.stringify({ method: "mod_delete_player", modKey: MOD_KEY, token: playerSelector.value }));
+                    playerSelector.children[0].selected = true;
+                }
+            };
+            document.getElementById("player-ban").onclick = function(e){
+                if (playerSelector.value != ""){
+                    Socket.send(JSON.stringify({ method: "mod_ban_player", modKey: MOD_KEY, token: playerSelector.value }));
+                    playerSelector.children[0].selected = true;
+                    Socket.send(JSON.stringify({ method: "mod_get_player_list", modKey: MOD_KEY }));
+                }
+            };
+
+            document.getElementById("update-player-data-button").onclick = function(e){
+                Socket.send(JSON.stringify({ method: "mod_edit_player", modKey: MOD_KEY,
+                    token: playerSelector.value,
+                    discord: document.getElementById("player-discord").value,
+                    ign: document.getElementById("player-ign").value,
+                    checkedIn: document.getElementById("player-checkedin").checked,
+                    coins: Number.parseInt(document.getElementById("player-coins").value),
+                    stars: Number.parseInt(document.getElementById("player-stars").value),
+                    canDuel: document.getElementById("player-canduel").checked,
+                    turnsCompleted: Number.parseInt(document.getElementById("player-turnscompleted").value)
+                }));
+            };
+
+            const minigameSelector = document.getElementById("minigame-selector");
+            minigameSelector.onchange = function(e){
+                document.getElementById("minigame-data").style.display = "none";
+                if (MinigameHistory[minigameSelector.value] != "none"){
+                    Socket.send(JSON.stringify({ method: "mod_get_minigame", modKey: MOD_KEY, token: playerSelector.value, turn: Number.parseInt(minigameSelector.value) + 1 }));
+                }
+            };
+
+            const minigamePlayers = document.getElementsByClassName("minigame-player");
+
+            document.getElementById("set-minigame-results-button").onclick = function(e){
+                let resultsOutput = [];
+                for (let i = 0; i < MinigameLobbyData.players.length; i++){
+                    resultsOutput.push(Number.parseInt(minigamePlayers[i].getElementsByClassName("result-" + MinigameData[MinigameLobbyData.minigame].type)[0].value));
+                }
+                Socket.send(JSON.stringify({ method: "mod_change_result", modKey: MOD_KEY, token: playerSelector.value, turn: Number.parseInt(minigameSelector.value) + 1, result: resultsOutput }));
+            };
+
+
+            var Metadata = {};
+            var PlayerData = {};
+            var MinigameHistory = [];
+            var PlayerList = [];
+            function getIGN(token){
+                for (let i = 0; i < PlayerList.length; i++){
+                    if (token == PlayerList[i].token) return PlayerList[i].ign;
+                }
+                return "Could not find ign";
+            }
+            function server_mod_get_metadata(data){
+                Metadata = data.data;
+
+                turnText.textContent = data.data.turn + " / " + data.data.gameLength;
+                statusText.textContent = data.data.status;
+
+                Socket.send(JSON.stringify({ method: "mod_get_player_list", modKey: MOD_KEY }));
+            }
+            function server_mod_get_player_list(data){
+                PlayerList = data.data;
+                while(playerSelector.children.length > 1) playerSelector.children[playerSelector.children.length - 1].remove();
+                for (let i = 0; i < data.data.length; i++){
+                    let option = document.createElement("option");
+                    option.textContent = data.data[i].ign;
+                    option.value = data.data[i].token;
+                    playerSelector.appendChild(option);
+                }
+            }
+            function server_mod_get_minigame_history(data){
+                //IDK about this function
+            }
+            function server_mod_get_player(data){
+                PlayerData = data.data;
+
+                document.getElementById("player-data").style.display = "initial";
+                minigameSelector.style.display = "initial";
+
+                document.getElementById("player-token").textContent = playerSelector.value;
+                document.getElementById("player-discord").value = data.data.discord;
+                document.getElementById("player-ign").value = data.data.ign;
+                document.getElementById("player-checkedin").checked = data.data.checkedIn;
+                document.getElementById("player-coins").value = data.data.coins;
+                document.getElementById("player-stars").value = data.data.stars;
+                document.getElementById("player-canduel").checked = data.data.canDuel;
+                document.getElementById("player-turnscompleted").value = data.data.turnsCompleted;
+
+                //Fill in minigame options
+                MinigameHistory = data.minigameHistory;
+                while(minigameSelector.children.length > 1) minigameSelector.children[minigameSelector.children.length - 1].remove();
+                minigameSelector.children[0].selected = true;
+                for (let i = 0; i < data.minigameHistory.length; i++){
+                    let option = document.createElement("option");
+                    option.value = i;
+                    if (Metadata.status == "MINIGAME" && Metadata.turn == i + 1){
+                        //On going minigame
+                        option.textContent = "Active: " + data.minigameHistory[i];
+                    }
+                    else{
+                        option.textContent = "Turn " + (i + 1) + ": " + data.minigameHistory[i];
+                    }
+                    minigameSelector.appendChild(option);
+                }
+            }
+            var MinigameLobbyData;
+            function server_mod_get_minigame(data){
+                MinigameLobbyData = data.data;
+
+                document.getElementById("minigame-data").style.display = "initial";
+
+                document.getElementById("minigame-title").textContent = MinigameData[data.data.minigame].title;
+
+                for (let i = 0; i < minigamePlayers.length; i++){
+                    if (i >= data.data.players.length){
+                        minigamePlayers[i].style.display = "none";
+                    }
+                    else{
+                        minigamePlayers[i].style.display = "initial";
+                        minigamePlayers[i].children[0].textContent = getIGN(data.data.players[i]);
+                        minigamePlayers[i].getElementsByClassName("result-vs")[0].style.display = MinigameData[data.data.minigame].type == "vs" ? "initial" : "none";
+                        minigamePlayers[i].getElementsByClassName("result-coop")[0].style.display = MinigameData[data.data.minigame].type == "coop" ? "initial" : "none";
+                        minigamePlayers[i].getElementsByClassName("result-coin")[0].style.display = MinigameData[data.data.minigame].type == "coin" ? "initial" : "none";
+                    }
+                }
+
+                let chatHTML = "";
+
+                for (let i = 0; i < MinigameLobbyData.chatHistory.length; i++){
+                    chatHTML += "<p><b>" + MinigameLobbyData.chatHistory[i].sender + ":</b> " + MinigameLobbyData.chatHistory[i].message + "</p>"
+                }
+
+                document.getElementById("minigame-chat-history").innerHTML = chatHTML;
+            }
+            function server_annoucnement(data){
+                Socket.send(JSON.stringify({ method: "mod_get_metadata", modKey: MOD_KEY }));
+            }
+
+
+            const Socket = new WebSocket("wss://msp.astrodwarf/server");
+
+            Socket.onopen = function(e){
+                console.log("WS Open");
+                Socket.send(JSON.stringify({ method: "mod_get_metadata", modKey: MOD_KEY }));
+            };
+
+            Socket.onclose = function(e){
+                console.log("WS Closed");
+                document.getElementById("disconnect").style.display = "initial";
+            };
+
+            Socket.onmessage = function(e){
+                let data = JSON.parse(e.data);
+                console.log(data);
+
+                switch(data.method){
+                    case "mod_get_metadata":
+                        server_mod_get_metadata(data);
+                        break;
+                    case "mod_get_player_list":
+                        server_mod_get_player_list(data);
+                        break;
+                    case "mod_get_player":
+                        server_mod_get_player(data);
+                        break;
+                    case "mod_get_minigame":
+                        server_mod_get_minigame(data);
+                        break;
+                    case "announcement":
+                        server_annoucnement(data);
+                        break;
+                }
+            };
+        </script>
+    </body>
+</html>
