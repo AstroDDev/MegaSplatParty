@@ -832,8 +832,8 @@
 				"s": true,
 				"w": false
 			},
-			"material": 60,
-			"popup": "star-1",
+			"material": 14,
+			"popup": "star-2",
 			"walkOver": true,
 			"wallMaterial": {
 				"n": 28,
@@ -852,8 +852,8 @@
 				"s": true,
 				"w": true
 			},
-			"material": 60,
-			"popup": "star-1",
+			"material": 14,
+			"popup": "star-2",
 			"walkOver": true,
 			"wallMaterial": {
 				"n": 28,
@@ -872,8 +872,8 @@
 				"s": true,
 				"w": true
 			},
-			"material": 60,
-			"popup": "star-1",
+			"material": 14,
+			"popup": "star-2",
 			"walkOver": true,
 			"wallMaterial": {
 				"n": 28,
@@ -892,8 +892,8 @@
 				"s": true,
 				"w": true
 			},
-			"material": 60,
-			"popup": "star-1",
+			"material": 14,
+			"popup": "star-2",
 			"walkOver": true,
 			"wallMaterial": {
 				"n": 28,
@@ -5280,7 +5280,7 @@
 				"n": false,
 				"e": true,
 				"s": true,
-				"w": false
+				"w": true
 			},
 			"material": 33,
 			"wallMaterial": {
@@ -5352,7 +5352,7 @@
 		{
 			"height": 2.5,
 			"connections": {
-				"n": false,
+				"n": true,
 				"e": true,
 				"s": true,
 				"w": false
@@ -5663,7 +5663,7 @@
 			"height": 3,
 			"connections": {
 				"n": true,
-				"e": null,
+				"e": true,
 				"s": true,
 				"w": true
 			},
@@ -5684,7 +5684,7 @@
 				"n": true,
 				"e": true,
 				"s": true,
-				"w": false
+				"w": true
 			},
 			"material": 33,
 			"coins": 3,
@@ -6079,7 +6079,7 @@
 			"height": 3,
 			"connections": {
 				"n": true,
-				"e": null,
+				"e": true,
 				"s": true,
 				"w": true
 			},
@@ -6100,7 +6100,7 @@
 				"n": true,
 				"e": true,
 				"s": true,
-				"w": false
+				"w": true
 			},
 			"material": 33,
 			"coins": 3,
@@ -6215,7 +6215,7 @@
 			"height": 2.5,
 			"connections": {
 				"n": true,
-				"e": false,
+				"e": true,
 				"s": true,
 				"w": true
 			},
@@ -6236,7 +6236,7 @@
 				"n": true,
 				"e": true,
 				"s": true,
-				"w": null
+				"w": true
 			},
 			"material": 58,
 			"coins": -3,
@@ -6631,7 +6631,7 @@
 			"height": 2.5,
 			"connections": {
 				"n": true,
-				"e": false,
+				"e": true,
 				"s": true,
 				"w": true
 			},
@@ -6652,7 +6652,7 @@
 				"n": true,
 				"e": true,
 				"s": true,
-				"w": null
+				"w": true
 			},
 			"material": 57,
 			"coins": 3,
@@ -6961,7 +6961,7 @@
 			"connections": {
 				"n": true,
 				"e": false,
-				"s": false,
+				"s": true,
 				"w": true
 			},
 			"material": 33,
@@ -7036,7 +7036,7 @@
 			"height": 2.5,
 			"connections": {
 				"n": true,
-				"e": false,
+				"e": true,
 				"s": false,
 				"w": true
 			},
