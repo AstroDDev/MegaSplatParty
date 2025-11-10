@@ -2457,6 +2457,7 @@ for (var i = 0; i < shopLeaveButtons.length; i++){
 }
 
 function EndTurn(){
+    document.getElementById("roll-button-item-preview").style.display = "none";
     if (PlayerSilverStarObjs.length >= 5){
         TriggerSilverStarsToStarAnimation();
     }
@@ -2712,7 +2713,6 @@ function TriggerStarLoseAnimation(){
     StarRingParticle.scale.set(0, 0, 0);
     StarRingParticle.position.set(Player.position.x, Player.position.y, Player.position.z + 0.05);
 
-    PlayerData.stars--;
     UpdatePlayerUI();
 }
 function StarLoseAnimation(){
@@ -3532,6 +3532,7 @@ duelButtons[2].onclick = function(e){
         duelBet = { type: "stars", amount: 1 };
         UpdatePlayerUI();
         document.getElementById(mapData[PlayerData.position.y][PlayerData.position.x].popup).style.display = "none";
+        PlayerData.stars--;
         TriggerStarLoseAnimation();
         PlayerData.canDuel = false;
     }
@@ -3701,6 +3702,8 @@ function InitializeSocket(){
     }
 
     Socket.onclose = function(e){
+        if (ServerStatus == "RESULTS") return;
+
         turnStep = "dc";
         UIState = "menu";
         for (const [key, value] of Object.entries(UIPanels)){
