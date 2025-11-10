@@ -12,6 +12,14 @@ body, html{
     overflow: hidden;
     background-color: black;
 }
+small {
+    font-size: 0.75em;
+    color: rgba(255, 255, 255, 0.5);
+}
+red{
+    color: red;
+    font-style: italic;
+}
 .debug{
     z-index: 999999;
     position: absolute;
@@ -86,6 +94,60 @@ body, html{
     background-blend-mode: multiply, normal, normal;
     animation: popupscroll 2s linear infinite;
 }
+.popup-bottom{
+    position: absolute;
+    left: 50%;
+    bottom: 0;
+    transform: translateX(-50%);
+    border-radius: 20px 20px 0px 0px;
+    text-align: center;
+    align-content: center;
+
+    background:
+        linear-gradient(45deg, rgb(168, 0, 0) 0%, rgb(0, 0, 108) 100%);
+    background-size: 100% 100%;
+    background-blend-mode: multiply, normal, normal;
+
+    overflow: hidden;
+
+    width: max-content;
+    max-width: 90%;
+    max-height: 90%;
+
+    filter: drop-shadow(0 0 1rem black);
+}
+.popup-inset-bottom{
+    padding: 40px;
+
+    background:
+        linear-gradient(45deg, rgb(168, 0, 0) 0%, rgb(0, 0, 108) 100%),
+        linear-gradient(to right, rgba(255, 255, 255, 1) 0%, rgba(255, 255, 255, 0) calc(0% + 40px),  rgba(255, 255, 255, 0) calc(100% - 40px), rgba(255, 255, 255, 1) 100%),
+        linear-gradient(to top, rgba(255, 255, 255, 1) 0%, rgba(255, 255, 255, 0) calc(0% + 40px),  rgba(255, 255, 255, 0) calc(100% - 40px), rgba(255, 255, 255, 1) 100%),
+        conic-gradient(#CCCCCC 90deg, #FFFFFF 90deg 180deg, #CCCCCC 180deg 270deg, #FFFFFF 270deg);
+    background-size: 100% 100%, 100% 100%, 100% 100%, 40px 40px;
+    background-repeat: no-repeat, no-repeat, no-repeat, repeat;
+    background-blend-mode: multiply, normal, normal;
+    animation: popupscroll 2s linear infinite;
+
+    mask: 
+        linear-gradient(to top,  transparent 0%, #fff 2% 98%, transparent 100%),
+        linear-gradient(to left, transparent 0%, #fff 2% 98%, transparent 100%);
+    mask-size: 100% 100%;
+    mask-position: center;
+    mask-repeat: no-repeat;
+    mask-composite: intersect;
+}
+
+.tutorial-text{
+    color: white;
+    font-size: 1.25em;
+    font-weight: 400;
+}
+
+.tutorial-text-image{
+    width: 24px;
+    transform: translateY(3px);
+}
 
 h1{
     color: white;
@@ -106,6 +168,7 @@ input{
 button{
     font-size: 1.125em;
     padding: 2.5px 10px 2.5px 10px;
+    user-select: none;
 }
 
 .player-inputs{
@@ -138,6 +201,9 @@ button{
 }
 
 .turn-button{
+    user-select: none;
+
+    position: relative;
     margin: 10px;
     width: 160px;
     height: 120px;
@@ -233,9 +299,11 @@ button{
 }
 
 #leaderboard{
+    user-select: none;
+
     position: absolute;
     left: 0%;
-    top: 70px;
+    top: 85px;
 }
 
 .leaderboard-player{
@@ -448,6 +516,7 @@ button{
 }
 
 .roll-back-button, .move-undo-button, .item-back-button, .map-back-button{
+    user-select: none;
     position: absolute;
     left: 0%;
     bottom: 0%;
@@ -463,10 +532,15 @@ button{
 }
 
 .roll-display{
+    user-select: none;
     position: absolute;
     position: absolute;
     left: 50%;
     top: 30%;
+}
+
+.map-overlay{
+    user-select: none;
 }
 
 .roll-display > h1{
@@ -515,6 +589,8 @@ button{
     border: 5px solid #DDD;
 
     background-size: 100% 100%;
+
+    image-rendering: pixelated;
 }
 
 .item-option:active{
@@ -574,6 +650,7 @@ button{
     width: 25px;
     height: 25px;
     transform: translateY(3.5px);
+    filter: drop-shadow(0 0 0.1rem black);
 }
 
 .shop-description{
@@ -668,6 +745,9 @@ button{
     margin: 10px;
     border-radius: 20px;
 
+    padding-left: 10px;
+    padding-right: 10px;
+
     text-align: center;
 
     background: 
@@ -686,6 +766,8 @@ button{
 .map-shop-item-image{
     width: 80px;
     height: 80px;
+
+    filter: drop-shadow(0 0 0.125rem black);
 }
 
 .map-shop-price{
@@ -914,6 +996,8 @@ button{
     border: 5px solid #DDD;
 
     background-size: 100% 100%;
+
+    image-rendering: pixelated;
 }
 
 .item-toss-option:active{
@@ -1080,6 +1164,14 @@ button{
     position: absolute;
     right: 12.5px;
 }
+.results-list-info-coins{
+    position: absolute;
+    right: 57.5px;
+}
+.results-list-info-stars{
+    position: absolute;
+    right: 12.5px;
+}
 .results-list-avatar{
     position: absolute;
     display: block;
@@ -1167,9 +1259,10 @@ button{
 }
 
 #turn-counter{
+    user-select: none;
     position: absolute;
-    width: 120px;
-    height: 60px;
+    width: 165px;
+    height: 75px;
     top: 10px;
     left: 0;
     background: 
@@ -1182,9 +1275,20 @@ button{
 #turn-counter-text{
     display: inline-block;
     text-align: center;
-    width: 90px;
+    width: 135px;
     transform: translateY(-5px);
     color: black;
+}
+
+.turn-timer-text{
+    position: absolute;
+    bottom: 2.5px;
+    font-size: 0.85em;
+    left: calc(50% - 15px);
+    width: 165px;
+    text-align: center;
+    transform: translateX(-50%);
+    color: rgba(0, 0, 0, 0.65);
 }
 
 .global-leaderboard-list{
@@ -1388,7 +1492,7 @@ button{
     display: block;
     padding-left: 5px;
     font-weight: 600;
-    width: 125px;
+    width: 175px;
 }
 
 .new-minigame-player-result-coop, .new-minigame-player-result-vs, .new-minigame-player-result-coin {
@@ -1416,6 +1520,15 @@ button{
 
 .new-minigame-info-header{
     flex: 0 1 auto;
+}
+
+.new-minigame-timer-text{
+    position: absolute;
+    color: rgba(255, 255, 255, 0.65);
+    left: 0;
+    top: 0;
+    padding: 20px;
+    text-align: left;
 }
 
 #new-minigame-description{
@@ -1480,7 +1593,7 @@ button{
 #new-minigame-chat{
     position: absolute;
     width: calc(100% - 10px);
-    height: calc(100% - 33px);
+    height: calc(100% - 42px);
     top: 0;
     overflow-y: auto;
     scrollbar-width: thin;
@@ -1517,6 +1630,25 @@ button{
     color: white;
 }
 
+.purchase-1-star-button, .purchase-2-star-button{
+    font-size: 1.5em;
+    font-weight: 450;
+}
+
+#roll-button-item-preview{
+    position: absolute;
+    top: -24px;
+    right: -24px;
+    width: 48px;
+    height: 48px;
+    border-radius: 32px;
+    border: 8px solid white;
+    background-color: white;
+}
+
+.used-item{
+    filter: drop-shadow(0 0 0.125rem black);
+}
 
 
 
@@ -1563,8 +1695,8 @@ button{
 }
 .confetti-piece {
     position: absolute;
-    width: 12px;
-    height: 15px;
+    width: 1.25vmin;
+    height: 1.75vmin;
     background: var(--confetti-color, red);
     transform: translateY(-50px);
 }

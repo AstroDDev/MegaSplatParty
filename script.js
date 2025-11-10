@@ -5,6 +5,7 @@ import { FBXLoader } from "three/addons/loaders/FBXLoader.js"
 
 
 function lerp(a, b, t) { return a * (1 - t) + b * t; }
+function lerpVector(a, b, t) { return new THREE.Vector3(lerp(a.x, b.x, t), lerp(a.y, b.y, t), lerp(a.z, b.z, t)); }
 function easeInOut(t) { let sqr = Math.pow(t, 2); return sqr / (2 * (sqr - t) + 1); }
 function easeOut(t) { return 1 - Math.pow(1 - t, 2); }
 function easeIn(t) { return Math.pow(t, 2); }
@@ -151,6 +152,15 @@ const SKYBOX_TEX = new THREE.CubeTextureLoader().load([
     "resources/Skyboxes/nz.png"
 ]);
 SKYBOX_TEX.colorSpace = THREE.SRGBColorSpace;
+const DARK_SKYBOX_TEX = new THREE.CubeTextureLoader().load([
+    "resources/Skyboxes/dpx.png",
+    "resources/Skyboxes/dnx.png",
+    "resources/Skyboxes/dpy.png",
+    "resources/Skyboxes/dny.png",
+    "resources/Skyboxes/dpz.png",
+    "resources/Skyboxes/dnz.png"
+]);
+DARK_SKYBOX_TEX.colorSpace = THREE.SRGBColorSpace;
 
 var Star;
 var SilverStar;
@@ -272,7 +282,7 @@ var ItemPreview = new THREE.Mesh(new THREE.PlaneGeometry(0.5, 0.5), new THREE.Me
 
 var ambient = new THREE.AmbientLight(0xFFFFFF, 1);
 var light = new THREE.DirectionalLight(0xFFFFFF, 2);
-var lightTarget = new THREE.Group();
+var lightTarget = new THREE.Object3D();
 
 light.target = lightTarget;
 Scene.add(lightTarget);
@@ -618,7 +628,7 @@ function buildMap(){
                 indices.push(indexStart, indexStart + 3, indexStart + 1);
                 indices.push(indexStart, indexStart + 2, indexStart + 3);
 
-                var avg = (mapData[y][x].height.pos + mapData[y][x].height.neg) / 2;
+                var avg = Math.max(mapData[y][x].height.pos, mapData[y][x].height.neg);
 
                 if (dirV && (x == 0 || (!mapData[y][x-1].ramp && avg > mapData[y][x-1].height) || (mapData[y][x-1].ramp && avg > (mapData[y][x-1].height.pos + mapData[y][x-1].height.neg) / 2))){
                     buildWall(x, y, -1, 0, true);
@@ -1053,11 +1063,11 @@ window.onkeydown = function(e){
         Scene.remove(MapMesh);
         buildMap();
     }*/
-    if (e.keyCode == 27){
+    /*if (e.keyCode == 27){
         //ESC
         navigator.clipboard.writeText(JSON.stringify(mapData, null, "\t"));
         console.log("COPY!!!!");
-    }
+    }*/
 }
 window.onkeyup = function(e){ keys[e.keyCode] = false; }
 
@@ -1074,13 +1084,14 @@ var PlayerData = {
         y: 30
     },
     roll: 0,
-    items: ["doubledice", "key"],
+    items: ["doubledice"],
     coins: 10,
     stars: 0,
     collectedSilverStars: [],
     currentTurn: 1,
     turnsCompleted: 0,
-    canDuel: true
+    canDuel: true,
+    tutorial: true
 };
 
 var PlayerSilverStarObjs = [];
@@ -1107,8 +1118,10 @@ const UIPanels = {
     login: document.getElementById("login"),
     checkin: document.getElementById("checkin"),
     waitMinigame: document.getElementById("waiting-minigame"),
+    waitTurn: document.getElementById("waiting-turn"),
     minigame: document.getElementById("new-minigame"),
-    globalLeaderboard: document.getElementById("global-leaderboard")
+    globalLeaderboard: document.getElementById("global-leaderboard"),
+    disconnected: document.getElementById("disconnected")
 };
 
 const MinigameChatElement = document.getElementById("new-minigame-chat");
@@ -1176,7 +1189,10 @@ const transitionLength = {
     doorn: 500,
     doors: 500,
     doore: 500,
-    doorw: 500
+    doorw: 500,
+    podium: 500,
+    tutorialstar: 500,
+    tutorialshop: 500
 };
 var transitionStart = 0;
 function UpdateUI(){
@@ -1186,7 +1202,10 @@ function UpdateUI(){
     var cameraRot;
     var cameraPos;
 
-    if (UIState == "override") return;
+    if (UIState == "override"){
+        lastUIState = "override";
+        return;
+    }
 
     if (UIState == "menu"){
         filter = 1;
@@ -1270,6 +1289,28 @@ function UpdateUI(){
         cameraPos = new THREE.Vector3(PlayerData.position.x - 1 + 1.5, getHeightTile(PlayerData.position.x - 1, PlayerData.position.y) + 0.4, PlayerData.position.y);
         cameraRot = new THREE.Euler(0, Math.PI / 2, 0);
     }
+    else if (UIState == "podium"){
+        filter = 1;
+        let angle = (Date.now() - resultsAnimEndTime) / 10000 % (Math.PI * 2) + (Math.PI / 2);
+        cameraPos = new THREE.Vector3(PodiumPosition.x + (Math.cos(angle) * 2.5), getHeightTile(PodiumPosition.x, PodiumPosition.y) + 1.25, PodiumPosition.y + (Math.sin(angle) * 2.5));
+        cameraRot = new THREE.Euler(-0.09966865249116202, Math.PI / 2 - angle, 0, "YXZ");
+        playerRot = new THREE.Euler(0, 0, 0);
+        playerPos = new THREE.Vector3(0, 0, 0);
+    }
+    else if (UIState == "tutorialstar"){
+        filter = 0;
+        playerRot = new THREE.Euler(0, 0, 0);
+        playerPos = new THREE.Vector3(PlayerData.position.x, getHeightTile(PlayerData.position.x, PlayerData.position.y) + 0.375, PlayerData.position.y);
+        cameraPos = new THREE.Vector3(6, 5, 9);
+        cameraRot = new THREE.Euler(-Math.PI / 4, 0, 0);
+    }
+    else if (UIState == "tutorialshop"){
+        filter = 0;
+        playerRot = new THREE.Euler(0, 0, 0);
+        playerPos = new THREE.Vector3(PlayerData.position.x, getHeightTile(PlayerData.position.x, PlayerData.position.y) + 0.375, PlayerData.position.y);
+        cameraPos = new THREE.Vector3(16, 4, 22);
+        cameraRot = new THREE.Euler(-Math.PI / 4, 0, 0);
+    }
 
     if (lastUIState != UIState){
         //Enable transition
@@ -1277,7 +1318,21 @@ function UpdateUI(){
         transitionStart = Date.now();
     }
 
-    if (transitionStart + transitionLength[UIState] > Date.now()){
+    if (UIState == "podium"){
+        if (transitionStart + transitionLength[UIState] > Date.now()){
+            let t = (Date.now() - transitionStart) / transitionLength[UIState];
+
+            filter = lerp(transitionValues.filter, filter, t);
+
+            document.getElementById("results").style.opacity = t * 100 + "%";
+            document.getElementById("results").style.transform = "translate(-50%, calc(-50% + " + ((1-t) * 10) + "vmin))";
+        }
+        else{
+            document.getElementById("results").style.opacity = "";
+            document.getElementById("results").style.transform = "";
+        }
+    }
+    else if (transitionStart + transitionLength[UIState] > Date.now()){
         let t = (Date.now() - transitionStart) / transitionLength[UIState];
 
         filter = lerp(transitionValues.filter, filter, t);
@@ -1314,12 +1369,15 @@ function InitializeSilverStars(){
 
         if (ServerSilverStars[i].obj == null && !PlayerData.collectedSilverStars.includes(i)){
             ServerSilverStars[i].obj = SilverStar.clone(true);
+            ServerSilverStars[i].obj.children[0].material = SilverStar.children[0].material.clone();
+            ServerSilverStars[i].obj.children[1].material = SilverStar.children[1].material.clone();
             Scene.add(ServerSilverStars[i].obj);
             ServerSilverStars[i].obj.position.set(ServerSilverStars[i].x, getHeightTile(ServerSilverStars[i].x, ServerSilverStars[i].y) + 0.35, ServerSilverStars[i].y);
         }
     }
     for (var i = 0; i < PlayerData.collectedSilverStars.length % 5; i++){
         let ss = SilverStar.clone(true);
+        ss.material = SilverStar.material.clone();
         Scene.add(ss);
         PlayerSilverStarObjs.push(ss);
     }
@@ -1329,6 +1387,8 @@ function SpawnSilverStarBoard(starPos, cameFromMinigame){
     silverStarCameFromMinigame = cameFromMinigame;
     //Don't need to set position because the animate function will take care of that
     let star = SilverStar.clone(true);
+    star.children[0].material = SilverStar.children[0].material.clone();
+    star.children[1].material = SilverStar.children[1].material.clone();
     ServerSilverStars.push({ x: starPos.x, y: starPos.y, spawned: true, obj: star, offset: Math.random() });
     Object.defineProperty(ServerSilverStars[ServerSilverStars.length - 1], "buffer", { enumerable: false, writable: true, value: { pos: new THREE.Vector3(), rot: new THREE.Vector3(), scale: new THREE.Vector3() } });
     Scene.add(star);
@@ -1375,7 +1435,15 @@ function SpawnSilverStarAnimation(){
             getPlayerDataTimeout(0);
         }
         else{
-            document.getElementsByClassName("player-inputs")[0].style.display = "flex";
+            if (PlayerData.tutorial){
+                UIState = "player";
+                turnStep = "tutorial";
+                document.getElementById("tutorial").style.display = "initial";
+                document.getElementsByClassName("player-data")[0].style.display = "none";
+            }
+            else{
+                document.getElementsByClassName("player-inputs")[0].style.display = "flex";
+            }
         }
         UpdateItemUI();
         UpdatePlayerUI();
@@ -1634,6 +1702,7 @@ function DoTurn(){
                     document.getElementsByClassName("board-inputs")[0].style.display = "initial";
                     document.getElementsByClassName("roll-inputs")[0].style.display = "none";
                     document.getElementsByClassName("roll-back-button")[0].style.display = "initial";
+                    document.getElementsByClassName("roll-display")[0].style.transform = "scale(100%)";
                 }
             }
         }
@@ -1756,6 +1825,12 @@ function DoTurn(){
     }
     else if (turnStep == "spawn-silver-star-anim"){
         SpawnSilverStarAnimation();
+    }
+    else if (turnStep == "results-anim"){
+        ResultsAnimation();
+    }
+    else if (turnStep == "tutorial-give-anim"){
+        TutorialGiveAnimation();
     }
     else if (turnStep == "popup"){
         if (mapData[PlayerData.position.y][PlayerData.position.x].popup == "lucky-space"){
@@ -1884,7 +1959,7 @@ window.onpointermove = function(e){
 //THIS IS A MAP BUILDING FUNCTION
 var targetDebugPos;
 window.onmousedown = function(e){
-    if (turnStep == "map"){
+    /*if (turnStep == "map"){
         raycaster.setFromCamera(pointer, Camera);
         var intersections = raycaster.intersectObject(MapMesh, false);
 
@@ -1911,7 +1986,7 @@ window.onmousedown = function(e){
             //}
             
         }
-    }
+    }*/
 }
 document.getElementById("debug-set-button").onclick = function(e){
     let data = JSON.parse(document.getElementById("debug-text-input").value);
@@ -2223,17 +2298,20 @@ function UseItem(index){
             let item = PlayerData.items[index];
             PlayerData.items.splice(index, 1);
             let loc;
+            document.getElementsByClassName("used-item")[0].setAttribute("src", ItemData[item].url);
             switch (item){
                 case "doubledice":
                     rollsRemaining = 2;
                     turnStep = "menu";
                     document.getElementsByClassName("player-inputs")[0].style.display = "flex";
+                    document.getElementById("roll-button-item-preview").style.display = "initial";
                     Socket.send(JSON.stringify({ method: "set_player_data", token: TOKEN, usedItem: item, items: PlayerData.items }));
                     break;
                 case "tripledice":
                     rollsRemaining = 3;
                     turnStep = "menu";
                     document.getElementsByClassName("player-inputs")[0].style.display = "flex";
+                    document.getElementById("roll-button-item-preview").style.display = "initial";
                     Socket.send(JSON.stringify({ method: "set_player_data", token: TOKEN, usedItem: item, items: PlayerData.items }));
                     break;
                 case "pipe":
@@ -2249,6 +2327,7 @@ function UseItem(index){
                     addToRoll = 3;
                     turnStep = "menu";
                     document.getElementsByClassName("player-inputs")[0].style.display = "flex";
+                    document.getElementById("roll-button-item-preview").style.display = "initial";
                     Socket.send(JSON.stringify({ method: "set_player_data", token: TOKEN, usedItem: item, items: PlayerData.items }));
                     break;
                 case "customdice":
@@ -2256,6 +2335,7 @@ function UseItem(index){
                     UpdateCustomDiceFace();
                     turnStep = "menu";
                     document.getElementsByClassName("player-inputs")[0].style.display = "flex";
+                    document.getElementById("roll-button-item-preview").style.display = "initial";
                     Socket.send(JSON.stringify({ method: "set_player_data", token: TOKEN, usedItem: item, items: PlayerData.items }));
                     break;
                 case "shophopbox":
@@ -2284,12 +2364,15 @@ function UseItem(index){
 function ServerUseItem(item){
     if (PlayerData.roll > 0 || item == null) return;
     document.getElementById("items-button").disabled = true;
+    document.getElementsByClassName("used-item")[0].setAttribute("src", ItemData[item].url);
     switch (item){
         case "doubledice":
             rollsRemaining = 2;
+            document.getElementById("roll-button-item-preview").style.display = "initial";
             break;
         case "tripledice":
             rollsRemaining = 3;
+            document.getElementById("roll-button-item-preview").style.display = "initial";
             break;
         case "pipe":
             break;
@@ -2297,10 +2380,12 @@ function ServerUseItem(item){
             break;
         case "tacticooler":
             addToRoll = 3;
+            document.getElementById("roll-button-item-preview").style.display = "initial";
             break;
         case "customdice":
             customDiceRoll = 5;
             UpdateCustomDiceFace();
+            document.getElementById("roll-button-item-preview").style.display = "initial";
             break;
         case "shophopbox":
             break;
@@ -2403,6 +2488,10 @@ function OpenPopup(){
         document.getElementsByClassName("purchase-star-button")[0].textContent = PlayerData.coins >= 20 ? "Yes" : "Not enough coins";
         document.getElementsByClassName("purchase-star-button")[0].disabled = PlayerData.coins < 20;
     }
+    else if (mapData[PlayerData.position.y][PlayerData.position.x].popup == "star-1"){
+        document.getElementsByClassName("purchase-1-star-button")[0].disabled = PlayerData.coins < 20;
+        document.getElementsByClassName("purchase-2-star-button")[0].disabled = PlayerData.coins < 40;
+    }
     else if (mapData[PlayerData.position.y][PlayerData.position.x].popup == "shop-1" || mapData[PlayerData.position.y][PlayerData.position.x].popup == "shop-2" || mapData[PlayerData.position.y][PlayerData.position.x].popup == "shop-3"){
         //Enable/Disable Buttons
         for (var i = 0; i < shopItems.length; i++){
@@ -2485,18 +2574,32 @@ function PurchaseStar(){
         PlayerData.coins -= 20;
         PlayerData.stars++;
         document.getElementById(mapData[PlayerData.position.y][PlayerData.position.x].popup).style.display = "none";
-        TriggerStarGetAnimation(true);
+        TriggerStarGetAnimation(true, 1);
+        PlayerData.canDuel = true;
+    }
+}
+function Purchase2Stars(){
+    if (turnStep == "popup" && PlayerData.coins >= 40){
+        PlayerData.coins -= 40;
+        PlayerData.stars += 2;
+        document.getElementById(mapData[PlayerData.position.y][PlayerData.position.x].popup).style.display = "none";
+        TriggerStarGetAnimation(true, 2);
         PlayerData.canDuel = true;
     }
 }
 
 document.getElementsByClassName("purchase-star-button")[0].onclick = PurchaseStar;
+document.getElementsByClassName("purchase-1-star-button")[0].onclick = PurchaseStar;
+document.getElementsByClassName("purchase-2-star-button")[0].onclick = Purchase2Stars;
 
 
 var animTimer = 0;
 var starGetAnimWarp = false;
-function TriggerStarGetAnimation(warp){
+var starGetAnimCount = 0;
+var starGetAnimStarObjs = [];
+function TriggerStarGetAnimation(warp, amount){
     starGetAnimWarp = warp;
+    starGetAnimCount = amount;
 
     UIState = "player";
     turnStep = "star-get-anim";
@@ -2504,11 +2607,20 @@ function TriggerStarGetAnimation(warp){
 
     StarRingParticle.scale.set(0, 0, 0);
     StarRingParticle.position.set(Player.position.x, Player.position.y, Player.position.z + 0.05);
+
+    for (var i = 0; i < starGetAnimCount; i++){
+        starGetAnimStarObjs.push(Star.clone(true));
+        Scene.add(starGetAnimStarObjs[i]);
+    }
 }
 
 function StarGetAnimation(){
     animTimer -= DeltaTime;
     let targetPlayerPos = new THREE.Vector3(PlayerData.position.x, getHeightTile(PlayerData.position.x, PlayerData.position.y) + 0.375, PlayerData.position.y);
+
+    function HorizontalStarOffset(index){
+        return lerp(-0.5, 0.5, starGetAnimCount == 1 ? 0.5 : (index / (starGetAnimCount - 1)));
+    }
 
     if (animTimer > 4){
         //Wait if warp is false
@@ -2517,31 +2629,53 @@ function StarGetAnimation(){
     }
     else if (animTimer > 3){
         let t = 1 - ((animTimer - 3) / 1);
-        Star.position.set(targetPlayerPos.x, targetPlayerPos.y + 0.575, targetPlayerPos.z);
-        Star.scale.set(lerp(0, 0.0015, t), lerp(0, 0.0015, t), lerp(0, 0.0015, t));
-        Star.rotation.set(0, lerp(Math.PI * 4, 0, t), 0);
+        //Star.position.set(targetPlayerPos.x, targetPlayerPos.y + 0.575, targetPlayerPos.z);
+        //Star.scale.set(lerp(0, 0.0015, t), lerp(0, 0.0015, t), lerp(0, 0.0015, t));
+        //Star.rotation.set(0, lerp(Math.PI * 4, 0, t), 0);
+        for (var i = 0; i < starGetAnimCount; i++){
+            starGetAnimStarObjs[i].position.set(targetPlayerPos.x + HorizontalStarOffset(i), targetPlayerPos.y + 0.575, targetPlayerPos.z);
+            starGetAnimStarObjs[i].scale.set(lerp(0, 0.0015, t), lerp(0, 0.0015, t), lerp(0, 0.0015, t));
+            starGetAnimStarObjs[i].rotation.set(0, lerp(Math.PI * 4, 0, t), 0);
+        }
     }
     else if (animTimer > 2){
-        Star.position.set(targetPlayerPos.x, targetPlayerPos.y + 0.575, targetPlayerPos.z);
-        Star.scale.set(0.0015, 0.0015, 0.0015);
-        Star.rotation.set(0, 0, 0);
+        //Star.position.set(targetPlayerPos.x, targetPlayerPos.y + 0.575, targetPlayerPos.z);
+        //Star.scale.set(0.0015, 0.0015, 0.0015);
+        //Star.rotation.set(0, 0, 0);
+        for (var i = 0; i < starGetAnimCount; i++){
+            starGetAnimStarObjs[i].position.set(targetPlayerPos.x + HorizontalStarOffset(i), targetPlayerPos.y + 0.575, targetPlayerPos.z);
+            starGetAnimStarObjs[i].scale.set(0.0015, 0.0015, 0.0015);
+            starGetAnimStarObjs[i].rotation.set(0, 0, 0);
+        }
     }
     else if (animTimer > 1.5){
         let t = 1 - ((animTimer - 1.5) / 0.5);
-        Star.position.set(targetPlayerPos.x, targetPlayerPos.y + lerp(0.575, 0.2, t), targetPlayerPos.z + lerp(0, 0.05, t));
-        Star.scale.set(lerp(0.0015, 0.0005, t), lerp(0.0015, 0.0005, t), lerp(0.0015, 0.0005, t));
-        Star.rotation.set(0, 0, 0);
+        //Star.position.set(targetPlayerPos.x, targetPlayerPos.y + lerp(0.575, 0.2, t), targetPlayerPos.z + lerp(0, 0.05, t));
+        //Star.scale.set(lerp(0.0015, 0.0005, t), lerp(0.0015, 0.0005, t), lerp(0.0015, 0.0005, t));
+        //Star.rotation.set(0, 0, 0);
+        for (var i = 0; i < starGetAnimCount; i++){
+            starGetAnimStarObjs[i].position.set(targetPlayerPos.x + (HorizontalStarOffset(i) * lerp(1, 0.333, t)), targetPlayerPos.y + lerp(0.575, 0.2, t), targetPlayerPos.z + lerp(0, 0.05, t));
+            starGetAnimStarObjs[i].scale.set(lerp(0.0015, 0.0005, t), lerp(0.0015, 0.0005, t), lerp(0.0015, 0.0005, t));
+            starGetAnimStarObjs[i].rotation.set(0, 0, 0);
+        }
     }
     else if (animTimer > 1.25){
         let t = 1 - ((animTimer - 1.25) / 0.25);
-        Star.position.set(targetPlayerPos.x, targetPlayerPos.y + lerp(0.2, 0, t), targetPlayerPos.z + 0.05);
-        Star.scale.set(lerp(0.0005, 0, t), lerp(0.0005, 0, t), lerp(0.0005, 0, t));
+        //Star.position.set(targetPlayerPos.x, targetPlayerPos.y + lerp(0.2, 0, t), targetPlayerPos.z + 0.05);
+        //Star.scale.set(lerp(0.0005, 0, t), lerp(0.0005, 0, t), lerp(0.0005, 0, t));
+        for (var i = 0; i < starGetAnimCount; i++){
+            starGetAnimStarObjs[i].position.set(targetPlayerPos.x + (HorizontalStarOffset(i) * lerp(0.333, 0, t)), targetPlayerPos.y + lerp(0.2, 0, t), targetPlayerPos.z + 0.05);
+            starGetAnimStarObjs[i].scale.set(lerp(0.0005, 0, t), lerp(0.0005, 0, t), lerp(0.0005, 0, t));
+        }
     }
     else if (animTimer > 1){
         let t = 1 - ((animTimer - 1) / 0.25);
-        Star.scale.set(0, 0, 0);
+        //Star.scale.set(0, 0, 0);
         StarRingParticle.scale.set(lerp(0, 0.35, t), lerp(0, 0.35, t), lerp(0, 0.35, t));
         StarRingParticle.material.opacity = lerp(0, 1, t);
+        for (var i = 0; i < starGetAnimCount; i++){
+            starGetAnimStarObjs[i].scale.set(0, 0, 0);
+        }
         UpdatePlayerUI();
     }
     else if (animTimer > 0.5){
@@ -2553,6 +2687,14 @@ function StarGetAnimation(){
         StarRingParticle.scale.set(0, 0, 0);
     }
     else{
+        for (var i = 0; i < starGetAnimCount; i++){
+            Scene.remove(starGetAnimStarObjs[i]);
+            starGetAnimStarObjs[i].children[0].geometry.dispose();
+            starGetAnimStarObjs[i].children[0].material.dispose();
+            starGetAnimStarObjs[i].children[1].geometry.dispose();
+            starGetAnimStarObjs[i].children[1].material.dispose();
+        }
+
         if (starGetAnimWarp) TriggerPipeWarpAnimation(StartingTile, true);
         else{
             UIState = "player";
@@ -3162,10 +3304,10 @@ function SilverStarsToStarAnimation(){
     else{
         for (let i = 0; i < 5; i++){
             Scene.remove(PlayerSilverStarObjs[i]);
+            PlayerSilverStarObjs[i].material.dispose();
+            PlayerSilverStarObjs[i].geometry.dispose();
         }
         PlayerSilverStarObjs.splice(0, 5);
-
-        SilverStar.children[1].material.emissiveIntensity = 0.25;
 
         EndTurn();
     }
@@ -3284,8 +3426,32 @@ minigameNavButtons[1].onclick = function(e){
 document.getElementById("new-minigame-submit-button").onclick = function(e){
     var result = [];
 
+    let setApartSkips = 0;
     for (var i = 0; i < CurrentMinigameLobby.length; i++){
-        result.push(Number.parseFloat(document.getElementsByClassName("new-minigame-player-result-" + MinigameData[CurrentMinigame].type)[i].value));
+        if (MinigameData[CurrentMinigame].teams == 0){
+            //No Teams
+            result.push(Number.parseFloat(document.getElementsByClassName("new-minigame-player-result-" + MinigameData[CurrentMinigame].type)[i].value));
+        }
+        else if (!Object.hasOwn(MinigameData[CurrentMinigame], "setApartPlayers") || MinigameData[CurrentMinigame].setApartPlayers % MinigameData[CurrentMinigame].teams == 0){
+            //Throwers are split between teams
+            if (CurrentMinigameSetApartPlayers.includes(i)){
+                result.push(Number.parseFloat(document.getElementsByClassName("new-minigame-player-result-" + MinigameData[CurrentMinigame].type)[setApartSkips % MinigameData[CurrentMinigame].teams].value));
+                setApartSkips++;
+            }
+            else{
+                result.push(Number.parseFloat(document.getElementsByClassName("new-minigame-player-result-" + MinigameData[CurrentMinigame].type)[(i - setApartSkips) % MinigameData[CurrentMinigame].teams].value));
+            }
+        }
+        else {
+            //Throwers are their own team
+            if (CurrentMinigameSetApartPlayers.includes(i)){
+                result.push(Number.parseFloat(document.getElementsByClassName("new-minigame-player-result-" + MinigameData[CurrentMinigame].type)[0].value));
+                setApartSkips++;
+            }
+            else{
+                result.push(Number.parseFloat(document.getElementsByClassName("new-minigame-player-result-" + MinigameData[CurrentMinigame].type)[(i - setApartSkips) % (MinigameData[CurrentMinigame].teams - 1) + 1].value));
+            }
+        }
     }
 
     Socket.send(JSON.stringify({ method: "submit_results", token: TOKEN, result: result }));
@@ -3377,12 +3543,152 @@ document.getElementById("cant-duel-leave-button").onclick = function(e){
     ClosePopup();
 };
 
+var tutorialIndex = 0;
+const tutorialPages = document.getElementsByClassName("tutorial-text");
+const tutorialNextButtons = document.getElementsByClassName("tutorial-next-button");
+const tutorialCancelButton = document.getElementsByClassName("tutorial-cancel-button")[0];
+const tutorialUIStates = ["player", "player", "tutorialstar", "tutorialstar", "tutorialshop", "player", "player"];
+function EndTutorial(){
+    Socket.send(JSON.stringify({ method: "set_player_data", token: TOKEN, tutorial: false }));
+
+    document.getElementById("tutorial").style.display = "none";
+
+    UIPanels.checkin.style.display = "none";
+    UIPanels.connecting.style.display = "none";
+    UIPanels.login.style.display = "none";
+    document.getElementsByClassName("player-data")[0].style.display = "initial";
+    document.getElementById("leaderboard").style.display = "initial";
+    document.getElementById("turn-counter").style.display = "initial";
+    document.getElementById("turn-counter-text").textContent = ServerTurn + "/10";
+    //Check if done turn or not
+    if (PlayerData.turnsCompleted < ServerTurn){
+        //Play your turn
+        if (PlayerData.roll == 0){
+            UIState = "player";
+            turnStep = "menu";
+            document.getElementsByClassName("player-inputs")[0].style.display = "flex";
+        }
+        else{
+            UIState = "above";
+            turnStep = "move";
+            document.getElementsByClassName("roll-display")[0].style.transform = "scale(100%)";
+            document.getElementsByClassName("board-inputs")[0].style.display = "initial";
+            SetMoveUI();
+        }
+    }
+    else{
+        //Wait for Minigame
+        UIState = "menu";
+        turnStep = "wait";
+        UIPanels.waitMinigame.style.display = "initial";
+    }
+}
+for (let i = 0; i < tutorialNextButtons.length; i++){
+    tutorialNextButtons[i].onclick = function(e){
+        tutorialIndex++;
+
+        if (tutorialIndex == tutorialPages.length){
+            EndTutorial();
+        }
+        else if (tutorialIndex == 6){
+            //Give 10 coins and dice anim
+            tutorialPages[tutorialIndex].style.display = "initial";
+            tutorialPages[tutorialIndex - 1].style.display = "none";
+            UIState = tutorialUIStates[tutorialIndex];
+            TriggerTutorialGiveAnim();
+        }
+        else{
+            tutorialPages[tutorialIndex].style.display = "initial";
+            tutorialPages[tutorialIndex - 1].style.display = "none";
+            UIState = tutorialUIStates[tutorialIndex];
+        }
+    };
+}
+tutorialCancelButton.onclick = function(e){
+    EndTutorial();
+};
+function TriggerTutorialGiveAnim(){
+    animTimer = 5;
+    UIState = "player";
+    turnStep = "tutorial-give-anim";
+    document.getElementById("tutorial").style.display = "none";
+
+    //Spawn coins and item
+    coinsTextWidth = SetCoinText(10);
+
+    let targetPos = new THREE.Vector3(PlayerData.position.x, getHeightTile(PlayerData.position.x, PlayerData.position.y) + 0.375, PlayerData.position.y);
+
+    CoinText.scale.set(0.85, 0.85, 0.85);
+    Scene.add(CoinText);
+    ItemRingParticle.scale.set(0, 0, 0);
+    ItemRingParticle.position.set(targetPos.x, targetPos.y, targetPos.z + 0.01);
+    ItemRingParticle.material.color.set(0xffffff);
+    Scene.add(ItemRingParticle);
+
+    ItemPreview.material.opacity = 1;
+    ItemPreview.material.map = ItemData["doubledice"].image;
+    ItemPreview.scale.set(1, 1, 1);
+    Scene.add(ItemPreview);
+}
+function TutorialGiveAnimation(){
+    const animLength = 5;
+    animTimer -= DeltaTime;
+    
+    let targetPos = new THREE.Vector3(PlayerData.position.x, getHeightTile(PlayerData.position.x, PlayerData.position.y) + 0.375, PlayerData.position.y);
+
+    if (animTimer > animLength - 1.5){
+        let t = 1 - ((animTimer - animLength + 1.5) / 1.5);
+        let eo = easeOut(t);
+
+        CoinText.position.set(targetPos.x - 0.5 - (coinsTextWidth / 2 * 0.85), targetPos.y - 0.1 + lerp(2, 0, eo), targetPos.z);
+        ItemPreview.position.set(targetPos.x + 0.5, targetPos.y + lerp(2, 0, eo), targetPos.z);
+    }
+    else if (animTimer > animLength - 2){
+        CoinText.position.set(targetPos.x - 0.5 - (coinsTextWidth / 2 * 0.85), targetPos.y - 0.1, targetPos.z);
+        ItemPreview.position.set(targetPos.x + 0.5, targetPos.y, targetPos.z);
+    }
+    else if (animTimer > animLength - 3){
+        let t = 1 - ((animTimer - animLength + 3) / 1);
+        let ei = easeIn(t);
+
+        CoinText.position.set(targetPos.x - lerp(0.5, 0, ei) - (coinsTextWidth / 2 * lerp(0.85, 0.1, ei)), targetPos.y - lerp(0.1, 0, ei), targetPos.z);
+        ItemPreview.position.set(targetPos.x + lerp(0.5, 0, ei), targetPos.y, targetPos.z);
+        CoinText.scale.set(lerp(0.85, 0.1, ei), lerp(0.85, 0.1, ei), lerp(0.85, 0.1, ei));
+        ItemPreview.scale.set(lerp(1, 0.1, ei), lerp(1, 0.1, ei), lerp(1, 0.1, ei));
+    }
+    else if (animTimer > animLength - 5){
+        let t = 1 - ((animTimer - animLength + 5) / 2);
+        let eo = easeOut(t);
+
+        CoinText.scale.set(0, 0, 0);
+        ItemPreview.scale.set(0, 0, 0);
+        ItemRingParticle.scale.set(lerp(0.1, 1, eo), lerp(0.1, 1, eo), lerp(0.1, 1, eo));
+        ItemRingParticle.material.opacity = lerp(1, 0, eo);
+    }
+    else{
+        Scene.remove(CoinText, ItemPreview, ItemRingParticle);
+        document.getElementById("tutorial").style.display = "initial";
+        turnStep = "tutorial";
+        UIState = tutorialUIStates[tutorialIndex];
+    }
+}
+
+
+
+
 //NETWORKING!!!
 var Socket;
 var SignedIn = false;
 function InitializeSocket(){
     //Changes the Socket connection based on if it's local hosted or not
-    Socket = new WebSocket(window.location.hostname == "127.0.0.1" ? "ws://localhost:6969" : ("wss://" + new URLSearchParams(window.location.search).get("socket") + ".ngrok-free.dev"));
+    //Also checks if the url search parameter has a unique url for the socket
+    let searchParams = new URLSearchParams(window.location.search);
+    if (searchParams.has("socket")){
+        Socket = new WebSocket("wss://" + searchParams.get("socket"));
+    }
+    else{
+        Socket = new WebSocket(window.location.hostname == "127.0.0.1" ? "ws://localhost:6969" : "wss://msp.astrodwarf.space/server");
+    }
 
     Socket.onopen = function(e){
         console.log("Socket open");
@@ -3395,7 +3701,38 @@ function InitializeSocket(){
     }
 
     Socket.onclose = function(e){
-        console.log("WS Closed");
+        turnStep = "dc";
+        UIState = "menu";
+        for (const [key, value] of Object.entries(UIPanels)){
+            value.style.display = "none";
+        }
+        UIPanels.disconnected.style.display = "initial";
+
+        document.getElementById("tutorial").style.display = "none";
+        document.getElementById("key-door").style.display = "none";
+        document.getElementById("shop-1").style.display = "none";
+        document.getElementById("shop-2").style.display = "none";
+        document.getElementById("shop-3").style.display = "none";
+        document.getElementById("star-1").style.display = "none";
+        document.getElementById("star-2").style.display = "none";
+        document.getElementById("duel").style.display = "none";
+        document.getElementById("lucky-space").style.display = "none";
+        document.getElementById("results").style.display = "none";
+        document.getElementById("global-leaderboard").style.display = "none";
+        document.getElementById("help").style.display = "none";
+
+        document.getElementsByClassName("game-ui")[0].style.display = "none";
+
+        if (e.code == 1006){
+            document.getElementById("disconnect-reason").textContent = "Can't Connect to Server";
+            document.getElementById("disconnect-reason-1").style.display = "none";
+            document.getElementById("disconnect-reason-2").style.display = "initial";
+        }
+        else{
+            document.getElementById("disconnect-reason").textContent = "Disconnected";
+            document.getElementById("disconnect-reason-1").style.display = "initial";
+            document.getElementById("disconnect-reason-2").style.display = "none";
+        }
     }
 
     Socket.onmessage = function(e){
@@ -3450,14 +3787,16 @@ var ServerStatus = "null";
 var ServerTurn = 0;
 function get_status_server(data){
     clearTimeout(GetStatusServerTimeout);
+
     if (Object.hasOwn(data, "turn")) ServerTurn = data.turn;
+    if (Object.hasOwn(data, "endTime")) document.getElementById("turn-timer").textContent = new Date(data.endTime * 60000).toLocaleTimeString("en-US", {hour: "numeric", minute: "2-digit"});
 
     if (Object.hasOwn(data, "data")){
         if (data.status == "RESULTS"){
-            GenerateResultsPage(data);
+            TriggerResultsAnimation(data, true);
         }
         else{
-            if (PlayerData.coins != data.data.coins || PlayerData.stars != data.data.stars || !arraysEqual(PlayerData.items, data.data.items) || PlayerData.position.x != data.data.position.x || PlayerData.position.y != data.data.position.y){
+            if (PlayerData.coins != data.data.coins || PlayerData.stars != data.data.stars || !arraysEqual(PlayerData.items, data.data.items) || PlayerData.position.x != data.data.position.x || PlayerData.position.y != data.data.position.y|| PlayerData.tutorial != data.data.tutorial){
                 if (Object.hasOwn(mapData[PlayerData.position.y][PlayerData.position.x], "popup")) document.getElementById(mapData[PlayerData.position.y][PlayerData.position.x].popup).style.display = "none";
                 document.getElementsByClassName("move-end-turn-button")[0].style.display = "none";
                 document.getElementsByClassName("move-undo-button")[0].style.display = "none";
@@ -3483,8 +3822,10 @@ function get_status_server(data){
                     stars: data.data.stars,
                     collectedSilverStars: data.data.collectedSilverStars,
                     turnsCompleted: data.data.turnsCompleted,
-                    canDuel: data.data.canDuel
+                    canDuel: data.data.canDuel,
+                    tutorial: data.data.tutorial
                 };
+
                 if (data.data.usedItem != null) ServerUseItem(data.data.usedItem);
                 transitionValues.playerPos = new THREE.Vector3(PlayerData.position.x, getHeightTile(PlayerData.position.x, PlayerData.position.y) + 0.375, PlayerData.position.y);
 
@@ -3526,6 +3867,10 @@ function get_status_server(data){
         }
     }
 
+    if (Object.hasOwn(data, "modFlag") && data.modFlag){
+        Socket.send(JSON.stringify({ method: "confirm_mod", token: TOKEN, position: PlayerData.position, coins: PlayerData.coins, stars: PlayerData.stars, items: PlayerData.items, turnsCompleted: PlayerData.turnsCompleted }));
+    }
+
     if (Object.hasOwn(data, "silverStars")){
         ServerSilverStars = data.silverStars;
 
@@ -3562,10 +3907,30 @@ function get_status_server(data){
                 break;
             case "TURN":
                 document.getElementsByClassName("leaderboard-button")[0].style.display = "initial";
-                if (!checkedIn || !SignedIn){
+                if (!SignedIn){
                     UIState = "menu";
                     UIPanels.connecting.style.display = "none";
                     UIPanels.login.style.display = "initial";
+                }
+                else if (!checkedIn){
+                    UIState = "menu";
+                    UIPanels.connecting.style.display = "none";
+                    UIPanels.checkin.style.display = "initial";
+                    UIPanels.checkin.children[0].children[2].textContent = "Game is currently running";
+                    document.getElementById("checkinbtn").disabled = false;
+                    document.getElementById("checkinbtn").textContent = "Start Playing";
+                }
+                else if (PlayerData.tutorial){
+                    UIPanels.checkin.style.display = "none";
+                    UIPanels.connecting.style.display = "none";
+                    UIPanels.login.style.display = "none";
+                    document.getElementById("leaderboard").style.display = "initial";
+                    document.getElementById("turn-counter").style.display = "initial";
+                    document.getElementById("turn-counter-text").textContent = ServerTurn + "/10";
+                    UIState = "player";
+                    turnStep = "tutorial";
+                    document.getElementById("tutorial").style.display = "initial";
+                    PlayerData.roll = data.data.roll;
                 }
                 else{
                     UIPanels.checkin.style.display = "none";
@@ -3600,10 +3965,18 @@ function get_status_server(data){
                 break;
             case "MINIGAME":
                 document.getElementsByClassName("leaderboard-button")[0].style.display = "initial";
-                if (!checkedIn || !SignedIn){
+                if (!SignedIn){
                     UIState = "menu";
                     UIPanels.connecting.style.display = "none";
                     UIPanels.login.style.display = "initial";
+                }
+                else if (!checkedIn){
+                    UIState = "menu";
+                    UIPanels.connecting.style.display = "none";
+                    UIPanels.checkin.style.display = "initial";
+                    UIPanels.checkin.children[0].children[2].textContent = "Game is currently running";
+                    document.getElementById("checkinbtn").disabled = false;
+                    document.getElementById("checkinbtn").textContent = "Start Playing";
                 }
                 else{
                     GetLobbyServerTimeout = setTimeout(() => {getLobbyTimeout(0)}, 3000);
@@ -3623,6 +3996,7 @@ function announcement_server(data){
         let lastStatus = ServerStatus;
         ServerStatus = data.status;
         if (Object.hasOwn(data, "turn")) ServerTurn = data.turn;
+        if (Object.hasOwn(data, "endTime")) document.getElementById("turn-timer").textContent = new Date(data.endTime * 60000).toLocaleTimeString("en-US", {hour: "numeric", minute: "2-digit"});
 
         if (ServerStatus == "CHECK_IN"){
             if (SignedIn){
@@ -3633,15 +4007,12 @@ function announcement_server(data){
         }
         else if (ServerStatus == "TURN"){
             document.getElementsByClassName("leaderboard-button")[0].style.display = "initial";
-            duelBet = false;
-            if (turnStep == "map") CloseMap();
-            document.getElementById("wait-minigame-map").style.display = "none";
-            if (TOKEN == ""){
-                UIState = "menu";
-                UIPanels.connecting.style.display = "none";
-                UIPanels.login.style.display = "initial";
-            }
-            else{
+
+            if (SignedIn && checkedIn){
+                UIPanels.waitTurn.style.display = "none";
+                duelBet = false;
+                if (turnStep == "map") CloseMap();
+                document.getElementById("wait-minigame-map").style.display = "none";
                 rollsRemaining = 1;
                 UIPanels.checkin.style.display = "none";
                 UIPanels.connecting.style.display = "none";
@@ -3652,14 +4023,24 @@ function announcement_server(data){
                 document.getElementById("items-button").disabled = false;
                 document.getElementById("turn-counter").style.display = "initial";
                 document.getElementById("turn-counter-text").textContent = ServerTurn + "/10";
-
+                console.log(ServerTurn);
                 if (Object.hasOwn(data, "silverStar")){
                     SpawnSilverStarBoard(data.silverStar, lastStatus == "MINIGAME");
                 }
                 else if (ServerTurn == 1){
-                    UIState = "player";
-                    turnStep = "menu";
-                    document.getElementsByClassName("player-inputs")[0].style.display = "flex";
+                    console.log("TURN 1");
+                    if (PlayerData.tutorial){
+                        console.log("HELLO");
+                        UIState = "player";
+                        turnStep = "tutorial";
+                        document.getElementById("tutorial").style.display = "initial";
+                        document.getElementsByClassName("player-data")[0].style.display = "none";
+                    }
+                    else{
+                        UIState = "player";
+                        turnStep = "menu";
+                        document.getElementsByClassName("player-inputs")[0].style.display = "flex";
+                    }
                 }
                 else if (lastStatus == "MINIGAME"){
                     UIState = "player";
@@ -3668,23 +4049,166 @@ function announcement_server(data){
                     getPlayerDataTimeout(0);
                 }
                 else{
+                    console.log("ELSE");
                     document.getElementsByClassName("player-inputs")[0].style.display = "flex";
                 }
             }
         }
         else if (ServerStatus == "MINIGAME"){
             document.getElementsByClassName("leaderboard-button")[0].style.display = "initial";
+            
+            if (SignedIn && checkedIn){
+                minigameNavButtons[0].onclick();
 
-            minigameNavButtons[0].onclick();
+                minigameSubmitButton.disabled = false;
+                minigameSubmitButton.textContent = "Submit Results";
 
-            minigameSubmitButton.disabled = false;
-            minigameSubmitButton.textContent = "Submit Results";
-
-            getLobbyTimeout(0);
+                getLobbyTimeout(0);
+            }
         }
         else if (ServerStatus == "RESULTS"){
-            GenerateResultsPage(data);
+            TriggerResultsAnimation(data, false);
         }
+    }
+}
+
+const PodiumPosition = { x: 4, y: 4 };
+var ResultsData;
+var resultsAnimLightTargets = [];
+var resultsAnimEndTime = 0;
+function TriggerResultsAnimation(data, skipAnim){
+    ResultsData = data;
+
+    for (var i = 0; i < ResultsData.data.length - 1; i++){
+        for (var j = 0; j < ResultsData.data.length - i - 1; j++){
+            if (ResultsData.data[j].stars < ResultsData.data[j+1].stars || (ResultsData.data[j].stars == ResultsData.data[j+1].stars && ResultsData.data[j].coins < ResultsData.data[j+1].coins)){
+                let temp = ResultsData.data[j];
+                ResultsData.data[j] = ResultsData.data[j+1];
+                ResultsData.data[j+1] = temp;
+            }
+        }
+    }
+
+    turnStep = "results-anim";
+    UIState = "override";
+
+    animTimer = 10;
+
+    for (const [key, value] of Object.entries(UIPanels)){
+        value.style.display = "none";
+    }
+
+    document.getElementsByClassName("game-ui")[0].style.display = "none";
+
+    Renderer.domElement.style.filter = "";
+
+    Scene.remove(Player);
+    Scene.remove(light);
+    ambient.intensity = 0.1;
+    //Scene.background = DARK_SKYBOX_TEX;
+    Scene.backgroundIntensity = 0.01;
+
+    //Set up Podium
+    var Block1 = new THREE.Mesh(new THREE.BoxGeometry(1, 1, 1), new THREE.MeshStandardMaterial({ color: 0xffbf00 }));
+    var Block2 = new THREE.Mesh(new THREE.BoxGeometry(1, 2 / 3, 1), new THREE.MeshStandardMaterial({ color: 0xc0c0c0 }));
+    var Block3 = new THREE.Mesh(new THREE.BoxGeometry(1, 1 / 3, 1), new THREE.MeshStandardMaterial({ color: 0xCD7F32 }));
+    Block1.receiveShadow = true;
+    Block1.castShadow = true;
+    Block2.receiveShadow = true;
+    Block2.castShadow = true;
+    Block3.receiveShadow = true;
+    Block3.castShadow = true;
+    Block1.position.set(PodiumPosition.x, getHeightTile(PodiumPosition.x, PodiumPosition.y) + 0.5, PodiumPosition.y);
+    Block2.position.set(PodiumPosition.x + 1, getHeightTile(PodiumPosition.x + 1, PodiumPosition.y) + (1 / 3), PodiumPosition.y);
+    Block3.position.set(PodiumPosition.x - 1, getHeightTile(PodiumPosition.x - 1, PodiumPosition.y) + (1 / 6), PodiumPosition.y);
+    Scene.add(Block1, Block2, Block3);
+
+    //Put players on podium
+    var Player1 = new THREE.Mesh(new THREE.PlaneGeometry(0.75, 0.75), new THREE.MeshStandardMaterial({map: PlayerAvatarsTex[stringToIndex(ResultsData.data[0].ign) % PlayerAvatars.length], alphaTest: 0.5, side: THREE.DoubleSide}));
+    var Player2 = new THREE.Mesh(new THREE.PlaneGeometry(0.75, 0.75), new THREE.MeshStandardMaterial({map: PlayerAvatarsTex[stringToIndex(ResultsData.data[1].ign) % PlayerAvatars.length], alphaTest: 0.5, side: THREE.DoubleSide}));
+    var Player3 = new THREE.Mesh(new THREE.PlaneGeometry(0.75, 0.75), new THREE.MeshStandardMaterial({map: PlayerAvatarsTex[stringToIndex(ResultsData.data[2].ign) % PlayerAvatars.length], alphaTest: 0.5, side: THREE.DoubleSide}));
+    Player1.castShadow = true;
+    Player2.castShadow = true;
+    Player3.castShadow = true;
+    Player1.position.set(PodiumPosition.x, getHeightTile(PodiumPosition.x, PodiumPosition.y) + 1 + 0.375, PodiumPosition.y);
+    Player2.position.set(PodiumPosition.x + 1, getHeightTile(PodiumPosition.x + 1, PodiumPosition.y) + (2 / 3) + 0.375, PodiumPosition.y);
+    Player3.position.set(PodiumPosition.x - 1, getHeightTile(PodiumPosition.x - 1, PodiumPosition.y) + (1 / 3) + 0.375, PodiumPosition.y);
+    Scene.add(Player1, Player2, Player3);
+
+    //Lights
+    var light1 = new THREE.SpotLight(0xff0000, 1000, 0, Math.PI / 40);
+    light1.castShadow = true;
+    var light2 = new THREE.SpotLight(0x00ff00, 1000, 0, Math.PI / 40);
+    light2.castShadow = true;
+    var light3 = new THREE.SpotLight(0x0000ff, 1000, 0, Math.PI / 40);
+    light3.castShadow = true;
+    light1.position.set(PodiumPosition.x, getHeightTile(PodiumPosition.x, PodiumPosition.y) + 20, PodiumPosition.y + 10);
+    light2.position.set(PodiumPosition.x + 10, getHeightTile(PodiumPosition.x, PodiumPosition.y) + 20, PodiumPosition.y + 7.5);
+    light3.position.set(PodiumPosition.x - 10, getHeightTile(PodiumPosition.x, PodiumPosition.y) + 20, PodiumPosition.y + 7.5);
+    resultsAnimLightTargets.push(new THREE.Object3D(), new THREE.Object3D(), new THREE.Object3D());
+    Scene.add(resultsAnimLightTargets[0], resultsAnimLightTargets[1], resultsAnimLightTargets[2]);
+    light1.target = resultsAnimLightTargets[0];
+    light2.target = resultsAnimLightTargets[1];
+    light3.target = resultsAnimLightTargets[2];
+    Scene.add(light1, light2, light3);
+    Renderer.shadowMap.type = THREE.PCFShadowMap;
+
+    if (skipAnim){
+        GenerateResultsPage(ResultsData);
+        resultsAnimEndTime = Date.now();
+        let targetPos = new THREE.Vector3(PodiumPosition.x, getHeightTile(PodiumPosition.x, PodiumPosition.y), PodiumPosition.y);
+        resultsAnimLightTargets[0].position.set(targetPos.x, targetPos.y + 1, targetPos.z);
+        resultsAnimLightTargets[1].position.set(targetPos.x, targetPos.y + 1, targetPos.z);
+        resultsAnimLightTargets[2].position.set(targetPos.x, targetPos.y + 1, targetPos.z);
+    }
+}
+const ResultsAnimCamPos = [
+    new THREE.Vector3(15, 5, 35),
+    new THREE.Vector3(15, 4, 25),
+    new THREE.Vector3(20, 3.5, 20),
+    new THREE.Vector3(12.5, 3, 17.5),
+    new THREE.Vector3(5, 1, 12.5),
+    new THREE.Vector3(-5, 2, 10),
+    new THREE.Vector3(0, 2.5, 5),
+    new THREE.Vector3(0, 1.25, 2.5),
+    new THREE.Vector3(0, 1.25, 2.5),
+];
+function ResultsAnimation(){
+    const animLength = 10;
+    animTimer -= DeltaTime;
+
+    let targetPos = new THREE.Vector3(PodiumPosition.x, getHeightTile(PodiumPosition.x, PodiumPosition.y), PodiumPosition.y);
+
+    if (animTimer > 0){
+        let i = Math.floor((animLength - animTimer) / animLength * (ResultsAnimCamPos.length - 2)) + 1;
+        let t = (animLength - animTimer) / animLength * (ResultsAnimCamPos.length - 2) % 1;
+        let lightDist = animTimer / animLength * 6;
+
+        resultsAnimLightTargets[0].position.set(targetPos.x + (Math.cos(animTimer) * lightDist), targetPos.y + 1, targetPos.z + (Math.sin(animTimer) * lightDist));
+        resultsAnimLightTargets[1].position.set(targetPos.x + (Math.cos(animTimer + (Math.PI / 1.5)) * lightDist), targetPos.y + 1, targetPos.z + (Math.sin(animTimer + (Math.PI / 1.5)) * lightDist));
+        resultsAnimLightTargets[2].position.set(targetPos.x + (Math.cos(animTimer - (Math.PI / 1.5)) * lightDist), targetPos.y + 1, targetPos.z + (Math.sin(animTimer - (Math.PI / 1.5)) * lightDist));
+
+        let line1 = lerpVector(lerpVector(ResultsAnimCamPos[i - 1], ResultsAnimCamPos[i], 0.5), ResultsAnimCamPos[i], t);
+        let line2 = lerpVector(ResultsAnimCamPos[i], lerpVector(ResultsAnimCamPos[i + 1], ResultsAnimCamPos[i], 0.5), t);
+        let line = lerpVector(line1, line2, t);
+
+        Camera.position.set(targetPos.x + line.x, targetPos.y + line.y, targetPos.z + line.z);
+        Camera.lookAt(targetPos.x, targetPos.y + 1, targetPos.z);
+    }
+    else{
+        Camera.position.set(targetPos.x + 0, targetPos.y + 1.25, targetPos.z + 2.5);
+        Camera.lookAt(targetPos.x, targetPos.y + 1, targetPos.z);
+        resultsAnimLightTargets[0].position.set(targetPos.x, targetPos.y + 1, targetPos.z);
+        resultsAnimLightTargets[1].position.set(targetPos.x, targetPos.y + 1, targetPos.z);
+        resultsAnimLightTargets[2].position.set(targetPos.x, targetPos.y + 1, targetPos.z);
+
+        transitionValues.filter = 0;
+        transitionValues.cameraPos = Camera.position;
+        transitionValues.cameraRot = new THREE.Euler().setFromQuaternion(Camera.quaternion, "YXZ");
+        
+        resultsAnimEndTime = Date.now();
+
+        GenerateResultsPage(ResultsData);
     }
 }
 
@@ -3695,16 +4219,20 @@ function GenerateResultsPage(data){
     UIPanels.connecting.style.display = "none";
     UIPanels.login.style.display = "none";
     UIPanels.waitMinigame.style.display = "none";
+    UIPanels.waitTurn.style.display = "none";
     document.getElementById("results").style.display = "initial";
-    document.getElementsByClassName("confetti-wrapper")[0].style.display = "initial";
     UIPanels.globalLeaderboard.style.display = "none";
     document.getElementsByClassName("leaderboard-button")[0].style.display = "none";
     document.getElementsByClassName("player-data")[0].style.display = "none";
     document.getElementById("turn-counter").style.display = "none";
     document.getElementById("leaderboard").style.display = "none";
-    StartConfetti();
+    
+    if (!confettiRunning){
+        document.getElementsByClassName("confetti-wrapper")[0].style.display = "initial";
+        StartConfetti();
+    }
 
-    UIState = "menu";
+    UIState = "podium";
     turnStep = "results";
 
     //Sort Results
@@ -3813,228 +4341,380 @@ function UpdateGlobalLeaderboard(data){
         listElement.children[2].classList.add("results-list-username");
         //listElement.children[2].textContent = data.data[i].ign.split("#")[0];
         listElement.appendChild(document.createElement("span"));
-        listElement.children[3].classList.add("results-list-info");
+        listElement.children[3].classList.add("results-list-info-coins");
+        listElement.appendChild(document.createElement("span"));
+        listElement.children[4].classList.add("results-list-info-stars");
 
-        listElement.children[3].appendChild(document.createElement("span"));
-        listElement.children[3].children[0].classList.add("results-list-stars");
+        listElement.children[4].appendChild(document.createElement("span"));
+        listElement.children[4].children[0].classList.add("results-list-stars");
         //listElement.children[3].children[0].textContent = data.data[i].stars + " ";
-        listElement.children[3].appendChild(document.createElement("img"));
-        listElement.children[3].children[1].classList.add("results-list-text-img");
-        listElement.children[3].children[1].setAttribute("src", "resources/textures/squid_star.svg");
-        listElement.children[3].appendChild(document.createElement("div"));
-        listElement.children[3].children[2].style.display = "inline-block";
-        listElement.children[3].children[2].style.width = "5px";
+        listElement.children[4].appendChild(document.createElement("img"));
+        listElement.children[4].children[1].classList.add("results-list-text-img");
+        listElement.children[4].children[1].setAttribute("src", "resources/textures/squid_star.svg");
+        //listElement.children[3].appendChild(document.createElement("div"));
+        //listElement.children[3].children[2].style.display = "inline-block";
+        //listElement.children[3].children[2].style.width = "5px";
         listElement.children[3].appendChild(document.createElement("span"));
-        listElement.children[3].children[3].classList.add("results-list-coins");
+        listElement.children[3].children[0].classList.add("results-list-coins");
         //listElement.children[3].children[3].textContent = data.data[i].coins + " ";
         listElement.children[3].appendChild(document.createElement("img"));
-        listElement.children[3].children[4].classList.add("results-list-text-img");
-        listElement.children[3].children[4].setAttribute("src", "resources/textures/squid_coin.svg");
+        listElement.children[3].children[1].classList.add("results-list-text-img");
+        listElement.children[3].children[1].setAttribute("src", "resources/textures/squid_coin.svg");
     }
 
     for (var i = 0; i < data.data.length; i++){
         GlobalLeaderboard.children[i].children[0].textContent = (i + 1) + ". ";
         GlobalLeaderboard.children[i].children[1].setAttribute("src", PlayerAvatars[stringToIndex(data.data[i].ign) % PlayerAvatars.length]);
         GlobalLeaderboard.children[i].children[2].textContent = data.data[i].ign.split("#")[0];
-        GlobalLeaderboard.children[i].children[3].children[0].textContent = data.data[i].stars + " ";
-        GlobalLeaderboard.children[i].children[3].children[3].textContent = data.data[i].coins + " ";
+        GlobalLeaderboard.children[i].children[4].children[0].textContent = data.data[i].stars + " ";
+        GlobalLeaderboard.children[i].children[3].children[0].textContent = data.data[i].coins + " ";
     }
 }
 
 function end_turn_server(data){
+    if (!data.success){
+        //Mod Flag issue
+        PlayerData.position = data.data.position;
+        PlayerData.coins = data.data.coins;
+        PlayerData.stars = data.data.stars;
+        PlayerData.items = data.data.items;
+        PlayerData.turnsCompleted = data.data.turnsCompleted;
+        PlayerData.collectedSilverStars = data.data.collectedSilverStars;
+        PlayerData.canDuel = data.data.canDuel;
+        duelBet = false;
 
+        Socket.send(JSON.stringify({ method: "confirm_mod", token: TOKEN, position: PlayerData.position, coins: PlayerData.coins, stars: PlayerData.stars, items: PlayerData.items, turnsCompleted: PlayerData.turnsCompleted }));
+
+        turnStep = "move";
+        UIState = "above";
+        UIPanels.waitMinigame.style.display = "none";
+
+        document.getElementsByClassName("roll-display")[0].style.transform = "scale(1)";
+        document.getElementsByClassName("roll-display")[0].style.display = "initial";
+        document.getElementsByClassName("player-data")[0].style.display = "initial";
+        document.getElementsByClassName("board-inputs")[0].style.display = "initial";
+        document.getElementById("turn-counter").style.display = "initial";
+        document.getElementById("wait-minigame-map").style.display = "none";
+        document.getElementsByClassName("map-overlay")[0].style.display = "none";
+
+        spacesMoved = 0;
+        SetMoveUI();
+        UpdateItemUI();
+        UpdatePlayerUI();
+    }
 }
 
 const minigamePopupPlayers = document.getElementsByClassName("new-minigame-player");
 var GetLobbyServerTimeout;
 var CurrentMinigame = "null";
 var CurrentMinigameLobby = [];
+var CurrentMinigameSetApartPlayers = [];
 var ServerDuelBet = false;
 function getLobbyTimeout(i){
     if (i > TIMEOUT_LIMIT) { disconnectError(); return; }
     GetLobbyServerTimeout = setTimeout(() => {getLobbyTimeout(i+1)}, 3000);
     Socket.send(JSON.stringify({ method: "get_lobby", token: TOKEN }));
 }
+const teamBackgroundColors = ["rgba(0, 30, 255, 0.25)", "rgba(255, 132, 0, 0.25)", "rgba(0, 255, 34, 0.25)", "rgba(234, 0, 255, 0.25)"];
+const throwerBackgroundColor = "rgba(255, 0, 0, 0.25)";
 function get_lobby_server(data){
     clearTimeout(GetLobbyServerTimeout);
 
-    if (turnStep == "map") CloseMap();
-    turnStep = "minigame";
-
-    document.getElementById("wait-minigame-map").style.display = "none";
-    document.getElementsByClassName("map-overlay")[0].style.display = "none";
-
-    document.getElementById("leaderboard").style.display = "none";
-    document.getElementById("turn-counter").style.display = "none";
-
-    document.getElementById("minigame-interactive").style.display = "inline-block";
-    document.getElementById("minigame-waiting").style.display = "none";
-    document.getElementById("minigame-pool-pass-box").style.display = data.lobby.length > 1 ? "initial" : "none";
-
-    CurrentMinigame = data.minigame;
-    CurrentMinigameLobby = data.lobby;
-
-    UIPanels.connecting.style.display = "none";
-    UIPanels.waitMinigame.style.display = "none";
-    UIPanels.login.style.display = "none";
-    UIPanels.checkin.style.display = "none";
-    UIPanels.minigame.style.display = "initial";
-    
-    for (let i = 0; i < minigamePopupPlayers.length; i++){
-        if (i < data.lobby.length){
-            minigamePopupPlayers[i].style.display = "inline-block";
-            minigamePopupPlayers[i].getElementsByClassName("new-minigame-player-ign")[0].innerHTML = data.lobby[i].ign.split("#", 2).join("<br>#") + "<span class=\"minigame-player-tooltip\">" + data.lobby[i].discord + "</span>";
-            minigamePopupPlayers[i].getElementsByClassName("new-minigame-player-result-vs")[0].style.display = MinigameData[data.minigame].type == "vs" ? "initial" : "none";
-            minigamePopupPlayers[i].getElementsByClassName("new-minigame-player-result-coop")[0].style.display = MinigameData[data.minigame].type == "coop" ? "initial" : "none";
-            minigamePopupPlayers[i].getElementsByClassName("new-minigame-player-result-coin")[0].style.display = MinigameData[data.minigame].type == "coin" ? "initial" : "none";
+    if (data.success){
+        document.getElementsByClassName("roll-display")[0].style.transform = "scale(0)";
+        document.getElementsByClassName("custom-dice-input")[0].style.display = "none";
+        document.getElementsByClassName("roll-inputs")[0].style.display = "none";
+        document.getElementsByClassName("move-undo-button")[0].style.display = "none";
+        document.getElementsByClassName("move-end-turn-button")[0].style.display = "none";
+        document.getElementsByClassName("player-inputs")[0].style.display = "none";
+        document.getElementsByClassName("board-inputs")[0].style.display = "none";
+        document.getElementsByClassName("item-menu")[0].style.display = "none";
+        document.getElementsByClassName("item-toss-menu")[0].style.display = "none";
+        if (Object.hasOwn(mapData[PlayerData.position.y][PlayerData.position.x], "popup")){
+            document.getElementById(mapData[PlayerData.position.y][PlayerData.position.x].popup).style.display = "none";
         }
-        else{
-            minigamePopupPlayers[i].style.display = "none";
-        }
-    }
 
-    minigameNavButtons[1].style.display = data.lobby.length > 1 ? "initial" : "none";
+        document.getElementById("minigame-end-time").textContent = new Date(data.endTime * 60000).toLocaleTimeString("en-US", {hour: "numeric", minute: "2-digit"});
+        document.getElementById("minigame-start-time").textContent = new Date(data.startTime * 60000).toLocaleTimeString("en-US", {hour: "numeric", minute: "2-digit"});
 
-    document.getElementsByClassName("minigame-pool")[0].textContent = "Pool: " + data.pool;
-    document.getElementsByClassName("minigame-pass")[0].textContent = "Pass: " + data.pass;
+        if (turnStep == "map") CloseMap();
+        turnStep = "minigame";
 
-    document.getElementsByClassName("minigame-title")[0].textContent = MinigameData[data.minigame].title;
-    
-    let descrip = MinigameData[data.minigame].description;
-    for (let i = 0; i < data.setApartPlayers.length; i++){
-        descrip = descrip.replace("{Player}", data.lobby[data.setApartPlayers[i]].ign);
-    }
-    document.getElementById("new-minigame-description").innerHTML = descrip;
+        document.getElementById("wait-minigame-map").style.display = "none";
+        document.getElementsByClassName("map-overlay")[0].style.display = "none";
 
-    //DUEL STUFF
-    let rewardOptions = document.getElementsByClassName("new-minigame-reward-option");
-    if (Object.hasOwn(data, "bet")){
-        ServerDuelBet = data.bet;
-        document.getElementById("minigame-type-title").textContent = "Duel Minigame";
+        document.getElementById("leaderboard").style.display = "none";
+        document.getElementById("turn-counter").style.display = "none";
 
-        //Set rewards
-        for (let i = 0; i < rewardOptions.length; i++){
-            rewardOptions[i].style.display = i < 2 ? "inline-block" : "none";
-        }
-        rewardOptions[0].getElementsByClassName("new-minigame-reward-placement")[0].textContent = "Win";
-        rewardOptions[1].getElementsByClassName("new-minigame-reward-placement")[0].textContent = "Lose";
-        rewardOptions[0].getElementsByClassName("new-minigame-reward-coins")[0].textContent = ServerDuelBet.amount;
-        rewardOptions[1].getElementsByClassName("new-minigame-reward-coins")[0].textContent = -ServerDuelBet.amount;
-        rewardOptions[0].getElementsByTagName("img")[0].setAttribute("src", "resources/textures/" + (ServerDuelBet.type == "coins" ? "squid_coin.svg" : "squid_star.svg"));
-        rewardOptions[1].getElementsByTagName("img")[0].setAttribute("src", "resources/textures/" + (ServerDuelBet.type == "coins" ? "squid_coin.svg" : "squid_star.svg"));
-    }
-    else{
-        ServerDuelBet = false;
-        document.getElementById("minigame-type-title").textContent = "Minigame";
+        document.getElementById("minigame-interactive").style.display = "inline-block";
+        document.getElementById("minigame-waiting").style.display = "none";
+        document.getElementById("minigame-pool-pass-box").style.display = data.lobby.length > 1 ? "initial" : "none";
 
-        //Set rewards
-        if (MinigameData[CurrentMinigame].type == "coin"){
-            for (let i = 0; i < rewardOptions.length; i++){
-                rewardOptions[i].style.display = i == 0 ? "inline-block" : "none";
+        CurrentMinigame = data.minigame;
+        CurrentMinigameLobby = data.lobby;
+        CurrentMinigameSetApartPlayers = data.setApartPlayers;
+
+        UIPanels.connecting.style.display = "none";
+        UIPanels.waitMinigame.style.display = "none";
+        UIPanels.login.style.display = "none";
+        UIPanels.checkin.style.display = "none";
+        UIPanels.minigame.style.display = "initial";
+        
+        for (let i = 0; i < minigamePopupPlayers.length; i++){
+            if (i < data.lobby.length && MinigameData[CurrentMinigame].teams == 0){
+                minigamePopupPlayers[i].style.display = "inline-block";
+                minigamePopupPlayers[i].style.backgroundColor = "";
+                minigamePopupPlayers[i].getElementsByClassName("new-minigame-player-ign")[0].innerHTML = data.lobby[i].ign.split("#", 2).join("<br>#");
+                minigamePopupPlayers[i].getElementsByClassName("new-minigame-player-result-vs")[0].style.display = MinigameData[data.minigame].type == "vs" ? "initial" : "none";
+                minigamePopupPlayers[i].getElementsByClassName("new-minigame-player-result-coop")[0].style.display = MinigameData[data.minigame].type == "coop" ? "initial" : "none";
+                minigamePopupPlayers[i].getElementsByClassName("new-minigame-player-result-coin")[0].style.display = MinigameData[data.minigame].type == "coin" ? "initial" : "none";
+                let ranks = minigamePopupPlayers[i].getElementsByClassName("new-minigame-player-result-vs")[0].children;
+                for (let n = 0; n < ranks.length; n++){
+                    ranks[n].style.display = n < data.lobby.length ? "initial" : "none";
+                }
             }
-            rewardOptions[0].getElementsByClassName("new-minigame-reward-placement")[0].textContent = MinigameData[CurrentMinigame].rewardText;
-            rewardOptions[0].getElementsByClassName("new-minigame-reward-coins")[0].textContent = 1;
-            rewardOptions[0].getElementsByTagName("img")[0].setAttribute("src", "resources/textures/squid_coin.svg");
-        }
-        else if (MinigameData[CurrentMinigame].type == "vs"){
-            const placementText = ["1st", "2nd", "3rd", "4th", "5th", "6th", "7th", "8th"];
-            for (let i = 0; i < rewardOptions.length; i++){
-                if (i < data.lobby.length){
-                    rewardOptions[i].style.display = "inline-block";
-                    rewardOptions[i].getElementsByClassName("new-minigame-reward-placement")[0].textContent = placementText[i];
-                    rewardOptions[i].getElementsByClassName("new-minigame-reward-coins")[0].textContent = MinigameData[CurrentMinigame].rewards[Math.min(i, MinigameData[CurrentMinigame].rewards.length - 1)];
-                    rewardOptions[i].getElementsByTagName("img")[0].setAttribute("src", "resources/textures/squid_coin.svg");
+            else if (i < MinigameData[CurrentMinigame].teams){
+                if (!Object.hasOwn(MinigameData[CurrentMinigame], "setApartPlayers") || MinigameData[CurrentMinigame].setApartPlayers % MinigameData[CurrentMinigame].teams == 0){
+                    //Split the set apart players across the teams
+                    minigamePopupPlayers[i].style.display = "inline-block";
+                    minigamePopupPlayers[i].style.backgroundColor = teamBackgroundColors[i];
+                    let usernameText = "<b><u>" + MinigameData[CurrentMinigame].teamText[i] + "</u></b>";
+                    let setApartSkips = 0;
+                    for (let n = 0; n < data.lobby.length; n++){
+                        if (data.setApartPlayers.includes(n)) setApartSkips++;
+                        else if ((n - setApartSkips) % MinigameData[CurrentMinigame].teams == i){
+                            //Initial part of added text is to NOT add a break for the first player
+                            usernameText += "<br>" + data.lobby[n].ign.split("#", 2).join(" <small>#") + "</small>";
+                        }
+                    }
+                    for (let n = 0; n < data.setApartPlayers.length; n++){
+                        if (n % MinigameData[CurrentMinigame].teams == i) usernameText += "<br><text style=\"color: red;\">" + data.lobby[data.setApartPlayers[n]].ign.split("#", 2).join("</text> <small style=\"color: rgba(255, 0, 0, 0.5);\">#") + "</small>";
+                    }
+                    minigamePopupPlayers[i].getElementsByClassName("new-minigame-player-ign")[0].innerHTML = usernameText;
+                    minigamePopupPlayers[i].getElementsByClassName("new-minigame-player-result-vs")[0].style.display = MinigameData[data.minigame].type == "vs" ? "initial" : "none";
+                    minigamePopupPlayers[i].getElementsByClassName("new-minigame-player-result-coop")[0].style.display = MinigameData[data.minigame].type == "coop" ? "initial" : "none";
+                    minigamePopupPlayers[i].getElementsByClassName("new-minigame-player-result-coin")[0].style.display = MinigameData[data.minigame].type == "coin" ? "initial" : "none";
+                    let ranks = minigamePopupPlayers[i].getElementsByClassName("new-minigame-player-result-vs")[0].children;
+                    for (let n = 0; n < ranks.length; n++){
+                        ranks[n].style.display = n < MinigameData[CurrentMinigame].teams ? "initial" : "none";
+                    }
                 }
                 else{
-                    rewardOptions[i].style.display = "none";
+                    minigamePopupPlayers[i].style.display = "inline-block";
+                    let usernameText = "<b><u>" + MinigameData[CurrentMinigame].teamText[i] + "</u></b>";
+                    //Set apart players are their own team
+                    if (i % MinigameData[CurrentMinigame].teams == 0){
+                        //Set apart players
+                        minigamePopupPlayers[i].style.backgroundColor = throwerBackgroundColor;
+                        for (let n = 0; n < data.setApartPlayers.length; n++){
+                            usernameText += "<br>" + data.lobby[data.setApartPlayers[n]].ign.split("#", 2).join(" <small>#") + "</small>";
+                        }
+                    }
+                    else{
+                        //Normal players
+                        minigamePopupPlayers[i].style.backgroundColor = teamBackgroundColors[i - 1];
+                        let setApartSkips = 0;
+                        for (let n = 0; n < data.lobby.length; n++){
+                            if (data.setApartPlayers.includes(n)) setApartSkips++;
+                            else if ((n - setApartSkips) % (MinigameData[CurrentMinigame].teams - 1) == i - 1){
+                                //Initial part of added text is to NOT add a break for the first player
+                                usernameText += "<br>" + data.lobby[n].ign.split("#", 2).join(" <small>#") + "</small>";
+                            }
+                        }
+                    }
+                    minigamePopupPlayers[i].getElementsByClassName("new-minigame-player-ign")[0].innerHTML = usernameText;
+                    minigamePopupPlayers[i].getElementsByClassName("new-minigame-player-result-vs")[0].style.display = MinigameData[data.minigame].type == "vs" ? "initial" : "none";
+                    minigamePopupPlayers[i].getElementsByClassName("new-minigame-player-result-coop")[0].style.display = MinigameData[data.minigame].type == "coop" ? "initial" : "none";
+                    minigamePopupPlayers[i].getElementsByClassName("new-minigame-player-result-coin")[0].style.display = MinigameData[data.minigame].type == "coin" ? "initial" : "none";
+                    let ranks = minigamePopupPlayers[i].getElementsByClassName("new-minigame-player-result-vs")[0].children;
+                    for (let n = 0; n < ranks.length; n++){
+                        ranks[n].style.display = n < MinigameData[CurrentMinigame].teams ? "initial" : "none";
+                    }
                 }
             }
+            else{
+                minigamePopupPlayers[i].style.display = "none";
+            }
         }
-        else if (MinigameData[CurrentMinigame].type == "coop"){
+
+        minigameNavButtons[1].style.display = data.lobby.length > 1 ? "initial" : "none";
+
+        document.getElementsByClassName("minigame-pool")[0].textContent = "Pool: " + data.pool;
+        document.getElementsByClassName("minigame-pass")[0].textContent = "Pass: " + data.pass;
+
+        document.getElementsByClassName("minigame-title")[0].textContent = MinigameData[data.minigame].title;
+        
+        let descrip = MinigameData[data.minigame].description;
+        for (let i = 0; i < data.setApartPlayers.length; i++){
+            descrip = descrip.replace("{Player}", data.lobby[data.setApartPlayers[i]].ign);
+        }
+        document.getElementById("new-minigame-description").innerHTML = descrip;
+
+        //DUEL STUFF
+        let rewardOptions = document.getElementsByClassName("new-minigame-reward-option");
+        if (Object.hasOwn(data, "bet")){
+            ServerDuelBet = data.bet;
+            document.getElementById("minigame-type-title").textContent = "Duel Minigame";
+
+            //Set rewards
             for (let i = 0; i < rewardOptions.length; i++){
                 rewardOptions[i].style.display = i < 2 ? "inline-block" : "none";
             }
             rewardOptions[0].getElementsByClassName("new-minigame-reward-placement")[0].textContent = "Win";
             rewardOptions[1].getElementsByClassName("new-minigame-reward-placement")[0].textContent = "Lose";
-            rewardOptions[0].getElementsByClassName("new-minigame-reward-coins")[0].textContent = MinigameData[CurrentMinigame].rewards[0];
-            rewardOptions[1].getElementsByClassName("new-minigame-reward-coins")[0].textContent = MinigameData[CurrentMinigame].rewards[1];
-            rewardOptions[0].getElementsByTagName("img")[0].setAttribute("src", "resources/textures/squid_coin.svg");
-            rewardOptions[1].getElementsByTagName("img")[0].setAttribute("src", "resources/textures/squid_coin.svg");
-        }
-    }
-
-    //Chat Stuff
-    document.getElementById("new-minigame-chat").innerHTML = "";
-    minigameChatNotification.style.display = "none";
-    MinigameChatHistory = data.chatHistory;
-    for (let i = 0; i < MinigameChatHistory.length; i++){
-        if (MinigameChatHistory[i].sender == "SERVER"){
-            let p = document.createElement("p");
-            p.innerHTML = "<b style=\"color:rgba(255,255,255,0.75);\">" + ServerMessages[MinigameChatHistory[i].message].replace("{subject}", MinigameChatHistory[i].subject.split("#")[0]) + "</b>";
-            document.getElementById("new-minigame-chat").appendChild(p);
-
-            if (MinigameChatHistory[i].message == "submit"){
-                minigameSubmitButton.disabled = MinigameChatHistory[i].subject == COOKIES["ign"];
-                minigameSubmitButton.textContent = MinigameChatHistory[i].subject == COOKIES["ign"] ? "Submitted" : "Submit Results";
-            }
-            else if (MinigameChatHistory[i].message == "confirm"){
-                document.getElementById("wait-minigame-map").style.display = "initial";
-
-                minigameSubmitButton.disabled = true;
-                minigameSubmitButton.textContent = "Score Locked";
-                
-                document.getElementById("minigame-interactive").style.display = "none";
-                document.getElementById("minigame-waiting").style.display = "initial";
-
-                //Waiting screen podiums
-                let podiums = document.getElementsByClassName("minigame-podium");
-                let maxReward = 0;
-                for (let j = 0; j < MinigameChatHistory[i].result.length; j++){
-                    if (ServerDuelBet){
-                        maxReward = Math.max(maxReward, MinigameChatHistory[i].result[j] == 0 ? ServerDuelBet.amount * 2 : 0);
-                    }
-                    else if (MinigameData[CurrentMinigame].type == "coin"){
-                        maxReward = Math.max(maxReward, Math.floor(MinigameData[CurrentMinigame].rewards * MinigameChatHistory[i].result[j]));
-                    }
-                    else{
-                        maxReward = Math.max(maxReward, MinigameData[CurrentMinigame].rewards[MinigameChatHistory[i].result[j]]);
-                    }
-                }
-                for (let j = 0; j < podiums.length; j++){
-                    if (j < MinigameChatHistory[i].result.length){
-                        podiums[j].style.display = "inline-block";
-                        if (ServerDuelBet){
-                            let tie = MinigameChatHistory[i].result[0] == MinigameChatHistory[i].result[1];
-                            podiums[j].children[0].style.height = tie ? "55px" : lerp(20, 90, (MinigameChatHistory[i].result[j] == 0 ? ServerDuelBet.amount * 2 : 0) / maxReward) + "px";
-                            podiums[j].children[0].children[1].children[0].textContent = tie ? "0" : (MinigameChatHistory[i].result[j] == 0 ? "+" + ServerDuelBet.amount : -ServerDuelBet.amount);
-                            podiums[j].getElementsByClassName("minigame-podium-coins-image")[0].setAttribute("src", ServerDuelBet.type == "stars" ? "resources/textures/squid_star.svg" : "resources/textures/squid_coin.svg");
-                        }
-                        else if (MinigameData[CurrentMinigame].type == "coin"){
-                            podiums[j].children[0].style.height = lerp(20, 90, Math.floor(MinigameData[CurrentMinigame].rewards * MinigameChatHistory[i].result[j]) / maxReward) + "px";
-                            podiums[j].children[0].children[1].children[0].textContent = "+" + Math.floor(MinigameData[CurrentMinigame].rewards * MinigameChatHistory[i].result[j]);
-                            podiums[j].getElementsByClassName("minigame-podium-coins-image")[0].setAttribute("src", "resources/textures/squid_coin.svg");
-                        }
-                        else{
-                            podiums[j].children[0].style.height = lerp(20, 90, MinigameData[CurrentMinigame].rewards[MinigameChatHistory[i].result[j]] / maxReward) + "px";
-                            podiums[j].children[0].children[1].children[0].textContent = "+" + MinigameData[CurrentMinigame].rewards[MinigameChatHistory[i].result[j]];
-                            podiums[j].getElementsByClassName("minigame-podium-coins-image")[0].setAttribute("src", "resources/textures/squid_coin.svg");
-                        }
-                        podiums[j].children[0].children[0].setAttribute("src", PlayerAvatars[stringToIndex(CurrentMinigameLobby[j].ign) % PlayerAvatars.length]);
-                        podiums[j].children[0].children[2].textContent = CurrentMinigameLobby[j].ign.split("#")[0];
-                    }
-                    else{
-                        podiums[j].style.display = "none";
-                    }
-                }
-            }
+            rewardOptions[0].getElementsByClassName("new-minigame-reward-coins")[0].textContent = ServerDuelBet.amount;
+            rewardOptions[1].getElementsByClassName("new-minigame-reward-coins")[0].textContent = -ServerDuelBet.amount;
+            rewardOptions[0].getElementsByTagName("img")[0].setAttribute("src", "resources/textures/" + (ServerDuelBet.type == "coins" ? "squid_coin.svg" : "squid_star.svg"));
+            rewardOptions[1].getElementsByTagName("img")[0].setAttribute("src", "resources/textures/" + (ServerDuelBet.type == "coins" ? "squid_coin.svg" : "squid_star.svg"));
         }
         else{
-            let p = document.createElement("p");
-            p.innerHTML = "<b>" + MinigameChatHistory[i].sender.split("#")[0] + ": </b>" + MinigameChatHistory[i].message;
-            document.getElementById("new-minigame-chat").appendChild(p);
+            ServerDuelBet = false;
+            document.getElementById("minigame-type-title").textContent = "Minigame";
+
+            //Set rewards
+            if (MinigameData[CurrentMinigame].type == "coin"){
+                for (let i = 0; i < rewardOptions.length; i++){
+                    rewardOptions[i].style.display = i == 0 ? "inline-block" : "none";
+                }
+                rewardOptions[0].getElementsByClassName("new-minigame-reward-placement")[0].textContent = MinigameData[CurrentMinigame].rewardText;
+                rewardOptions[0].getElementsByClassName("new-minigame-reward-coins")[0].textContent = 1;
+                rewardOptions[0].getElementsByTagName("img")[0].setAttribute("src", "resources/textures/squid_coin.svg");
+            }
+            else if (MinigameData[CurrentMinigame].type == "vs"){
+                const placementText = ["1st", "2nd", "3rd", "4th", "5th", "6th", "7th", "8th"];
+                for (let i = 0; i < rewardOptions.length; i++){
+                    if (i < data.lobby.length){
+                        rewardOptions[i].style.display = "inline-block";
+                        rewardOptions[i].getElementsByClassName("new-minigame-reward-placement")[0].textContent = placementText[i];
+                        rewardOptions[i].getElementsByClassName("new-minigame-reward-coins")[0].textContent = MinigameData[CurrentMinigame].rewards[Math.min(i, MinigameData[CurrentMinigame].rewards.length - 1)];
+                        rewardOptions[i].getElementsByTagName("img")[0].setAttribute("src", "resources/textures/squid_coin.svg");
+                    }
+                    else{
+                        rewardOptions[i].style.display = "none";
+                    }
+                }
+            }
+            else if (MinigameData[CurrentMinigame].type == "coop"){
+                for (let i = 0; i < rewardOptions.length; i++){
+                    rewardOptions[i].style.display = i < 2 ? "inline-block" : "none";
+                }
+                rewardOptions[0].getElementsByClassName("new-minigame-reward-placement")[0].textContent = "Win";
+                rewardOptions[1].getElementsByClassName("new-minigame-reward-placement")[0].textContent = "Lose";
+                rewardOptions[0].getElementsByClassName("new-minigame-reward-coins")[0].textContent = MinigameData[CurrentMinigame].rewards[0];
+                rewardOptions[1].getElementsByClassName("new-minigame-reward-coins")[0].textContent = MinigameData[CurrentMinigame].rewards[1];
+                rewardOptions[0].getElementsByTagName("img")[0].setAttribute("src", "resources/textures/squid_coin.svg");
+                rewardOptions[1].getElementsByTagName("img")[0].setAttribute("src", "resources/textures/squid_coin.svg");
+            }
+        }
+
+        //Chat Stuff
+        document.getElementById("new-minigame-chat").innerHTML = "";
+        minigameChatNotification.style.display = "none";
+        MinigameChatHistory = data.chatHistory;
+        for (let i = 0; i < MinigameChatHistory.length; i++){
+            if (MinigameChatHistory[i].sender == "SERVER"){
+                let p = document.createElement("p");
+                if (Object.hasOwn(MinigameChatHistory[i], "subject")){
+                    p.innerHTML = "<b style=\"color:rgba(255,255,255,0.75);\">" + ServerMessages[MinigameChatHistory[i].message].replace("{subject}", MinigameChatHistory[i].subject.split("#")[0]) + "</b>";
+                }
+                else{
+                    p.innerHTML = "<b style=\"color:rgba(255,255,255,0.75);\">" + ServerMessages[MinigameChatHistory[i].message] + "</b>";
+                }
+                document.getElementById("new-minigame-chat").appendChild(p);
+
+                if (MinigameChatHistory[i].message == "submit"){
+                    minigameSubmitButton.disabled = MinigameChatHistory[i].subject == COOKIES["ign"];
+                    minigameSubmitButton.textContent = MinigameChatHistory[i].subject == COOKIES["ign"] ? "Submitted" : "Submit Results";
+                }
+                else if (MinigameChatHistory[i].message == "confirm"){
+                    document.getElementById("wait-minigame-map").style.display = "initial";
+
+                    minigameSubmitButton.disabled = true;
+                    minigameSubmitButton.textContent = "Score Locked";
+                    
+                    document.getElementById("minigame-interactive").style.display = "none";
+                    document.getElementById("minigame-waiting").style.display = "initial";
+
+                    //Waiting screen podiums
+                    let podiums = document.getElementsByClassName("minigame-podium");
+                    let maxReward = 0;
+                    for (let j = 0; j < MinigameChatHistory[i].result.length; j++){
+                        if (ServerDuelBet){
+                            maxReward = Math.max(maxReward, MinigameChatHistory[i].result[j] == 0 ? ServerDuelBet.amount * 2 : 0);
+                        }
+                        else if (MinigameData[CurrentMinigame].type == "coin"){
+                            maxReward = Math.max(maxReward, Math.floor(MinigameData[CurrentMinigame].rewards * MinigameChatHistory[i].result[j]));
+                        }
+                        else{
+                            maxReward = Math.max(maxReward, MinigameData[CurrentMinigame].rewards[MinigameChatHistory[i].result[j]]);
+                        }
+                    }
+                    for (let j = 0; j < podiums.length; j++){
+                        if (j < MinigameChatHistory[i].result.length){
+                            podiums[j].style.display = "inline-block";
+                            if (ServerDuelBet){
+                                let tie = MinigameChatHistory[i].result[0] == MinigameChatHistory[i].result[1];
+                                podiums[j].children[0].style.height = tie ? "55px" : lerp(20, 90, (MinigameChatHistory[i].result[j] == 0 ? ServerDuelBet.amount * 2 : 0) / maxReward) + "px";
+                                podiums[j].children[0].children[1].children[0].textContent = tie ? "0" : (MinigameChatHistory[i].result[j] == 0 ? "+" + ServerDuelBet.amount : -ServerDuelBet.amount);
+                                podiums[j].getElementsByClassName("minigame-podium-coins-image")[0].setAttribute("src", ServerDuelBet.type == "stars" ? "resources/textures/squid_star.svg" : "resources/textures/squid_coin.svg");
+                            }
+                            else if (MinigameData[CurrentMinigame].type == "coin"){
+                                podiums[j].children[0].style.height = lerp(20, 90, Math.floor(MinigameData[CurrentMinigame].rewards * MinigameChatHistory[i].result[j]) / maxReward) + "px";
+                                podiums[j].children[0].children[1].children[0].textContent = "+" + Math.floor(MinigameData[CurrentMinigame].rewards * MinigameChatHistory[i].result[j]);
+                                podiums[j].getElementsByClassName("minigame-podium-coins-image")[0].setAttribute("src", "resources/textures/squid_coin.svg");
+                            }
+                            else{
+                                podiums[j].children[0].style.height = lerp(20, 90, MinigameData[CurrentMinigame].rewards[MinigameChatHistory[i].result[j]] / maxReward) + "px";
+                                podiums[j].children[0].children[1].children[0].textContent = "+" + MinigameData[CurrentMinigame].rewards[MinigameChatHistory[i].result[j]];
+                                podiums[j].getElementsByClassName("minigame-podium-coins-image")[0].setAttribute("src", "resources/textures/squid_coin.svg");
+                            }
+                            podiums[j].children[0].children[0].setAttribute("src", PlayerAvatars[stringToIndex(CurrentMinigameLobby[j].ign) % PlayerAvatars.length]);
+                            podiums[j].children[0].children[2].textContent = CurrentMinigameLobby[j].ign.split("#")[0];
+                        }
+                        else{
+                            podiums[j].style.display = "none";
+                        }
+                    }
+                }
+            }
+            else{
+                let p = document.createElement("p");
+                p.innerHTML = "<b>" + MinigameChatHistory[i].sender.split("#")[0] + ": </b>" + MinigameChatHistory[i].message;
+                document.getElementById("new-minigame-chat").appendChild(p);
+            }
+        }
+        MinigameChatElement.scrollTop = MinigameChatElement.scrollHeight - MinigameChatElement.clientHeight;
+    }
+    else{
+        if (Object.hasOwn(data, "checkedIn")) checkedIn = data.checkedIn;
+
+        document.getElementsByClassName("roll-display")[0].style.transform = "scale(0)";
+        document.getElementsByClassName("custom-dice-input")[0].style.display = "none";
+        document.getElementsByClassName("roll-inputs")[0].style.display = "none";
+        document.getElementsByClassName("move-undo-button")[0].style.display = "none";
+        document.getElementsByClassName("move-end-turn-button")[0].style.display = "none";
+        document.getElementsByClassName("player-inputs")[0].style.display = "none";
+        document.getElementsByClassName("board-inputs")[0].style.display = "none";
+        document.getElementsByClassName("item-menu")[0].style.display = "none";
+        document.getElementsByClassName("item-toss-menu")[0].style.display = "none";
+
+        for (const [key, value] of Object.entries(UIPanels)) value.style.display = "none";
+
+        if (checkedIn){
+            UIPanels.waitTurn.style.display = "initial";
+        }
+        else if (SignedIn){
+            UIPanels.checkin.style.display = "initial";
+            UIState = "menu";
+            UIPanels.checkin.children[0].children[2].textContent = "You missed your turn and have been removed from the game.";
+            document.getElementById("checkinbtn").disabled = false;
+            document.getElementById("checkinbtn").textContent = "Join Back";
+        }
+        else{
+            UIPanels.login.style.display = "initial";
+            UIState = "menu";
         }
     }
-    MinigameChatElement.scrollTop = MinigameChatElement.scrollHeight - MinigameChatElement.clientHeight;
 }
 
 var checkedIn = false;
@@ -4053,7 +4733,7 @@ function sign_in_server(data){
 
         Player.material.map = PlayerAvatarsTex[stringToIndex(COOKIES["ign"]) % PlayerAvatarsTex.length];
 
-        UIPanels.checkin.children[0].children[0].textContent = "Tournament starts " + new Date(data.startTime * 1000).toLocaleString("en-CA", { weekday: "short", month: "short", day: "numeric", hour: "numeric", minute: "numeric", timeZoneName: "short" });
+        UIPanels.checkin.children[0].children[0].textContent = "Game starts " + new Date(data.startTime * 1000).toLocaleString("en-US", { weekday: "short", month: "short", day: "numeric", hour: "numeric", minute: "numeric", timeZoneName: "short" });
         UIPanels.connecting.style.display = "none";
         UIPanels.checkin.style.display = "initial";
 
@@ -4063,6 +4743,7 @@ function sign_in_server(data){
         SignedIn = false;
         UIPanels.login.style.display = "initial";
         UIPanels.connecting.style.display = "none";
+        document.getElementById("login-error-message").innerHTML = "There was a problem signing up / logging in";
     }
 
     ServerStatus = "null";
@@ -4076,10 +4757,56 @@ function registerTimeout(discord, ign, i){
     Socket.send(JSON.stringify({ method: "register", discord: discord, ign: ign }));
     RegisterServerTimeout = setTimeout(() => {registerTimeout(discord, ign, i+1);}, 3000);
 }
-function loginSubmit(){
+function loginSubmit(loginType){
     if (Socket.readyState == Socket.OPEN || true){
-        let discord = document.getElementById("login_discord_input").value;
-        let ign = document.getElementById("login_ign_input").value;
+        let discord, ign;
+        if (loginType == "normal"){
+            discord = document.getElementById("login_discord_input").value;
+            ign = document.getElementById("login_ign_input").value;
+        }
+        else if (loginType == "sendou"){
+            let sendouURL = document.getElementById("login_sendou_input").value;
+
+            if (sendouURL == null || sendouURL == ""){
+                //Blank error
+                document.getElementById("login-error-message").innerHTML = "Please fill out all fields";
+                return;
+            }
+            if (!sendouURL.includes("sendou.ink/u/")){
+                //Not a sendou url
+                //Check if it's a profile id
+                sendouURL = "https://sendou.ink/u/" + sendouURL;
+            }
+            if (!sendouURL.includes("https://")){
+                sendouURL = "https://" + sendouURL;
+            }
+            if (sendouURL.includes("www.sendou.ink")){
+                sendouURL.replace("www.sendou.ink", "sendou.ink");
+            }
+
+            let request = new XMLHttpRequest();
+            request.open("GET", "https://corsproxy.io/?url=" + sendouURL, false);
+            request.send(null);
+
+            if (request.status === 200){
+                let xml = new DOMParser().parseFromString(request.responseText, "text/html").body;
+                let scripts = xml.getElementsByTagName("script");
+                let data = scripts[scripts.length - 2].textContent.replace("window.__remixContext = ", "");
+                data = JSON.parse(data.slice(0, data.length - 1));
+                ign = data.state.loaderData["features/user-page/routes/u.$identifier.index"].user.inGameName;
+                discord = data.state.loaderData["features/user-page/routes/u.$identifier.index"].user.discordUniqueName;
+                
+                if (ign == null || discord == null){
+                    document.getElementById("login-error-message").innerHTML = "Cannot sign up with sendou profile.<br>Please sign up with discord and username instead.";
+                    return;
+                }
+            }
+            else{
+                //Failed to get profile error
+                document.getElementById("login-error-message").innerHTML = "Sendou profile does not exist";
+                return;
+            }
+        }
 
         if (discord.length == 0 || ign.length == 0){
             document.getElementById("login-error-message").innerHTML = "Please fill out all fields";
@@ -4103,28 +4830,38 @@ function loginSubmit(){
         UIPanels.connecting.style.display = "initial";
     }
 }
-/*document.getElementById("loginbtn").onclick = function(e){
-    loginSubmit();
-};*/
 document.getElementById("login-form").onsubmit = function(e){
-    loginSubmit();
+    e.preventDefault();
+    loginSubmit("normal");
     return false;
+};
+document.getElementById("login-sendou-form").onsubmit = function(e){
+    e.preventDefault();
+    loginSubmit("sendou");
+    return false;
+};
+document.getElementsByClassName("login-form-swap")[0].onclick = function(e){
+    document.getElementById("login-form").style.display = "none";
+    document.getElementById("login-sendou-form").style.display = "initial";
+};
+document.getElementsByClassName("login-form-swap")[1].onclick = function(e){
+    document.getElementById("login-form").style.display = "initial";
+    document.getElementById("login-sendou-form").style.display = "none";
 };
 function register_server(data){
     clearTimeout(RegisterServerTimeout);
     if (data.success){
         TOKEN = data.token;
-        //TODO!!! Change back to 1 day after start time
-        //saveCookies(new Date(data.startTime * 1000 + 86400000));//1 day after start time
-        saveCookies(new Date(data.startTime * 1000 + 86400000000));
+        saveCookies(new Date(data.startTime * 1000 + 86400000));//1 day after start time
         
         signInTimeout(0);
     }
     else{
         //ERROR POP UP
         //PLEASE CONTACT A MOD
-        //Maybe do a better implementation later
-        alert("Error: Could not register player. Please leave a message in the tournament helpdesk for assistance.");
+        UIPanels.connecting.style.display = "none";
+        UIPanels.login.style.display = "initial";
+        document.getElementById("login-error-message").innerHTML = "Could not sign up player,<br>please put a message in help-desk in the discord."
     }
 }
 
@@ -4132,9 +4869,25 @@ var CheckInServerTimeout;
 function check_in_server(data){
     clearTimeout(CheckInServerTimeout);
     if (data.success){
+        checkedIn = true;
         document.getElementById("checkinbtn").disabled = true;
         document.getElementById("checkinbtn").textContent = "Checked-In";
         UIPanels.checkin.children[0].children[2].textContent = "You are checked-in!";
+
+        if (ServerStatus == "TURN"){
+            turnStep = "menu";
+            UIState = "player";
+
+            UIPanels.checkin.style.display = "none";
+            
+            ServerStatus = "NULL";
+            getStatusTimeout(0);
+        }
+        else if (ServerStatus == "MINIGAME"){
+            UIPanels.checkin.style.display = "none";
+            UIPanels.connecting.style.display = "initial";
+            getLobbyTimeout(0);
+        }
     }
 }
 document.getElementById("checkinbtn").onclick = function(e){
@@ -4165,7 +4918,7 @@ function get_player_data_server(data){
         }
         else if (data.data.stars > PlayerData.stars){
             PlayerData.stars = data.data.stars;
-            TriggerStarGetAnimation(false);
+            TriggerStarGetAnimation(false, data.data.stars - PlayerData.stars);
         }
         else TriggerCoinSpaceAnimation(data.data.coins - PlayerData.coins);
     }
@@ -4189,6 +4942,7 @@ var minigameChatNotification = document.getElementsByClassName("new-minigame-cha
 var ServerMessages = {
     submit: "{subject} has reported the score. Waiting for a second player to confirm the score.",
     confirm: "{subject} has locked in the score.",
+    warnStart: "Start playing your minigame NOW to finish it in time.",
     warn3min: "There are 3 minutes left to submit the results for your minigame.",
     warn1min: "There is 1 minute left to submit the results for your minigame."
 };
@@ -4198,7 +4952,12 @@ function send_message_server(data){
 
     if (data.data.sender == "SERVER"){
         let p = document.createElement("p");
-        p.innerHTML = "<b style=\"color:rgba(255,255,255,0.75);\">" + ServerMessages[data.data.message].replace("{subject}", data.data.subject.split("#")[0]) + "</b>";
+        if (Object.hasOwn(data.data, "subject")){
+            p.innerHTML = "<b style=\"color:rgba(255,255,255,0.75);\">" + ServerMessages[data.data.message].replace("{subject}", data.data.subject.split("#")[0]) + "</b>";
+        }
+        else{
+            p.innerHTML = "<b style=\"color:rgba(255,255,255,0.75);\">" + ServerMessages[data.data.message] + "</b>";
+        }
         document.getElementById("new-minigame-chat").appendChild(p);
 
         if (data.data.message == "submit"){
@@ -4310,7 +5069,9 @@ function disconnectError(){
     alert("Could not connect to server! Check your internet and refresh the page.");
 }
 
+var confettiRunning = false;
 function StartConfetti(){
+    confettiRunning = true;
     const confettiWrapper = document.querySelector('.confetti-wrapper');
     // Generate confetti
     for (let i = 0; i < 50; i++) {
@@ -4346,5 +5107,5 @@ for (let i = 0; i < debugSet.length; i++){
 }
 
 
-//Backburner TODO list (Stuff that doesn't matter till after testing)
 //TODO!!! Low quality version of webpage (no animations, no lighting, no filters)
+//Will have to see if anyone complains about performance

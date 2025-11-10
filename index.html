@@ -95,7 +95,12 @@
                 </div>
             </div>
             <div class="player-inputs" style="display: none;">
-                <button id="roll-button" class="turn-button">Roll</button>
+                <button id="roll-button" class="turn-button">
+                    Roll
+                    <div id="roll-button-item-preview" style="display: none;">
+                        <img class="used-item" src="resources/textures/customdice.png" width="48px">
+                    </div>
+                </button>
                 <button id="items-button" class="turn-button">Items</button>
                 <button id="map-button" class="turn-button">Map</button>
             </div>
@@ -196,17 +201,41 @@
                     </div>
                 </div>
 
+                <div id="star-2-preview" class="map-shop" style="display: none;">
+                    <h2>Star Preview</h2>
+                    <div class="map-shop-item">
+                        <img class="map-shop-item-image" src="resources/textures/squid_star.svg">
+                        <h3 class="map-shop-price">20 <img src="resources/textures/squid_coin.svg" width="18px" height="18px"></h3>
+                    </div>
+                    <div class="map-shop-item">
+                        <img class="map-shop-item-image" src="resources/textures/2_squid_stars.svg">
+                        <h3 class="map-shop-price">40 <img src="resources/textures/squid_coin.svg" width="18px" height="18px"></h3>
+                    </div>
+                </div>
+
                 <div id="duel-preview" class="map-shop" style="display: none;">
                     <h2>Duel</h2>
-                    <p style="padding: 20px; padding-top: 0;">Bet your coins or stars to duel another player.</p>
+                    <p>Bet your coins or stars to duel another player.</p>
+                    <div class="map-shop-item">
+                        <img class="map-shop-item-image" src="resources/textures/10coin_ui.svg">
+                    </div>
+                    <div class="map-shop-item">
+                        <img class="map-shop-item-image" src="resources/textures/allcoin_ui.svg">
+                    </div>
+                    <div class="map-shop-item">
+                        <img class="map-shop-item-image" src="resources/textures/small_squid_star.svg">
+                    </div>
                 </div>
 
                 <h2 class="map-distance-text">9 Away</h2>
                 <button class="map-back-button">Back</button>
             </div>
             <div id="turn-counter" style="display: none;">
-                <h3 style="color: black; display: block; font-size: 1em; text-align: center; width: calc(100% - 30px); float: left; opacity: 50%;">Turn</h3>
-                <h2 id="turn-counter-text">1/10</h2>
+                <div style="position: relative; width: 100%; height: 100%;">
+                    <h3 style="color: black; display: block; font-size: 1em; text-align: center; width: calc(100% - 30px); float: left; opacity: 50%;">Turn</h3>
+                    <h2 id="turn-counter-text">1/10</h2><br>
+                    <span class="turn-timer-text">Turn End: <b id="turn-timer">00:00 PM</b></span>
+                </div>
             </div>
             <div id="wait-minigame-map" style="display: none;">
                 <button class="board-map-button turn-button">Map</button>
@@ -216,6 +245,22 @@
             <button class="help-button" style="display: initial"></button>
         </div>
         <div class="popups">
+            <div id="disconnected" class="popup" style="display: none">
+                <div class="popup-inset">
+                    <h1 id="disconnect-reason">Disconnected</h1><br>
+                    <p id="disconnect-reason-1" style="color: white; display: none;"><b>Please check your internet connection then refresh.</b></p>
+                    <p id="disconnect-reason-2" style="color: white; display: none;"><b>
+                        Check the Discord if there is an upcoming game.<br>
+                        If there is an upcoming game, check your internet connection and try again.
+                    </b></p>
+                    <br><br>
+                    <a href="https://discord.gg/QwcTkfusVN" style="padding-left: 0px; line-height: 35px; color:white;">
+                        <img src="resources/textures/discord-icon.png" width="20px" height="20px" style="transform: translateY(5px);">
+                        Discord Link
+                    </a>
+                </div>
+            </div>
+            
             <div id="connecting" class="popup" style="display: initial;">
                 <div class="popup-inset">
                     <h1>Please Wait</h1><br>
@@ -225,14 +270,21 @@
 
             <div id="login" class="popup" style="display: none;">
                 <div class="popup-inset">
-                    <form id="login-form">
-                        <h1>Sign Up / Login</h1><br><br>
-                        <h4 id="login-error-message" style="color: red; filter: drop-shadow(0 0 0.25rem black);"></h4>
+                    <h1>Sign Up / Login</h1><br>
+                    <h4 id="login-error-message" style="color: red; filter: drop-shadow(0 0 0.25rem black);"></h4><br>
+                    <form id="login-form" style="display: initial;">
                         <h3>Discord Username</h3>
-                        <input id="login_discord_input" type="text" placeholder="e.g. username12"><br>
+                        <input id="login_discord_input" type="text" placeholder="example123"><br>
                         <h3>Splatoon Name</h3>
-                        <input id="login_ign_input" type="text" placeholder="e.g. Username#1234"><br><br>
-                        <button id="loginbtn">Submit</button>
+                        <input id="login_ign_input" type="text" placeholder="Example#1234"><br><br>
+                        <button id="loginbtn">Submit</button><br><br>
+                        <a class="login-form-swap" style="color: white; text-decoration: underline; cursor: pointer;">Sign up with <b>sendou.ink</b> instead</a>
+                    </form>
+                    <form id="login-sendou-form" style="display: none;">
+                        <h3>Sendou Profile or ID</h3>
+                        <input id="login_sendou_input" type="text" placeholder="sendou.ink/u/example"><br><br>
+                        <button id="loginsendoubtn">Submit</button><br><br>
+                        <a class="login-form-swap" style="color: white; text-decoration: underline; cursor: pointer;">Sign up with <b>Discord</b> & <b>Username</b> instead</a>
                     </form>
                 </div>
             </div>
@@ -248,6 +300,12 @@
             <div id="waiting-minigame" class="popup" style="display: none;">
                 <div class="popup-inset">
                     <h2>Waiting on other players to finish their turn...</h2>
+                </div>
+            </div>
+
+            <div id="waiting-turn" class="popup" style="display: none;">
+                <div class="popup-inset">
+                    <h2>Waiting for minigame to finish...</h2>
                 </div>
             </div>
 
@@ -492,12 +550,17 @@
                                         </div>
                                     </div>
                                     <div id="new-minigame-description">
+                                        This is a duel minigame. A player has waged their coins or star to initiate a duel. The winner of the duel gains a reward from the loser.<br><br>
+                                        This minigame is played in a <b>Private Salmon Run</b> Lobby. Set the <b>Hazard Level to 200%</b>. The host can pick their favorite map to play on. Make sure all players select \"<b>?</b>\" as their weapon (This is the default option).<br><br>
+                                        Both players are competing to be the last squid standing. Whoever dies first loses the duel. In the case where the shift is failed before either player dies or it is unclear who died first, it is a tie.<br><br>
+                                        When submitting results, enter <b>Win</b> by the player who died last and enter <b>Lose</b> by the player who died first. In the case of a tie, enter either <b>Win</b> or <b>Lose</b> for both players.
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
                     <div id="minigame-waiting" style="display: none;">
+                        <br>
                         <h2>Minigame Results</h2><br>
                         <div class="minigame-podium-display">
                             <div class="minigame-podium">
@@ -559,6 +622,10 @@
                         </div><br>
                         <h3>Waiting for other lobbies to finish...</h3>
                     </div>
+                    <div class="new-minigame-timer-text">
+                        Start Time: <b id="minigame-start-time">2:00 PM</b><br>
+                        End Time: <b id="minigame-end-time">2:12 PM</b>
+                    </div>
                 </div>
             </div>
 
@@ -568,6 +635,72 @@
                     <p style="color: white;">Would you like to use a <b>Skeleton Key</b> to open it?</p><br>
                     <button id="key-door-yes-button">Yes</button>
                     <button id="key-door-no-button">No</button>
+                </div>
+            </div>
+
+            <div id="tutorial" class="popup-bottom" style="display: none;">
+                <div class="popup-inset-bottom">
+                    <!--Look at player-->
+                    <div class="tutorial-text" style="display: initial;">
+                        Is this your first time playing?
+                        <br><br>
+                        <button class="tutorial-next-button">Yes</button><button class="tutorial-cancel-button">No</button>
+                    </div>
+                    <!--Orbit the board-->
+                    <div class="tutorial-text" style="display: none;">
+                        <h4 style="font-size: 1.25em;">Welcome to Mega Splat Party, the Splatoon party game!</h4>
+                        This game is played across both this website and Splatoon 3.<br>
+                        This tutorial will teach you how to play on this website.
+                        <br><br>
+                        <button class="tutorial-next-button">Continue</button>
+                    </div>
+                    <!--Look at star spaces-->
+                    <div class="tutorial-text" style="display: none;">
+                        To win Mega Splat Party you need to have the most Stars
+                        <img class="tutorial-text-image" src="resources/textures/squid_star.svg">
+                        by the end of the game.<br>
+                        You can get Stars
+                        <img class="tutorial-text-image" src="resources/textures/squid_star.svg">
+                        by buying them on these spaces for 20 Coins
+                        <img class="tutorial-text-image" src="resources/textures/squid_coin.svg">
+                        <br><br>
+                        <button class="tutorial-next-button">Continue</button>
+                    </div>
+                    <!--Look at player-->
+                    <div class="tutorial-text" style="display: none;">
+                        You can get Coins
+                        <img class="tutorial-text-image" src="resources/textures/squid_coin.svg">
+                        in many different ways. The most common is by doing well in the <b>Minigame</b> at the end of each turn.
+                        Some spaces on the board might give you coins too.
+                        <br><br>
+                        <button class="tutorial-next-button">Continue</button>
+                    </div>
+                    <!--Look at shop space-->
+                    <div class="tutorial-text" style="display: none;">
+                        You can also use your Coins
+                        <img class="tutorial-text-image" src="resources/textures/squid_coin.svg">
+                        to purchase powerful <b>Items</b> that will help you get across the board.
+                        Make sure to stop by a <b>Shop</b> and check them out.
+                        <br><br>
+                        <button class="tutorial-next-button">Continue</button>
+                    </div>
+                    <!--Look at player-->
+                    <div class="tutorial-text" style="display: none;">
+                        Speaking of items and coins, why don't I give you 10 Coins
+                        <img class="tutorial-text-image" src="resources/textures/squid_coin.svg">
+                        and a Double Dice to start the game with.
+                        <br><br>
+                        <button class="tutorial-next-button">Continue</button>
+                    </div>
+                    <!--Give Item & Coins Animation-->
+                    <!--Look at Player-->
+                    <div class="tutorial-text" style="display: none;">
+                        If you ever have questions, you can take a look at the <b>Quick Reference Guide</b> anytime by clicking the "<b>?</b>" button in the top right.
+                        You can also ask in the help-desk channel of the discord if you need extra help.
+                        <br><br>
+                        <button class="tutorial-next-button">Start Playing</button>
+                    </div>
+                    <!--Tutorial Over-->
                 </div>
             </div>
 
@@ -649,13 +782,27 @@
                 </div>
             </div>
 
+            <div id="star-2" class="popup star-popup" style="display: none;">
+                <div class="popup-inset">
+                    <h3>You made it to the Star! <img class="coin-shop-image" src="resources/textures/squid_star.svg"><br><br>
+                        You can purchase a star for 20<img class="coin-shop-image" src="resources/textures/squid_coin.svg"><br>
+                        or purchase 2 for 40<img class="coin-shop-image" src="resources/textures/squid_coin.svg">
+                    </h3><br><br>
+                    <div class="popup-shop">
+                        <button class="purchase-1-star-button">1 <img class="coin-shop-image" src="resources/textures/squid_star.svg"></button>
+                        <button class="purchase-2-star-button">2 <img class="coin-shop-image" src="resources/textures/squid_star.svg"></button>
+                        <button class="shop-leave-button" style="font-size: 1.5em">Leave</button>
+                    </div>
+                </div>
+            </div>
+
             <div id="duel" class="popup" style="display: none;">
                 <div id="canduel" class="popup-inset" style="display: inline-block;">
                     <h1>Duel Minigame</h1><br>
                     <p style="color: white;"><b>Landing on this space allows you to duel another player for coins or a star next minigame.</b></p><br>
                     <button class="duel-button" style="background-image: url('resources/textures/10coin_ui.svg');"></button>
                     <button class="duel-button" style="background-image: url('resources/textures/allcoin_ui.svg');"></button>
-                    <button class="duel-button" style="background-image: url('resources/textures/squid_star.svg'); background-size: 80% 80%; background-repeat: no-repeat; background-position: 50% 50%;"></button>
+                    <button class="duel-button" style="background-image: url('resources/textures/squid_star.svg');"></button>
                     <br><br>
                     <button id="duel-leave-button">I don't want to duel</button>
                 </div>
@@ -680,7 +827,7 @@
                 </div>
             </div>
 
-            <div id="results" class="popup" style="display: none;">
+            <div id="results" class="popup" style="opacity: 0; display: none;">
                 <div class="popup-inset">
                     <h1 style="font-size: 3em;">Results</h1><br>
                     <!--Podium-->
@@ -760,6 +907,7 @@
                                 <div class="help-sidebar-subgroup">
                                     <span class="help-sidebar-subgroup-title">Guidelines</span>
                                     <span class="help-sidebar-subgroup-title">Moderation</span>
+                                    <span class="help-sidebar-subgroup-title">Time Limits</span>
                                     <span class="help-sidebar-subgroup-title">Bans</span>
                                     <span class="help-sidebar-subgroup-title">Bug Reporting</span>
                                 </div>
@@ -783,14 +931,16 @@
                                     <span class="help-sidebar-subgroup-title">Warp Pipe</span>
                                     <span class="help-sidebar-subgroup-title">Gold Pipe</span>
                                     <span class="help-sidebar-subgroup-title">Shop-Hop-Box</span>
+                                    <span class="help-sidebar-subgroup-title">Skeleton Key</span>
                                 </div>
                             </div>
                             <div class="help-sidebar-group">
                                 <span class="help-sidebar-group-title">Minigames</span>
                                 <div class="help-sidebar-subgroup">
-                                    <span class="help-sidebar-subgroup-title">Joining a Room</span>
-                                    <span class="help-sidebar-subgroup-title">Results</span>
-                                    <span class="help-sidebar-subgroup-title">Time Limit</span>
+                                    <span class="help-sidebar-subgroup-title">Playing Together</span>
+                                    <span class="help-sidebar-subgroup-title">Submit Results</span>
+                                    <span class="help-sidebar-subgroup-title">Late Players</span>
+                                    <span class="help-sidebar-subgroup-title">Teams</span>
                                 </div>
                             </div>
                             <div class="help-sidebar-group">
@@ -801,6 +951,7 @@
                                     <span class="help-sidebar-subgroup-title">Badge</span>
                                 </div>
                             </div>
+                            <br>
                         </div>
                         <div class="help-info">
                             <!--How to Play-->
@@ -823,34 +974,39 @@
                                     <li>A copy of Splatoon 3 for the Nintendo Switch or Switch 2</li>
                                     <li>An active Nintendo Switch Online (NSO) subscription</li>
                                     <li>Completed story mode (aka Alterna)</li>
+                                    <li>Completed Salmon Run tutorial</li>
                                     <li>Are at least level 10 in game</li>
                                     <li>Have at least 30,000 coins</li>
                                     <li>Have Table Turf unlocked</li>
+                                    <li>Own any goo tuber weapon kit</li>
                                 </ul>
                             </div>
                             <div class="help-subject">
                                 <br><h2>Sign-Up</h2><br>
                                 <p>The sign-up process is quite simple. If sign-ups are open for the next running of Mega Splat Party, the website will proceed to a "Login/Sign-up" page.</p>
                                 <img src="resources/help-images/sign-up-1.png" width="360px">
-                                <p>To sign-up you will need both your <b>discord account</b> name (i.e. astrodwarf) and your <b>Splatoon splashtag</b> name (i.e. AstroDwarf#1234). Your discord account name can be found below your username on your profile.</p>
+                                <p>To sign-up you will need both your <b>unique discord username</b> (i.e. astrodwarf) and your <b>Splatoon splashtag</b> name (i.e. AstroDwarf#1234). Your unique discord username can be found below your username on your profile.</p>
                                 <img src="resources/help-images/sign-up-2.png" width="360px">
                                 <p>Your splatoon splashtag must include the "#" and the 4 or 5 numbers found on the bottom left of your splashtag in game.</p>
                                 <img src="resources/help-images/sign-up-3.png" width="360px">
                             </div>
                             <div class="help-subject">
                                 <br><h2>Check-In</h2><br>
-                                <p>After you have logged-in, a new screen will appear with the start time of the game. From 1 hour before MSP starts up until the start of MSP, on this screen you can check-in for the game. You will be required to be checked-in to participate in Mega Splat Party.</p>
+                                <p>
+                                    After you have logged-in, a new screen will appear with the start time of the game. From 1 hour before MSP starts up until the start of MSP, on this screen you can check-in for the game. You will be required to be checked-in to participate in Mega Splat Party.
+                                    If you don't check-in ahead of time, you can still check-in while the game is running and start playing late.
+                                </p>
                                 <img src="resources/help-images/check-in-1.png" width="360px">
                             </div>
                             <div class="help-subject">
                                 <br><h2>How to Win?</h2><br>
                                 <p>
                                     The goal of Mega Splat Party is to have the most Stars (<img src="resources/textures/squid_star.svg" width="15px" height="15px" style="transform: translateY(2px);">)
-                                    at the end of the game. Stars can be obtained in 2 different ways. The first is reaching the star space and purchasing a star for 20 coins.
+                                    at the end of the game. Stars can be obtained in a few different ways. The first is reaching the <a class="help-subgroup-link" index="13">star space</a> and purchasing a star for 20 coins.
                                 </p>
                                 <img src="resources/help-images/how-to-win-1.png" width="300px">
-                                <p>The second is collecting 5 silver stars on the board.</p>
-                                <img src="resources/help-images/how-to-win-2.png" width="200px">
+                                <p>The second is by winning a duel for a star. Duels are triggered by <a class="help-subgroup-link" index="13">duel spaces.</a></p><br><br>
+                                <p>Lastly, if the gimmick is active, you can collect 5 <a class="help-subgroup-link" index="16">silver stars</a> on the board to get a star.</p><br><br>
                                 <p>
                                     In the event where 2 players are tied by having the same amount of stars, the player with more Coins (<img src="resources/textures/squid_coin.svg" width="15px" height="15px" style="transform: translateY(3px);">)
                                     will win the tie.
@@ -862,35 +1018,34 @@
                                     Your turn consists of rolling your dice and moving on the board. Before you roll your dice, you can use a single item that will affect your turn.
                                     You can read more about them under <a class="help-group-link" index="3">Items</a>.
                                     After rolling, you move on the board. You can move in any direction you want on the board as long as the way is not blocked.
-                                    Depending on the space you landed on, they can have different effects, you can read more about them under <a class="help-subgroup-link" index="12">Spaces</a>.
+                                    Depending on the space you land on, they can have different effects, you can read more about them under <a class="help-subgroup-link" index="13">Spaces</a>.
                                     After you hit the <b>End Turn</b> button, your turn will end and any effects for the space you landed on will trigger. There are some spaces that trigger when you walk over them such as <b>Shops</b> and the <b>Star Space</b>.
-                                    You can also read about them under <a class="help-subgroup-link" index="12">Spaces</a>.
+                                    You can also read about them under <a class="help-subgroup-link" index="13">Spaces</a>.
                                 </p>
                             </div>
                             <div class="help-subject">
                                 <br><h2>Minigames</h2><br>
                                 <p>
                                     After all players have completed their turn, a minigame will begin. Minigames are your oppurtunity to earn coins by beating other players in a challenge.
-                                    <br><br>The Minigame UI has 3 tabs to be aware of. First the <b>Description</b> tab.
+                                    <br><br>The Minigame UI has 3 parts to be aware of. First the <b>Description</b>.
                                 </p>
                                 <img src="resources/help-images/minigames-1.png" width="360px">
                                 <p>
-                                    On this tab you will get an overview of the minigame, any rules you need to be aware of, and any rewards depending on how well you place in the minigame.
+                                    On this tab you will get an overview of the minigame and any rules you need to be aware of.
                                     Many minigames will require you to be in a lobby with the other players, make sure to use the pool and password provided for creating rooms. You can also use the <b>Chat</b> tab to coordinate who will host the room.
-                                    If you need help joining a lobby you can learn more under <a class="help-subgroup-link" index="23">Joining a Room</a>.
-                                    <br><br> The next tab over is the <b>Results</b> tab.
+                                    <br><br> Next is the <b>Results</b> tab.
                                 </p>
-                                <img src="resources/help-images/minigames-2.png" width="360px">
+                                <img src="resources/help-images/minigames-2.png" width="200px">
                                 <p>
-                                    Here you can see all of the players joining you for your minigame. As MSP has no limits on how many people can play, not everyone plays the minigame together like in other similar games.
+                                    Here you can see all of the players joining you for your minigame and the teams they are on if the minigame requires teams. As MSP has no limits on how many people can play, not everyone plays the minigame together like in other similar games.
                                     On this tab you can also report the score of the minigame. If there are 4 or more players in a lobby, 2 players must report the same score to successfully lock it in. Otherwise only 1 player needs to report the score.
-                                    Ordered scores will automatically be adjusted by the server to be ordered correctly as players can sometimes report ties in differnt ways from each other.
-                                    <br><br> The last tab is the <b>Chat</b> tab.
+                                    Ranked scores (e.g. 1st/2nd/3rd) will automatically be adjusted by the server to be ordered correctly as players can sometimes report ties in differnt ways from each other.
+                                    <br><br> Lastly is the <b>Chat</b> tab.
                                 </p>
-                                <img src="resources/help-images/minigames-3.png" width="360px">
+                                <img src="resources/help-images/minigames-3.png" width="200px">
                                 <p>
                                     This tab will not appear if you are playing a minigame by yourself. This tab can be used to communicate scores with each other, coordinate room hosting, or just to say hi to your friend. Some alerts can also be sent from the server here.
-                                    If there is a new message you have not read, a notification icon will appear in the corner of the tab.
+                                    If there is a new message you have not read, a notification icon will appear on the tab.
                                 </p>
                             </div>
                             <div class="help-subject">
@@ -900,7 +1055,7 @@
                                     A leaderboard will also allow you to see how well you and all your friends did. MSP is now over and you can enjoy the rest of your evening.
                                     If you happened to be the winner, you have earned yourself the grand prize of a sendou badge! Your badge will be automatically added to your profile if you have a sendou.ink account, no need to ask for it in the discord server.
                                 </p>
-                                <img src="resources/help-images/badgeapple.gif" width="240px">
+                                <img src="resources/help-images/badgeapple.gif" width="200px">
                                 <p>
                                     If you do not have a sendou.ink account and have now just made one to recieve the badge or you didn't recieve it automatically, send a help-desk request on the discord server.
                                 </p>
@@ -920,9 +1075,8 @@
                                 <ul>
                                     <li>Use of voice calls both public and private are always permitted.</li>
                                     <li>Do not attempt to lose your minigames.</li>
-                                    <li>If a rule doesn't make sense to an entire lobby, the lobby will go with the understanding that is the most fun.</li>
-                                    <li>You have 3 minutes to finish your turn before the game will move on without you.</li>
-                                    <li>You have limited time to submit results for your minigame. You can read more under <a class="help-subgroup-link" index="25">Time Limit</a>.</li>
+                                    <li>If a rule doesn't make sense to an entire minigame lobby, the lobby will go with the understanding that is the most fun.</li>
+                                    <li>Minigames and Turns will move on without you if you take too long. You can read more under <a class="help-subgroup-link" index="10">Time Limit</a>.</li>
                                 </ul>
                             </div>
                             <div class="help-subject" style="display: none;">
@@ -930,6 +1084,29 @@
                                 <p>
                                     MSP has some measures to keep all players safe and for MSP to stay fun. Although for us to moderate MSP, we need you to let us know if there is a problem.
                                     On our discord server, you can send a message in <b>help-desk</b> if you have any concerns or run into a problem.
+                                </p>
+                            </div>
+                            <div class="help-subject" style="display: none;">
+                                <br><h2>Time Limits</h2><br>
+                                <p>
+                                    To keep Mega Splat Party running efficiently, the game will sometimes move on whether you are ready or not. Fear not though, this is not randomly done.
+                                    During your turn, you have 3-4 minutes to complete your turn. The time the server will move on to the minigame is shown on the turn counter.
+                                </p>
+                                <img src="resources/help-images/time-limit-1.png" width="200px">
+                                <p>
+                                    Once that time has been reached, if you have not completed your turn yet, you will be temporarily removed from the game and a minigame will start.
+                                    You can always join back into the game once you have time to play again. If you rejoin, you will begin playing once the current minigame has ended.
+                                </p>
+                                <br><br>
+                                <p>
+                                    Minigames also have a time limit as well. As each minigame can take a different amount of time to play, this amount of time changes depending on the minigame.
+                                    The time limit for the minigame can be seen in the top left of the minigame window.
+                                </p>
+                                <img src="resources/help-images/time-limit-2.png" width="200px">
+                                <p>
+                                    If your lobby has not submitted their results by this time, the entire lobby will not be awarded any coins. If you were in the middle of a duel, the wager will be returned to each player.
+                                    Each minigame's time limit is designed to give you 4 minutes to create and get all players to join a room, enough time to play the game, and 2 minutes to submit results. 
+                                    If after 4 minutes not all players have joined the room, start the minigame without the missing players. Refer to <a class="help-subgroup-link" index="25">Playing Together</a> for instructions on submitting results for missing players.
                                 </p>
                             </div>
                             <div class="help-subject" style="display: none;">
@@ -974,16 +1151,24 @@
 
                                 <br><h3>Shop</h3>
                                 <img src="resources/help-images/shop-space.png" width="80px" style="image-rendering: pixelated;">
-                                <p>Shops are triggered when you walk onto one. When triggered, a shop ui will open allowing you to exchange coins for items.</p>
+                                <p>Shops are triggered when you walk onto one. When triggered, a shop pop-up will open allowing you to exchange coins for items.</p>
+
+                                <br><h3>Duel</h3>
+                                <img src="resources/help-images/duel-space.png" width="80px" style="image-rendering: pixelated;">
+                                <p>Duel Spaces are triggered when you walk onto one. When triggered, a pop-up will open giving you the option to wager your coins OR a star on the next minigame with the winner of that minigame gaining the wager from the other player. A duel can only be triggered once per star purchase.</p>
 
                                 <br><h3>Star</h3>
                                 <img src="resources/help-images/star-space.png" width="80px" style="image-rendering: pixelated;">
-                                <p>Star Spaces are triggered when you walk onto one. When triggered, a ui will open allowing you to purchase a star for 20 coins. If you purchase a star, you will be warped back to the start of the map.</p>
+                                <p>Star Spaces are triggered when you walk onto one. When triggered, a pop-up will open allowing you to purchase a star for 20 coins. If you purchase a star, you will be warped back to the start of the map.</p>
+
+                                <br><h3>2 Stars</h3>
+                                <img src="resources/help-images/2star-space.png" width="80px" style="image-rendering: pixelated;">
+                                <p>2 Star Spaces are trigger when you walk onto one. When triggered, a pop-up will open allowing you to purchase a star for 20 coins OR 2 stars for 40 coins. If you purchase either, you will be warped back to the start of the map.</p>
                             </div>
                             <div class="help-subject" style="display: none;">
                                 <br><h2>Shops</h2><br>
                                 <p>
-                                    Shops are a place to exchange your hard earned coins for powerful items. There are 4 shops on the board. Each one has a differnt stock of items, so be sure to check them all out.
+                                    Shops are a place to exchange your hard earned coins for powerful items. There are 3 shops on the board. Each one has a differnt stock of items, so be sure to check them all out.
                                     Shops will open when you pass over a shop space. When looking at the map, if you hover over a shop, a preview of what the shop sells will appear in the top right corner of the screen.
                                 </p>
                             </div>
@@ -1001,6 +1186,7 @@
                             <div class="help-subject" style="display: none;">
                                 <br><h2>Silver Stars</h2><br>
                                 <p>
+                                    Silver stars are a fun modifier that can be enabled during a game of Mega Splat Party, it is not garunteed to be enabled though. Check the discord's announcements to see if there are any special modifiers enabled for the current game of Mega Splat Party.<br><br>
                                     Silver stars are another way of getting your hands on stars. When you collect 5 silver stars, they will come together to form a star for you.
                                     Every turn 1 silver star is placed randomly on the board. Silver stars will appear in the same location for all players. Some may spawn in impossible to reach locations, to get these you may have to use an item to reach them.
                                 </p>
@@ -1055,42 +1241,115 @@
                                     Shop-Hop-Box is an item that when used will warp you to 1 space away from a random shop on the board. You will still roll and move after using this item.
                                 </p>
                             </div>
+                            <div class="help-subject" style="display: none;">
+                                <br><h2>Skeleton Key</h2><br>
+                                <img src="resources/textures/key.png" width="124px" style="filter: drop-shadow(0 0 0.25rem black);">
+                                <p>
+                                    Skeleton Key is an item that cannot be used before you roll. Instead, when you walk up to a gold gate on the map, you can use a Skeleton Key to unlock the gate for the rest of that turn. Using an item does not prevent you from using a Skeleton Key on the same turn.
+                                </p>
+                            </div>
                             <!--Minigames-->
                             <div class="help-subject" style="display: none;">
-                                <br><h2>Joining a Room</h2><br>
+                                <br><h2>Playing Together</h2><br>
                                 <p>
-                                    This is yet to be written, please wait!
+                                    Following a turn, all players will be placed into a minigame lobby.
+                                    Some of these minigames will require players to be together in a room in Splatoon.
+                                    You can use the minigame chat to coordinate who will host the room.
+                                    When hosting or joining a room in Splatoon, make sure to use the pool and password provided on the website.
+                                    Players have 4 minutes to join the room. If a player does not show up, start the game and refer to <a class="help-subgroup-link" index="27">Late Players</a> for submitting their result.
                                 </p>
                             </div>
                             <div class="help-subject" style="display: none;">
-                                <br><h2>Results</h2><br>
+                                <br><h2>Late Players</h2><br>
                                 <p>
-                                    This is yet to be written, please wait!
+                                    If after 4 minutes if not all players are in the room, start the minigame anyways and assign all players who are not present the following:
+                                    <ul>
+                                        <li>If the player is on a team with other players, their result will be the same as their team.</li>
+                                        <li>If the result options are <b>Win/Lose</b> and the player is not on a team, assign them <b>Lose</b></li>
+                                        <li>If the result options are <b>1st/2nd/3rd/Ect.</b> and the player is not on a team, assign them last place. Any other player who would normally get last place will get second to last.</li>
+                                        <li>If the result options are a <b>Numeric Input</b> and the player is not on a team, enter "0" as their score.</li>
+                                    </ul>
                                 </p>
                             </div>
                             <div class="help-subject" style="display: none;">
-                                <br><h2>Time Limit</h2><br>
+                                <br><h2>Submit Results</h2><br>
                                 <p>
-                                    This is yet to be written, please wait!
+                                    Following the completion of a minigame, players must report their scores in the Results tab of the minigame window.
+                                    Results may include Win/Lose, 1st/2nd/3rd/4th, or a numeric input.
+                                    Make sure to read the last paragraph of the minigame description for information on how results are submitted for the current minigame.
+                                    After you have entered the correct results for the minigame, press the "Submit" button to submit the results you have entered.
+                                    Be aware that in lobby sizes of 4 or more players, 2 players will need to submit the same results before the minigame will move on.
+                                </p>
+                            </div>
+                            <div class="help-subject" style="display: none;">
+                                <br><h2>Teams</h2><br>
+                                <p>
+                                    Some minigames will have players playing on teams. 
+                                    These teams will be shown in the minigame window grouping multiple players together with 1 result submission.
+                                    <b>Players being grouped does not mean to place them on the same in game team.</b>
+                                    Make sure to read the minigame description carefully for setting the teams in Splatoon.
+                                    For example, some minigames will have players put on the opposite team of their teammates, and have them force the other team to lose.
                                 </p>
                             </div>
                             <!--About & Extra-->
                             <div class="help-subject" style="display: none;">
                                 <br><h2>Credits</h2><br>
-                                <p>
-                                    This is yet to be written, please wait!
-                                </p>
+                                <h4>Development</h4>
+                                <ul>
+                                    <li>Astro Dwarf (<a href="https://youtube.com/@astro_dwarf" style="color: white;">YouTube</a>)</li>
+                                </ul><br>
+                                <h4>Art</h4>
+                                <ul>
+                                    <li>Astro Dwarf (<a href="https://youtube.com/@astro_dwarf" style="color: white;">YouTube</a>)</li>
+                                    <li>Snati (<a href="https://x.com/Snati_" style="color: white;">Twitter</a>)</li>
+                                </ul><br>
+                                <h4>Writing</h4>
+                                <ul>
+                                    <li>Astro Dwarf (<a href="https://youtube.com/@astro_dwarf" style="color: white;">YouTube</a>)</li>
+                                    <li>Omazen (<a href="https://bsky.app/profile/omazen.broadcastbeep.com" style="color: white;">Blue Sky</a>)</li>
+                                </ul><br>
+                                <h4>The Guy Who Had the Idea</h4>
+                                <ul>
+                                    <li>Omazen (<a href="https://bsky.app/profile/omazen.broadcastbeep.com" style="color: white;">Blue Sky</a>)</li>
+                                </ul><br>
+                                <h4>Play Testing</h4>
+                                <ul>
+                                    <li>Jessie</li>
+                                    <li>Snati</li>
+                                    <li>Ryn</li>
+                                    <li>Typh</li>
+                                    <li>Beansan</li>
+                                    <li>Jayden</li>
+                                    <li>BlobRoss</li>
+                                    <li>Naydra</li>
+                                    <li>Theo</li>
+                                    <li>Superfly</li>
+                                    <li>Sugistic</li>
+                                    <li>Jousty</li>
+                                </ul><br>
+                                <p>Thank you to everyone who has been cheering me on as I spent months developing this silly little game. And also thank you to everyone who enjoyed playing this.</p>
                             </div>
                             <div class="help-subject" style="display: none;">
                                 <br><h2>Discord</h2><br>
                                 <p>
-                                    This is yet to be written, please wait!
+                                    Although it is not required for players to be joined in the Mega Splat Party discord to play, it is highly recommended.
+                                    <br><br>
+                                    The discord features multiple resources that can be very valuable to you as a player. First is the help-desk. If you ever run into a problem, accidentally misreport a score, or need to report problematic behaviour from a player, the help-desk puts you directly in contact with someone who can help.
+                                    <br><br>
+                                    The discord also features many voice call channels, making it easier for players wanting to coordinate with voice calls to have an easily accesible place call each other.
+                                    <br><br>
+                                    There are also more features such as a place to report bugs you come across, a feedback channel, and patch notes for any updates made to Mega Splat Party.
                                 </p>
                             </div>
                             <div class="help-subject" style="display: none;">
                                 <br><h2>Badge</h2><br>
                                 <p>
-                                    This is yet to be written, please wait!
+                                    The player who wins Mega Splat Party will win a sendou.ink badge for their profile.
+                                </p>
+                                <img src="resources/help-images/badgeapple.gif" width="200px">
+                                <p>
+                                    The badge will be automatically added to the winner's profile if they have a sendou account.
+                                    If the next day the badge has not appeared on your account or you made an account after winning, send a message in the help-desk channel of the discord to have it manually added to your profile.
                                 </p>
                             </div>
                         </div>
@@ -1109,4 +1368,3 @@
         <script type="module" src="script.js" defer></script>
     </body>
 </html>
-
