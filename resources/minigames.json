@@ -37,16 +37,17 @@
         "lobbySize": 4,
         "minLobbySize": 4,
         "type": "coop",
-        "teams": 2,
-        "teamText": ["Thrower:", "Trying to Win:"],
+        "teams": 1,
+        "teamText": ["Teammates:"],
         "rewards": [10, 0],
         "evenSize": false,
         "duelMinigame": "survivalduel",
         "soloMinigame": "anarchysolo",
         "extraMinigame": "goldeneggsextra",
         "title": "Cooperate Sabotage",
-        "description": "This minigame is played in a <b>Private Salmon Run</b> Lobby. Set the <b>Hazard Level to 125%</b> and the map to <b>Spawning Grounds.</b> Make sure all players select \"<b>?</b>\" as their weapon (This is the default option).<br><br><b>{Player}</b> is a \"Thrower.\" The other 3 players will attempt to clear the shift to win. If the shift is failed, the thrower will win. Use any (in game) means necessary to secure victory!<br><br>When submitting results, if you cleared the shift, enter <b>Win</b> for the 3 regular players and <b>Lose</b> for the thrower. If you did not clear the shift, enter <b>Lose</b> for the regular players and <b>Win</b> for the thrower.",
-        "setApartPlayers": 1
+        "description": "This minigame is played in a <b>Private Salmon Run</b> Lobby. Set the <b>Hazard Level to 125%</b> and the map to <b>Spawning Grounds.</b> Make sure all players select \"<b>?</b>\" as their weapon (This is the default option).<br><br><b>{Player}</b> is a \"Thrower.\" The other 3 players will attempt to clear the shift to win. If the shift is failed, the thrower will win. Use any (in game) means necessary to secure victory!<br><br>When submitting results, if you cleared the shift, enter <b>Win</b>, otherwise enter <b>Lose</b>.",
+        "setApartPlayers": 1,
+        "invertSetApartScore": true
     },
     "salmonrunreverse1v3": {
         "weight": 1,
@@ -54,16 +55,17 @@
         "lobbySize": 4,
         "minLobbySize": 4,
         "type": "coop",
-        "teams": 2,
-        "teamText": ["Trying to Win:", "Throwers:"],
+        "teams": 1,
+        "teamText": ["\"Teammates\":"],
         "rewards": [10, 0],
         "evenSize": false,
         "duelMinigame": "rainmakerduel",
         "soloMinigame": "killssolo",
         "extraMinigame": "survivalextra",
         "title": "Kindergarten Bullying",
-        "description": "This minigame is played in a <b>Private Salmon Run</b> Lobby. Set the <b>Hazard Level to 25%</b> and the map to <b>Salmonid Smokeyard.</b> \"Throwers\" must select \"<b>?</b>\" as their weapon. The other player may select any weapon they'd like.<br><br><b>{Player}</b> is trying to clear the shift. The other 3 players are \"Throwers\" attempting to lose the shift. If the shift is failed, the throwers will win. Use any (in game) means necessary to secure victory!<br><br>When submitting results, if you cleared the shift, enter <b>Win</b> for the regular player and <b>Lose</b> for the throwers. If you did not clear the shift, enter <b>Lose</b> for the regular player and <b>Win</b> for the throwers.",
-        "setApartPlayers": 1
+        "description": "This minigame is played in a <b>Private Salmon Run</b> Lobby. Set the <b>Hazard Level to 25%</b> and the map to <b>Salmonid Smokeyard.</b> Players with a red name on the results page must select \"<b>?</b>\" as their weapon. The other player may select any weapon they'd like.<br><br><b>{Player}</b>, <b>{Player}</b>, and <b>{Player}</b> are \"Throwers\" attempting to lose the shift. The other player is trying to clear the shift by themself. If the shift is failed, the throwers will win. Use any (in game) means necessary to secure victory!<br><br>When submitting results, if you cleared the shift, enter <b>Win</b>, otherwise enter <b>Lose</b>.",
+        "setApartPlayers": 3,
+        "invertSetApartScore": true
     },
     "goldeneggs": {
         "weight": 1,
@@ -80,7 +82,7 @@
         "soloMinigame": "goldeneggssolo",
         "extraMinigame": "goldeneggsextra",
         "title": "Over Fishing",
-        "description": "This minigame is played in a <b>Private Salmon Run</b> Lobby. Set the <b>Hazard Level to 100</b> and the map to <b>Bonerattle Arena.</b> Make sure all players select \"<b>?</b>\" as their weapon (This is the default option).<br><br>Players will compete over the course of a salmon run shift to collect the most <b>Golden Eggs.</b> Players will recieve 1 coin for every 3 <b>Golden Eggs</b> collected.<br><br>When submitting results, enter the <b>Golden Egg</b> totals on the end screen. <b>Caution</b>, private salmon run matches do not appear in the recent jobs."
+        "description": "This minigame is played in a <b>Private Salmon Run</b> Lobby. Set the <b>Hazard Level to 100</b> and the map to <b>Bonerattle Arena.</b> Make sure all players select \"<b>?</b>\" as their weapon (This is the default option).<br><br>Players will compete over the course of a salmon run shift to collect the most <b>Golden Eggs.</b> Players will recieve 1 coin for every 3 <b>Golden Eggs</b> collected.<br><br>When submitting results, enter the <b>Golden Egg</b> totals on the end screen."
     },
     "salmonrunrevive": {
         "weight": 1,
@@ -96,7 +98,7 @@
         "soloMinigame": "goldeneggssolo",
         "extraMinigame": "survivalextra",
         "title": "Revive Runners",
-        "description": "This minigame is played in a <b>Private Salmon Run</b> Lobby. Set the <b>Hazard Level to 200%</b> and the map to <b>Gone Fission Hydroplant.</b> All players must select \"<b>?</b>\" as their weapon (This is the default option).<br><br>Players will compete to get the most <b>Revives</b> during a shift of salmon run.<br><br>When submitting results, enter <b>1st</b> by the player with the most revives on the end screen, enter <b>2nd</b> by the player with the second most and so on. If 2 players have the same number of revives, give them the same result. <b>Caution</b>, private salmon run matches do not appear in the recent jobs."
+        "description": "This minigame is played in a <b>Private Salmon Run</b> Lobby. Set the <b>Hazard Level to 200%</b> and the map to <b>Gone Fission Hydroplant.</b> All players must select \"<b>?</b>\" as their weapon (This is the default option).<br><br>Players will compete to get the most <b>Revives</b> during a shift of salmon run.<br><br>When submitting results, enter <b>1st</b> by the player with the most revives on the end screen, enter <b>2nd</b> by the player with the second most and so on. If 2 players have the same number of revives, give them the same result."
     },
     "tableturf": {
         "weight": 1,
@@ -116,7 +118,7 @@
     },
     "gamble": {
         "weight": 1,
-        "timeLimit": 6,
+        "timeLimit": 7,
         "lobbySize": 4,
         "minLobbySize": 2,
         "type": "vs",
@@ -124,8 +126,8 @@
         "teamText": [],
         "rewards": [10, 5, 2, 0],
         "evenSize": false,
-        "duelMinigame": "tableturfduel",
-        "soloMinigame": "tableturfsolo",
+        "duelMinigame": "",
+        "soloMinigame": "speedrunsolo",
         "extraMinigame": "",
         "title": "Gambling",
         "description": "This minigame is played individually in the <b>Lobby</b> at the <b>Shellout Machine.</b><br><br>Players will do a single pull from the Shellout Machine. Whoever get the rarest pull will get 1st place, followed by the 2nd rarest and so on. If 2 players get the same pull it is considered a tie.<br><br><b>Rarities are as follows from rarest to most common:</b> Gold, Silver, Bronze, Emote, Party Food Ticket, Pack of Cards, Banner, 2x Food Tickets, 3 Ability Chunks, Title, Stickers, Decorations, 50% Food Ticket, Drink Ticket<br><br>When submitting results, enter <b>1</b> for the player with the rarest pull, <b>2</b> for the 2nd rarest and so on."
@@ -180,7 +182,7 @@
     },
     "bigbangtiming": {
         "weight": 0.5,
-        "timeLimit": 7,
+        "timeLimit": 8,
         "lobbySize": 4,
         "minLobbySize": 2,
         "type": "vs",
@@ -190,7 +192,7 @@
         "evenSize": false,
         "duelMinigame": "killsduel",
         "soloMinigame": "speedrunsolo",
-        "extraMinigame": "",
+        "extraMinigame": "speedrun2extra",
         "title": "Mind your Timing",
         "description": "This minigame is played individually in <b>Alterna</b> (aka Story Mode) on level <b>1-8 What Caused the Big Bang? YOU!</b><br><br>Players will play through level 1-8 <b>once</b> with their final time being as close to <b>1:00</b> as possible. If you die or fail to complete the level on your first try, you will be disqualified and automatically get last place.<br><br>When submitting results, enter <b>1</b> for the player with the time closest to 1:00 on the end screen, enter <b>2</b> for the 2nd closest and so on. If 2 players are the same amount of time away from 1:00, it is considered a tie. If a player does not remember their time, they are given last place."
     },
@@ -255,8 +257,9 @@
         "soloMinigame": "speedrunsolo",
         "extraMinigame": "speedrun2extra",
         "title": "My Teammate's Throwing",
-        "description": "This minigame is played together in a <b>Private Battle</b> lobby with the mode set to <b>Clam Blitz.</b> The host can pick their favorite map to play on. Set the teams to match the groups of players on the results tab <b>except</b> place all players with <red>red usernames</red> on the opposite team they appear on, they are throwers.<br><br><b>{Player}</b> and <b>{Player}</b> are throwers and for them to win they must make their team lose the match. Everyone else must win the match normally. Use of voice calls for callouts is permitted.<br><br>When submitting results, enter <b>Win</b> by the team that won and enter <b>Lose</b> by the team that lost. Throwers should not be placed on the same in game team as their team on the minigame page so that there are no problems when submitting results.",
-        "setApartPlayers": 2
+        "description": "This minigame is played together in a <b>Private Battle</b> lobby with the mode set to <b>Clam Blitz.</b> The host can pick their favorite map to play on. Set the teams to match the groups of players on the results tab.<br><br><b>{Player}</b> and <b>{Player}</b> are throwers and for them to win they must make their team lose the match. Everyone else must win the match normally. Use of voice calls for callouts is permitted.<br><br>When submitting results, enter <b>Win</b> by the team that won and enter <b>Lose</b> by the team that lost.",
+        "setApartPlayers": 2,
+        "invertSetApartScore": true
     },
     "clamblitz2": {
         "weight": 1,
@@ -288,8 +291,9 @@
         "soloMinigame": "speedrunsolo",
         "extraMinigame": "anarchyextra",
         "title": "Astro's Modded Rainmaker #1",
-        "description": "My team has been hard at work figuring out how we can make Splatoon 3 for the Nintendo Switch better! And what we found was <b>YOU ALL HATE RAINMAKER.</b> So I fixed the mode! You're Welcome!<br><br>This minigame is played together in a <b>Private Battle</b> lobby with the mode set to <b>Rainmaker.</b> The host can pick their favorite map to play on. Set the teams to match the groups of players on the results tab <b>except</b> place all players with <red>red usernames</red> on the opposite team they appear on, they are throwers.<br><br><b>{Player}</b> and <b>{Player}</b> are \"Throwers\" who win by making their team lose. The rest of the players' goal is to win the match. Throwers can use any (in game) means necessary to make their team lose the game. Use of voice calls for callouts is permitted.<br><br>When submitting results, enter <b>Win</b> on the team that won and has a thrower that lost the match. Enter <b>Lose</b> on the team that lose and had a thrower that won the match.",
-        "setApartPlayers": 2
+        "description": "My team has been hard at work figuring out how we can make Splatoon 3 for the Nintendo Switch better! And what we found was <b>YOU ALL HATE RAINMAKER.</b> So I fixed the mode! You're Welcome!<br><br>This minigame is played together in a <b>Private Battle</b> lobby with the mode set to <b>Rainmaker.</b> The host can pick their favorite map to play on. Set the teams to match the groups of players on the results tab.<br><br><b>{Player}</b> and <b>{Player}</b> are \"Throwers\" who win by making their team lose. The rest of the players' goal is to win the match. Throwers can use any (in game) means necessary to make their team lose the game. Use of voice calls for callouts is permitted.<br><br>When submitting results, enter <b>Win</b> by the team that won and enter <b>Lose</b> by the team that lost.",
+        "setApartPlayers": 2,
+        "invertSetApartScore": true
     },
     "rainmaker2": {
         "weight": 0.5,
@@ -370,7 +374,7 @@
         "soloMinigame": "killssolo",
         "extraMinigame": "speedrun2extra",
         "title": "Medal of Dishonor",
-        "description": "This minigame is played together in a <b>Turf War</b> lobby.<br><br>At the end of every match of splatoon, players recieve up to 3 medals that crown their accomplishments. Your goal is to achieve the worst medal possible. The value of a medal will be measured by it's <i>Priority.</i> A list of medals in order of highest priority to lowest can be found at <a style=\"color: white;\" href=\"https://splatoonwiki.org/wiki/Medal\" target=\"_blank\" rel=\"noopener noreferrer\">splatoonwiki.org/wiki/Medal</a>.<br><br><b>Tip: </b>Medals of higher priority will be shown before lower priority ones, make sure you don't earn too many higher priority medals.<br><br>When submitting results, enter <b>1st</b> if the player achieved the <b>Worst Medal</b> in their battle history, enter <b>2nd</b> if they had the second worst and so on. In the case where 2 players have the same <b>Worst Medal</b>, it is a tie, enter the same score for both of them."
+        "description": "This minigame is played together in a <b>Turf War</b> lobby.<br><br>At the end of every match of splatoon, players recieve up to 3 medals that crown their accomplishments. Your goal is to achieve the worst medal possible. The value of a medal will be measured by it's <i>Priority.</i> A list of medals in order of highest priority to lowest can be found at <a style=\"color: white;\" href=\"https://splatoonwiki.org/wiki/Medal\" target=\"_blank\" rel=\"noopener noreferrer\">splatoonwiki.org/wiki/Medal</a>. All medals related to specials are considered to have the same priority.<br><br><b>Tip: </b>Medals of higher priority will be shown before lower priority ones, make sure you don't earn too many higher priority medals.<br><br>When submitting results, enter <b>1st</b> if the player achieved the <b>Worst Medal</b> in their battle history, enter <b>2nd</b> if they had the second worst and so on. In the case where 2 players have the same <b>Worst Medal</b>, it is a tie, enter the same score for both of them."
     },
     "protectpresident": {
         "weight": 1,
@@ -386,8 +390,9 @@
         "soloMinigame": "killssolo",
         "extraMinigame": "speedrun1extra",
         "title": "Mr. President, GET DOWN!",
-        "description": "This minigame is played together in a <b>Private Battle</b> lobby with the mode set to <b>Turf War.</b> The host can pick their favorite map to play on. Set the teams to match the groups of players on the results tab <b>except</b> place all players with <red>red usernames</red> on the opposite team they appear on, they are throwers.<br><br><b>{Player}</b> and <b>{Player}</b> are \"Throwers\" who are attempting to be the player who dies to the enemy team the most times. All other players are attempting to kill the thrower on the enemy team the most times and prevent the thrower on their team from dying. The winner is determined by the <b>death count</b> of the throwers in the battle log. Throwers must use any <b>Goo-Tuber</b> weapon kit as their weapon to distinguish themselves from other players, no other player may use any Goo-Tuber kit. Throwers are not allowed to jump off of the map. Any rule breaks will result in the offending team automatically losing.<br><br>When submitting results, enter <b>Win</b> by the group with the <red>red named</red> player who died the most. Enter <b>Lose</b> by the group with the <red>red named</red> player who died the least.",
-        "setApartPlayers": 2
+        "description": "This minigame is played together in a <b>Private Battle</b> lobby with the mode set to <b>Turf War.</b> The host can pick their favorite map to play on. Set the teams to match the groups of players on the results tab.<br><br><b>{Player}</b> and <b>{Player}</b> are \"Throwers\" who are attempting to be the player who dies to the enemy team the most times. All other players are attempting to kill the thrower on the enemy team the most times and prevent the thrower on their team from dying. The winner is determined by the <b>death count</b> of the throwers in the battle log. Throwers must use any <b>Goo-Tuber</b> weapon kit as their weapon to distinguish themselves from other players, no other player may use any Goo-Tuber kit. Throwers are not allowed to jump off of the map. Any rule breaks will result in the offending team automatically losing.<br><br>When submitting results, enter <b>Win</b> by the group with the <red>red named</red> player who died the least. Enter <b>Lose</b> by the group with the <red>red named</red> player who died the most.",
+        "setApartPlayers": 2,
+        "invertSetApartScore": true
     },
 
 
@@ -488,7 +493,7 @@
         "rewards": 0.334,
         "evenSize": false,
         "title": "Over Fishing",
-        "description": "This minigame is played in a <b>Private Salmon Run</b> Lobby. Set the <b>Hazard Level to 100%</b> and the map to <b>Bonerattle Arena.</b> Make sure all players select \"<b>?</b>\" as their weapon (This is the default option).<br><br>Players will compete over the course of a salmon run shift to collect the most <b>Golden Eggs.</b> Players will recieve 1 coin for every 3 <b>Golden Eggs</b> collected.<br><br>When submitting results, enter the <b>Golden Egg</b> totals on the end screen. <b>Caution</b>, private salmon run matches do not appear in the recent jobs."
+        "description": "This minigame is played in a <b>Private Salmon Run</b> Lobby. Set the <b>Hazard Level to 100%</b> and the map to <b>Bonerattle Arena.</b> Make sure all players select \"<b>?</b>\" as their weapon (This is the default option).<br><br>Players will compete over the course of a salmon run shift to collect the most <b>Golden Eggs.</b> Players will recieve 1 coin for every 3 <b>Golden Eggs</b> collected.<br><br>When submitting results, enter the <b>Golden Egg</b> totals on the end screen."
     },
 
 
