@@ -4952,7 +4952,7 @@
 			"connections": {
 				"n": true,
 				"e": true,
-				"s": false,
+				"s": true,
 				"w": true
 			},
 			"material": 38,
@@ -7360,7 +7360,7 @@
 		{
 			"height": 2,
 			"connections": {
-				"n": false,
+				"n": true,
 				"e": true,
 				"s": true,
 				"w": true
