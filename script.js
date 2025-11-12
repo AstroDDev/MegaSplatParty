@@ -2123,6 +2123,7 @@ function TestMoveSpace(xOffset, yOffset){
         let y = PlayerData.position.y + yOffset;
         
         if (x < 0 || y < 0 || x > mapSize.x - 1 || y > mapSize.y - 1) return;
+        if (mapData[y][x].height == 0) return;
 
         if ((xOffset == -1 && mapData[PlayerData.position.y][PlayerData.position.x].connections.w == true) ||
         (xOffset == 1 && mapData[PlayerData.position.y][PlayerData.position.x].connections.e == true) ||
@@ -2537,13 +2538,13 @@ function EndTurnPopup(){
 
             //Set item options on roulette
             luckyRouletteItems = [];
-            while(luckyRouletteItems.length < 4){
+            while(luckyRouletteItems.length < 3){
                 let index = Math.floor(Math.random() * luckyItemOptions.length);
                 if (!luckyRouletteItems.includes(luckyItemOptions[index])){
                     luckyRouletteItems.push(luckyItemOptions[index]);
                 }
             }
-            for (var i = 0; i < 4; i++){
+            for (var i = 0; i < 3; i++){
                 luckyOptions[i * 2].textContent = ItemData[luckyRouletteItems[i]].name;
             }
         }
@@ -2705,7 +2706,10 @@ function StarGetAnimation(){
     }
 }
 
+let starLoseAnimPopup = false;
 function TriggerStarLoseAnimation(){
+    starLoseAnimPopup = turnStep == "popup";
+
     UIState = "player";
     turnStep = "star-lose-anim";
     animTimer = 3;
@@ -2753,10 +2757,21 @@ function StarLoseAnimation(){
         Star.scale.set(0, 0, 0);
     }
     else{
-        UIState = "above";
-        turnStep = "popup";
-        
-        ClosePopup();
+        UpdatePlayerUI();
+        if (starLoseAnimPopup){
+            UIState = "above";
+            turnStep = "popup";
+            ClosePopup();
+        }
+        else{
+            UIState = "player";
+            turnStep = "menu";
+
+            document.getElementsByClassName("player-inputs")[0].style.display = "flex";
+            document.getElementsByClassName("player-data")[0].style.display = "initial";
+            document.getElementById("turn-counter").style.display = "initial";
+            document.getElementById("leaderboard").style.display = "initial";
+        }
     }
 }
 
@@ -3452,6 +3467,11 @@ document.getElementById("new-minigame-submit-button").onclick = function(e){
                 result.push(Number.parseFloat(document.getElementsByClassName("new-minigame-player-result-" + MinigameData[CurrentMinigame].type)[(i - setApartSkips) % (MinigameData[CurrentMinigame].teams - 1) + 1].value));
             }
         }
+
+        if (Object.hasOwn(MinigameData[CurrentMinigame], "setApartPlayers") && MinigameData[CurrentMinigame].type == "coop" && MinigameData[CurrentMinigame].invertSetApartScore && CurrentMinigameSetApartPlayers.includes(i)){
+            //Invert Set Apart Score if it's a coop minigame
+            result[result.length - 1] = result[result.length - 1] == 0 ? 1 : 0;
+        }
     }
 
     Socket.send(JSON.stringify({ method: "submit_results", token: TOKEN, result: result }));
@@ -3560,7 +3580,7 @@ function EndTutorial(){
     document.getElementsByClassName("player-data")[0].style.display = "initial";
     document.getElementById("leaderboard").style.display = "initial";
     document.getElementById("turn-counter").style.display = "initial";
-    document.getElementById("turn-counter-text").textContent = ServerTurn + "/10";
+    document.getElementById("turn-counter-text").textContent = ServerTurn + "/15";
     //Check if done turn or not
     if (PlayerData.turnsCompleted < ServerTurn){
         //Play your turn
@@ -3680,6 +3700,7 @@ function TutorialGiveAnimation(){
 //NETWORKING!!!
 var Socket;
 var SignedIn = false;
+var socketHasConnected = false;
 function InitializeSocket(){
     //Changes the Socket connection based on if it's local hosted or not
     //Also checks if the url search parameter has a unique url for the socket
@@ -3693,6 +3714,7 @@ function InitializeSocket(){
 
     Socket.onopen = function(e){
         console.log("Socket open");
+        socketHasConnected = true;
         if (TOKEN != ""){
             signInTimeout(0);
         }
@@ -3726,7 +3748,7 @@ function InitializeSocket(){
 
         document.getElementsByClassName("game-ui")[0].style.display = "none";
 
-        if (e.code == 1006){
+        if (!socketHasConnected){
             document.getElementById("disconnect-reason").textContent = "Can't Connect to Server";
             document.getElementById("disconnect-reason-1").style.display = "none";
             document.getElementById("disconnect-reason-2").style.display = "initial";
@@ -3929,7 +3951,7 @@ function get_status_server(data){
                     UIPanels.login.style.display = "none";
                     document.getElementById("leaderboard").style.display = "initial";
                     document.getElementById("turn-counter").style.display = "initial";
-                    document.getElementById("turn-counter-text").textContent = ServerTurn + "/10";
+                    document.getElementById("turn-counter-text").textContent = ServerTurn + "/15";
                     UIState = "player";
                     turnStep = "tutorial";
                     document.getElementById("tutorial").style.display = "initial";
@@ -3942,7 +3964,7 @@ function get_status_server(data){
                     document.getElementsByClassName("player-data")[0].style.display = "initial";
                     document.getElementById("leaderboard").style.display = "initial";
                     document.getElementById("turn-counter").style.display = "initial";
-                    document.getElementById("turn-counter-text").textContent = ServerTurn + "/10";
+                    document.getElementById("turn-counter-text").textContent = ServerTurn + "/15";
                     //Check if done turn or not
                     if (PlayerData.turnsCompleted < ServerTurn){
                         //Play your turn
@@ -3998,6 +4020,7 @@ function announcement_server(data){
     if (Object.hasOwn(data, "status")){
         let lastStatus = ServerStatus;
         ServerStatus = data.status;
+        animTimer = 0;
         if (Object.hasOwn(data, "turn")) ServerTurn = data.turn;
         if (Object.hasOwn(data, "endTime")) document.getElementById("turn-timer").textContent = new Date(data.endTime * 60000).toLocaleTimeString("en-US", {hour: "numeric", minute: "2-digit"});
 
@@ -4025,7 +4048,7 @@ function announcement_server(data){
                 document.getElementById("leaderboard").style.display = "initial";
                 document.getElementById("items-button").disabled = false;
                 document.getElementById("turn-counter").style.display = "initial";
-                document.getElementById("turn-counter-text").textContent = ServerTurn + "/10";
+                document.getElementById("turn-counter-text").textContent = ServerTurn + "/15";
                 console.log(ServerTurn);
                 if (Object.hasOwn(data, "silverStar")){
                     SpawnSilverStarBoard(data.silverStar, lastStatus == "MINIGAME");

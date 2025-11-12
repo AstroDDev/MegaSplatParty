@@ -463,7 +463,7 @@
             }
 
 
-            const Socket = new WebSocket("wss://msp.astrodwarf/server");
+            const Socket = new WebSocket(window.location.hostname == "127.0.0.1" ? "ws://localhost:6969" : "wss://msp.astrodwarf.space/server");
 
             Socket.onopen = function(e){
                 console.log("WS Open");
