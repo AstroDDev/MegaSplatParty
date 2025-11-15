@@ -3744,7 +3744,6 @@ function InitializeSocket(){
         document.getElementById("lucky-space").style.display = "none";
         document.getElementById("results").style.display = "none";
         document.getElementById("global-leaderboard").style.display = "none";
-        document.getElementById("help").style.display = "none";
 
         document.getElementsByClassName("game-ui")[0].style.display = "none";
 
