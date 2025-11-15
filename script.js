@@ -3820,6 +3820,7 @@ function get_status_server(data){
             TriggerResultsAnimation(data, true);
         }
         else{
+            rollsRemaining = 1;
             if (PlayerData.coins != data.data.coins || PlayerData.stars != data.data.stars || !arraysEqual(PlayerData.items, data.data.items) || PlayerData.position.x != data.data.position.x || PlayerData.position.y != data.data.position.y|| PlayerData.tutorial != data.data.tutorial){
                 if (Object.hasOwn(mapData[PlayerData.position.y][PlayerData.position.x], "popup")) document.getElementById(mapData[PlayerData.position.y][PlayerData.position.x].popup).style.display = "none";
                 document.getElementsByClassName("move-end-turn-button")[0].style.display = "none";
@@ -3832,8 +3833,6 @@ function get_status_server(data){
                 document.getElementsByClassName("item-menu")[0].style.display = "none";
                 document.getElementsByClassName("item-toss-menu")[0].style.display = "none";
                 document.getElementsByClassName("map-overlay")[0].style.display = "none";
-                
-                rollsRemaining = 1;
 
                 PlayerData = {
                     position: {
@@ -4942,8 +4941,8 @@ function get_player_data_server(data){
             TriggerStarLoseAnimation();
         }
         else if (data.data.stars > PlayerData.stars){
-            PlayerData.stars = data.data.stars;
             TriggerStarGetAnimation(false, data.data.stars - PlayerData.stars);
+            PlayerData.stars = data.data.stars;
         }
         else TriggerCoinSpaceAnimation(data.data.coins - PlayerData.coins);
     }
