@@ -1,5 +1,6 @@
 {
     "salmonrun": {
+        "hidden": true,
         "weight": 1,
         "timeLimit": 13,
         "lobbySize": 4,
@@ -181,6 +182,7 @@
         "description": "This minigame is played individually in <b>Alterna</b> (aka Story Mode) on level <b>6-6: Keep It Rolling.</b><br><br>Players will play through level 6-6 <b>once</b> as quickly as possible. Play through the level the fastest to win! Your final time will be the time that shows up on the level clear screen. A penalty of <b>5 seconds</b> will be added for each time you die in game.<br><br>When submitting results, enter <b>1</b> for the player with the fastest time, <b>2</b> for the 2nd fastest and so on. If 2 players have the same time, it is considered a tie. If a player does not remember their time, they are given last place."
     },
     "bigbangtiming": {
+        "hidden": true,
         "weight": 0.25,
         "timeLimit": 8,
         "lobbySize": 4,
@@ -211,6 +213,7 @@
         "description": "This minigame is played together in <b>Anarchy Open.</b><br><br>Players will play one match of Anarchy Open together. Your goal is to win. Simple enough.<br><br>When submitting results, enter <b>Win</b> if you won the match or <b>Lose</b> if you lost."
     },
     "splatzones": {
+        "hidden": true,
         "weight": 1,
         "timeLimit": 13,
         "lobbySize": 8,
@@ -262,6 +265,7 @@
         "invertSetApartScore": true
     },
     "clamblitz2": {
+        "hidden": true,
         "weight": 1,
         "timeLimit": 13,
         "lobbySize": 4,
@@ -278,6 +282,7 @@
         "description": "This minigame is played together in a <b>Private Battle</b> lobby with the mode set to <b>Clam Blitz.</b> The host can pick their favorite map to play on. Randomly divide the players into 2 teams.<br><br>Players will be randomly split between 2 teams. Your goal is to achieve the <b>#1 Score Booster</b> medal during a match of clam blitz. You can do this by scoring the most points in the enemy basket. On each team there will be 1 winner and 1 loser as each team will have 1 player that recieves the medal in the battle history. In the case where 2 players on a team both recieve the #1 Score Booster medal, both will be awarded the win.<br><br>When submitting results, enter <b>Win</b> if the player achieved the <b>#1 Score Booster medal</b> in their battle history, otherwise enter <b>Lose</b>."
     },
     "rainmaker1": {
+        "hidden": true,
         "weight": 0.5,
         "timeLimit": 13,
         "lobbySize": 8,
