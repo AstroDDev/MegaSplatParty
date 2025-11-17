@@ -57,7 +57,7 @@ if (Object.hasOwn(COOKIES, "playerToken")){
 }
 
 var MinigameData;
-fetch("resources/minigames.json").then(r => r.text()).then(t => MinigameData = JSON.parse(t));
+fetch("resources/4player_minigames.json").then(r => r.text()).then(t => MinigameData = JSON.parse(t));
 
 const EPSILON = 0.001;
 
@@ -5147,4 +5147,5 @@ for (let i = 0; i < debugSet.length; i++){
 
 
 //TODO!!! Low quality version of webpage (no animations, no lighting, no filters)
+
 //Will have to see if anyone complains about performance
