@@ -382,6 +382,12 @@ function loadMap(){
 var MapMesh;
 var BlockList = new THREE.Group();
 var KeyDoors = new THREE.Group();
+const LockTex = TexLoader.load("./resources/textures/lock.png");
+LockTex.colorSpace = THREE.SRGBColorSpace;
+LockTex.minFilter = THREE.NearestFilter;
+LockTex.magFilter = THREE.NearestFilter;
+const LockMat = new THREE.MeshBasicMaterial({ map: LockTex });
+var MapLocks = new THREE.Group();
 function buildMap(){
     //Make sure everything is loaded first
     if (SilverStar == null || Star == null || KeyGateModel == null || GreenPipe == null || GoldPipe == null){
@@ -895,7 +901,9 @@ function buildMap(){
             if (x > 0 && mapData[y][x].connections.w == "lock" && mapData[y][x - 1].connections.e == "lock"){
                 //Clone keygate here
                 let gate = KeyGateModel.clone(true);
+                let lock = new THREE.Mesh(new THREE.PlaneGeometry(0.85, 0.85), LockMat);
                 KeyDoors.add(gate);
+                MapLocks.add(lock);
                 gate.scale.set(0.1 / 16, 0.1 / 16, 0.1 / 16);
                 gate.rotation.set(0, Math.PI / 2, 0);
                 if (getHeightTile(x, y) > getHeightTile(x - 1, y)){
@@ -908,10 +916,14 @@ function buildMap(){
                 else{
                     gate.position.set(x - 0.5, getHeightTile(x, y), y);
                 }
+                lock.rotation.set(-Math.PI / 2, 0, 0);
+                lock.position.set(x - 0.5, getHeightTile(x, y) + 1.5, y);
             }
             if (y > 0 && mapData[y][x].connections.n == "lock" && mapData[y - 1][x].connections.s == "lock"){
                 let gate = KeyGateModel.clone(true);
+                let lock = new THREE.Mesh(new THREE.PlaneGeometry(0.85, 0.85), LockMat);
                 KeyDoors.add(gate);
+                MapLocks.add(lock);
                 gate.scale.set(0.1 / 16, 0.1 / 16, 0.1 / 16);
                 gate.rotation.set(0, 0, 0);
                 if (getHeightTile(x, y) > getHeightTile(x, y - 1)){
@@ -924,10 +936,11 @@ function buildMap(){
                 else{
                     gate.position.set(x, getHeightTile(x, y), y - 0.5);
                 }
+                lock.rotation.set(-Math.PI / 2, 0, 0);
+                lock.position.set(x, getHeightTile(x, y) + 1.5, y - 0.5);
             }
         }
     }
-
 
     geometry.setIndex(indices);
     geometry.setAttribute("position", new THREE.BufferAttribute(new Float32Array(vertices), 3));
@@ -3336,6 +3349,7 @@ function UpdatePlayerUI(){
 
 var mapTriggeredFrom = "null";
 function OpenMap(){
+    Scene.add(MapLocks);
     mapTriggeredFrom = turnStep;
     if (turnStep == "menu"){
         UIState = "map";
@@ -3378,6 +3392,7 @@ document.getElementsByClassName("board-map-button")[0].onclick = OpenMap;
 document.getElementsByClassName("board-map-button")[1].onclick = OpenMap;
 
 function CloseMap(){
+    Scene.remove(MapLocks);
     if (turnStep == "map"){
         document.getElementsByClassName("leaderboard-button")[0].style.display = "initial";
         document.getElementsByClassName("help-button")[0].style.display = "initial";
@@ -3445,26 +3460,26 @@ document.getElementById("new-minigame-submit-button").onclick = function(e){
     for (var i = 0; i < CurrentMinigameLobby.length; i++){
         if (MinigameData[CurrentMinigame].teams == 0){
             //No Teams
-            result.push(Number.parseFloat(document.getElementsByClassName("new-minigame-player-result-" + MinigameData[CurrentMinigame].type)[i].value));
+            result.push(Number.parseInt(document.getElementsByClassName("new-minigame-player-result-" + MinigameData[CurrentMinigame].type)[i].value));
         }
         else if (!Object.hasOwn(MinigameData[CurrentMinigame], "setApartPlayers") || MinigameData[CurrentMinigame].setApartPlayers % MinigameData[CurrentMinigame].teams == 0){
             //Throwers are split between teams
             if (CurrentMinigameSetApartPlayers.includes(i)){
-                result.push(Number.parseFloat(document.getElementsByClassName("new-minigame-player-result-" + MinigameData[CurrentMinigame].type)[setApartSkips % MinigameData[CurrentMinigame].teams].value));
+                result.push(Number.parseInt(document.getElementsByClassName("new-minigame-player-result-" + MinigameData[CurrentMinigame].type)[CurrentMinigameSetApartPlayers.indexOf(i) % MinigameData[CurrentMinigame].teams].value));
                 setApartSkips++;
             }
             else{
-                result.push(Number.parseFloat(document.getElementsByClassName("new-minigame-player-result-" + MinigameData[CurrentMinigame].type)[(i - setApartSkips) % MinigameData[CurrentMinigame].teams].value));
+                result.push(Number.parseInt(document.getElementsByClassName("new-minigame-player-result-" + MinigameData[CurrentMinigame].type)[(i - setApartSkips) % MinigameData[CurrentMinigame].teams].value));
             }
         }
         else {
             //Throwers are their own team
             if (CurrentMinigameSetApartPlayers.includes(i)){
-                result.push(Number.parseFloat(document.getElementsByClassName("new-minigame-player-result-" + MinigameData[CurrentMinigame].type)[0].value));
+                result.push(Number.parseInt(document.getElementsByClassName("new-minigame-player-result-" + MinigameData[CurrentMinigame].type)[0].value));
                 setApartSkips++;
             }
             else{
-                result.push(Number.parseFloat(document.getElementsByClassName("new-minigame-player-result-" + MinigameData[CurrentMinigame].type)[(i - setApartSkips) % (MinigameData[CurrentMinigame].teams - 1) + 1].value));
+                result.push(Number.parseInt(document.getElementsByClassName("new-minigame-player-result-" + MinigameData[CurrentMinigame].type)[(i - setApartSkips) % (MinigameData[CurrentMinigame].teams - 1) + 1].value));
             }
         }
 
