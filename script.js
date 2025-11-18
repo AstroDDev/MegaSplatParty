@@ -61,6 +61,9 @@ fetch("resources/minigames.json").then(r => r.text()).then(t => MinigameData = J
 
 const EPSILON = 0.001;
 
+const NotifSFX = new Audio("resources/sfx/notification.ogg");
+const StartTurnSFX = new Audio("resources/sfx/start_turn.ogg");
+
 var Scene = new THREE.Scene();
 const Camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
 const Renderer = new THREE.WebGLRenderer();
@@ -78,8 +81,8 @@ window.onresize = function(e){
 var mapData;
 var mapSize = {x: 0, y: 0};
 
-const BlockMat = new THREE.MeshStandardMaterial({ color: 0x111111 });
-const TrimMat = new THREE.MeshStandardMaterial({ color: 0xaaaaaa });
+const BlockMat = new THREE.MeshStandardMaterial({ color: 0x111111, alphaTest: 0.5 });
+const TrimMat = new THREE.MeshStandardMaterial({ color: 0xaaaaaa, alphaTest: 0.5 });
 
 const TexLoader = new THREE.TextureLoader();
 const ModelLoader = new FBXLoader();
@@ -305,7 +308,6 @@ selectorTex.minFilter = THREE.NearestFilter;
 var mapSelectorBox = new THREE.Mesh(new THREE.PlaneGeometry(1, 1), new THREE.MeshBasicMaterial({map: selectorTex, alphaTest: 0.5}));
 mapSelectorBox.scale.set(0, 0, 0);
 mapSelectorBox.rotation.set(-Math.PI / 2, 0, 0);
-Scene.add(mapSelectorBox);
 
 //Dice block
 var DiceFont;
@@ -681,14 +683,14 @@ function buildMap(){
             if (x > 0 && !mapData[y][x].connections.w && !mapData[y][x].ramp && !mapData[y][x-1].ramp){
                 //Place a block there
                 if (mapData[y][x].height > mapData[y][x-1].height){
-                    let block = new THREE.Mesh(new THREE.BoxGeometry(1/8, 1/8, 1), BlockMat);
+                    let block = new THREE.Mesh(new THREE.BoxGeometry(1/8, 1/8, 1), BlockMat.clone());
                     block.position.set(x - 0.5 + 1/16, mapData[y][x].height + 1/16, y);
                     block.castShadow = true;
                     block.receiveShadow = true;
                     BlockList.add(block);
                 }
                 else if (mapData[y][x].height == mapData[y][x-1].height){
-                    let block = new THREE.Mesh(new THREE.BoxGeometry(1/8, 1/8, 1), BlockMat);
+                    let block = new THREE.Mesh(new THREE.BoxGeometry(1/8, 1/8, 1), BlockMat.clone());
                     block.position.set(x - 0.5, mapData[y][x].height + 1/16, y);
                     block.castShadow = true;
                     block.receiveShadow = true;
@@ -697,7 +699,7 @@ function buildMap(){
             }
             if (x < mapSize.x - 1 && !mapData[y][x].connections.e && !mapData[y][x].ramp && !mapData[y][x+1].ramp && mapData[y][x].height > mapData[y][x+1].height){
                 //Place a block there
-                let block = new THREE.Mesh(new THREE.BoxGeometry(1/8, 1/8, 1), BlockMat);
+                let block = new THREE.Mesh(new THREE.BoxGeometry(1/8, 1/8, 1), BlockMat.clone());
                 block.position.set(x + 0.5 - 1/16, mapData[y][x].height + 1/16, y);
                 block.castShadow = true;
                 block.receiveShadow = true;
@@ -706,14 +708,14 @@ function buildMap(){
             if (y > 0 && !mapData[y][x].connections.n && !mapData[y][x].ramp && !mapData[y-1][x].ramp){
                 //Place a block there
                 if (mapData[y][x].height > mapData[y-1][x].height){
-                    let block = new THREE.Mesh(new THREE.BoxGeometry(1, 1/8, 1/8), BlockMat);
+                    let block = new THREE.Mesh(new THREE.BoxGeometry(1, 1/8, 1/8), BlockMat.clone());
                     block.position.set(x, mapData[y][x].height + 1/16, y - 0.5 + 1/16);
                     block.castShadow = true;
                     block.receiveShadow = true;
                     BlockList.add(block);
                 }
                 else if (mapData[y][x].height == mapData[y-1][x].height){
-                    let block = new THREE.Mesh(new THREE.BoxGeometry(1, 1/8, 1/8), BlockMat);
+                    let block = new THREE.Mesh(new THREE.BoxGeometry(1, 1/8, 1/8), BlockMat.clone());
                     block.position.set(x, mapData[y][x].height + 1/16, y - 0.5);
                     block.castShadow = true;
                     block.receiveShadow = true;
@@ -722,7 +724,7 @@ function buildMap(){
             }
             if (y < mapSize.y - 1 && !mapData[y][x].connections.s && !mapData[y][x].ramp && !mapData[y+1][x].ramp && mapData[y][x].height > mapData[y+1][x].height){
                 //Place a block there
-                let block = new THREE.Mesh(new THREE.BoxGeometry(1, 1/8, 1/8), BlockMat);
+                let block = new THREE.Mesh(new THREE.BoxGeometry(1, 1/8, 1/8), BlockMat.clone());
                 block.position.set(x, mapData[y][x].height + 1/16, y + 0.5 - 1/16);
                 block.castShadow = true;
                 block.receiveShadow = true;
@@ -744,7 +746,7 @@ function buildMap(){
                         let v = Math.sin(-angle/2);
                         extension += Math.abs(v) / 16;
                     }
-                    block = new THREE.Mesh(new THREE.BoxGeometry(1/16, 1/16, Math.sqrt(Math.pow(mapData[y][x].height.pos - mapData[y][x].height.neg, 2) + 1) + extension), TrimMat);
+                    block = new THREE.Mesh(new THREE.BoxGeometry(1/16, 1/16, Math.sqrt(Math.pow(mapData[y][x].height.pos - mapData[y][x].height.neg, 2) + 1) + extension), TrimMat.clone());
                     block.position.set(x - 0.5 + 1/32, (mapData[y][x].height.pos + mapData[y][x].height.neg) / 2 + ((1/32 + (extension/2)) * Math.cos(angle)), y + ((1/32 - (extension/2)) * Math.sin(angle)));
                     block.setRotationFromEuler(new THREE.Euler(angle, 0, 0));
                 }
@@ -769,7 +771,7 @@ function buildMap(){
                         offset -= 1/32;
                         extension += 1/16;
                     }
-                    block = new THREE.Mesh(new THREE.BoxGeometry(1/16, 1/16, 1 + extension), TrimMat);
+                    block = new THREE.Mesh(new THREE.BoxGeometry(1/16, 1/16, 1 + extension), TrimMat.clone());
                     block.position.set(x - 0.5 + 1/32, mapData[y][x].height + 1/32, y - offset);
                 }
                 block.castShadow = true;
@@ -790,7 +792,7 @@ function buildMap(){
                         let v = Math.sin(-angle/2);
                         extension += Math.abs(v) / 16;
                     }
-                    block = new THREE.Mesh(new THREE.BoxGeometry(1/16, 1/16, Math.sqrt(Math.pow(mapData[y][x].height.pos - mapData[y][x].height.neg, 2) + 1) + extension), TrimMat);
+                    block = new THREE.Mesh(new THREE.BoxGeometry(1/16, 1/16, Math.sqrt(Math.pow(mapData[y][x].height.pos - mapData[y][x].height.neg, 2) + 1) + extension), TrimMat.clone());
                     block.position.set(x + 0.5 - 1/32, (mapData[y][x].height.pos + mapData[y][x].height.neg) / 2 + ((1/32 + (extension/2)) * Math.cos(angle)), y + ((1/32 - (extension/2)) * Math.sin(angle)));
                     block.setRotationFromEuler(new THREE.Euler(angle, 0, 0));
                 }
@@ -815,7 +817,7 @@ function buildMap(){
                         offset -= 1/32;
                         extension += 1/16;
                     }
-                    block = new THREE.Mesh(new THREE.BoxGeometry(1/16, 1/16, 1 + extension), TrimMat);
+                    block = new THREE.Mesh(new THREE.BoxGeometry(1/16, 1/16, 1 + extension), TrimMat.clone());
                     block.position.set(x + 0.5 - 1/32, mapData[y][x].height + 1/32, y - offset);
                 } 
                 block.castShadow = true;
@@ -836,7 +838,7 @@ function buildMap(){
                         let v = Math.sin(-angle/2);
                         extension += Math.abs(v) / 16;
                     }
-                    block = new THREE.Mesh(new THREE.BoxGeometry(Math.sqrt(Math.pow(mapData[y][x].height.pos - mapData[y][x].height.neg, 2) + 1) + extension, 1/16, 1/16), TrimMat);
+                    block = new THREE.Mesh(new THREE.BoxGeometry(Math.sqrt(Math.pow(mapData[y][x].height.pos - mapData[y][x].height.neg, 2) + 1) + extension, 1/16, 1/16), TrimMat.clone());
                     block.position.set((mapData[y][x].height.pos + mapData[y][x].height.neg) / 2 + ((1/32 + (extension/2)) * Math.cos(angle)), y + ((1/32 - (extension/2)) * Math.sin(angle)), y - 0.5 + 1/32);
                     block.setRotationFromEuler(new THREE.Euler(0, 0, angle));
                 }
@@ -853,7 +855,7 @@ function buildMap(){
                         offset += v / 32;
                         extension += Math.abs(v) / 16;
                     }
-                    block = new THREE.Mesh(new THREE.BoxGeometry(1 + extension, 1/16, 1/16), TrimMat);
+                    block = new THREE.Mesh(new THREE.BoxGeometry(1 + extension, 1/16, 1/16), TrimMat.clone());
                     block.position.set(x - offset, mapData[y][x].height + 1/32, y - 0.5 + 1/32);
                 } 
                 block.castShadow = true;
@@ -874,7 +876,7 @@ function buildMap(){
                         let v = Math.sin(-angle/2);
                         extension += Math.abs(v) / 16;
                     }
-                    block = new THREE.Mesh(new THREE.BoxGeometry(Math.sqrt(Math.pow(mapData[y][x].height.pos - mapData[y][x].height.neg, 2) + 1) + extension, 1/16, 1/16), TrimMat);
+                    block = new THREE.Mesh(new THREE.BoxGeometry(Math.sqrt(Math.pow(mapData[y][x].height.pos - mapData[y][x].height.neg, 2) + 1) + extension, 1/16, 1/16), TrimMat.clone());
                     block.position.set((mapData[y][x].height.pos + mapData[y][x].height.neg) / 2 + ((1/32 + (extension/2)) * Math.cos(angle)), y + ((1/32 - (extension/2)) * Math.sin(angle)), y + 0.5 - 1/32);
                     block.setRotationFromEuler(new THREE.Euler(0, 0, angle));
                 }
@@ -891,7 +893,7 @@ function buildMap(){
                         offset += v / 32;
                         extension += Math.abs(v) / 16;
                     }
-                    block = new THREE.Mesh(new THREE.BoxGeometry(1 + extension, 1/16, 1/16), TrimMat);
+                    block = new THREE.Mesh(new THREE.BoxGeometry(1 + extension, 1/16, 1/16), TrimMat.clone());
                     block.position.set(x - offset, mapData[y][x].height + 1/32, y + 0.5 - 1/32);
                 } 
                 block.castShadow = true;
@@ -1095,8 +1097,8 @@ const ShopWarpTiles = [
 
 var PlayerData = {
     position: {
-        x: 15,
-        y: 30
+        x: 10,
+        y: 12
     },
     roll: 0,
     items: ["doubledice"],
@@ -1160,29 +1162,9 @@ function update(){
     AnimateSilverStars();
 
     updateDoorOpenings();
-
-    //UpdateLight();
     
     Renderer.render(Scene, Camera);
     requestAnimationFrame(update);
-}
-
-function UpdateLight(){
-    //No longer in use
-    raycaster.setFromCamera(new THREE.Vector2(0, 0), Camera);
-    var intersections = raycaster.intersectObjects([Player, MapMesh, BlockList], true);
-    if (intersections.length > 0){
-        light.position.set(intersections[0].point.x, intersections[0].point.y + 10, intersections[0].point.z + 5);
-        lightTarget.position.set(intersections[0].point.x, intersections[0].point.y, intersections[0].point.z);
-
-        let dist = Math.sqrt(Math.pow(Camera.position.x - intersections[0].point.x, 2) + Math.pow(Camera.position.y - intersections[0].point.y, 2) + Math.pow(Camera.position.z - intersections[0].point.z, 2)) / 2;
-
-        light.shadow.camera.left = -dist;
-        light.shadow.camera.right = dist;
-        light.shadow.camera.top = dist;
-        light.shadow.camera.bottom = -dist;
-        light.shadow.camera.updateProjectionMatrix();
-    }
 }
 
 var UIState = "menu";
@@ -1331,6 +1313,12 @@ function UpdateUI(){
         //Enable transition
         lastUIState = UIState;
         transitionStart = Date.now();
+        if (UIState == "player"){
+            SetBlockTranparency();
+        }
+        else{
+            SetBlockOpaque();
+        }
     }
 
     if (UIState == "podium"){
@@ -1369,6 +1357,18 @@ function UpdateUI(){
     Player.position.set(playerPos.x, playerPos.y, playerPos.z);
     Camera.position.set(cameraPos.x, cameraPos.y, cameraPos.z);
     Camera.setRotationFromEuler(cameraRot);
+}
+
+function SetBlockTranparency(){
+    for (let i = 0; i < BlockList.children.length; i++){
+        BlockList.children[i].material.opacity = Math.max(0, Math.min(1, Math.sign(PlayerData.position.y - BlockList.children[i].position.z)));
+    }
+}
+
+function SetBlockOpaque(){
+    for (let i = 0; i < BlockList.children.length; i++){
+        BlockList.children[i].material.opacity = 1;
+    }
 }
 
 function InitializeSilverStars(){
@@ -3353,6 +3353,7 @@ var mapTriggeredFrom = "null";
 function OpenMap(){
     Scene.add(MapLocks);
     mapTriggeredFrom = turnStep;
+    Scene.add(mapSelectorBox);
     if (turnStep == "menu"){
         UIState = "map";
         turnStep = "map";
@@ -3395,6 +3396,7 @@ document.getElementsByClassName("board-map-button")[1].onclick = OpenMap;
 
 function CloseMap(){
     Scene.remove(MapLocks);
+    Scene.remove(mapSelectorBox);
     if (turnStep == "map"){
         document.getElementsByClassName("leaderboard-button")[0].style.display = "initial";
         document.getElementsByClassName("help-button")[0].style.display = "initial";
@@ -4050,6 +4052,9 @@ function announcement_server(data){
             document.getElementsByClassName("leaderboard-button")[0].style.display = "initial";
 
             if (SignedIn && checkedIn){
+                StartTurnSFX.currentTime = 0;
+                StartTurnSFX.play();
+
                 UIPanels.waitTurn.style.display = "none";
                 duelBet = false;
                 if (turnStep == "map") CloseMap();
@@ -4462,6 +4467,9 @@ function get_lobby_server(data){
     clearTimeout(GetLobbyServerTimeout);
 
     if (data.success){
+        NotifSFX.currentTime = 0;
+        NotifSFX.play();
+
         document.getElementsByClassName("roll-display")[0].style.transform = "scale(0)";
         document.getElementsByClassName("custom-dice-input")[0].style.display = "none";
         document.getElementsByClassName("roll-inputs")[0].style.display = "none";
