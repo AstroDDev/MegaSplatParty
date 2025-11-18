@@ -1,7 +1,7 @@
 import * as THREE from "three"
 import { TextGeometry } from "three/addons/geometries/TextGeometry.js";
 import { FontLoader } from "three/addons/loaders/FontLoader.js";
-import { FBXLoader } from "three/addons/loaders/FBXLoader.js"
+import { FBXLoader } from "three/addons/loaders/FBXLoader.js";
 
 
 function lerp(a, b, t) { return a * (1 - t) + b * t; }
@@ -57,7 +57,7 @@ if (Object.hasOwn(COOKIES, "playerToken")){
 }
 
 var MinigameData;
-fetch("resources/4player_minigames.json").then(r => r.text()).then(t => MinigameData = JSON.parse(t));
+fetch("resources/minigames.json").then(r => r.text()).then(t => MinigameData = JSON.parse(t));
 
 const EPSILON = 0.001;
 
@@ -262,6 +262,9 @@ ATLAS.magFilter = THREE.NearestFilter;
 ATLAS.minFilter = THREE.NearestFilter;
 ATLAS.colorSpace = THREE.SRGBColorSpace;
 
+const MapMat = new THREE.MeshStandardMaterial({map: ATLAS});
+
+
 Scene.background = SKYBOX_TEX;
 
 const ATLAS_SIZE = {x: 8, y: 8};
@@ -294,7 +297,6 @@ light.shadow.camera.far = 500; // default
 
 Scene.add(ambient);
 Scene.add(light);
-
 
 var selectorTex = TexLoader.load("resources/textures/selector.png");
 selectorTex.colorSpace = THREE.SRGBColorSpace;
@@ -947,8 +949,8 @@ function buildMap(){
     geometry.setAttribute("uv", new THREE.BufferAttribute(new Float32Array(uvs), 2));
     geometry.computeVertexNormals();
 
-    var mat = new THREE.MeshStandardMaterial({ map: ATLAS });
-    MapMesh = new THREE.Mesh(geometry, mat);
+    var mat = new THREE.MeshStandardMaterial({ map: ATLAS, side: THREE.DoubleSide });
+    MapMesh = new THREE.Mesh(geometry, /*mat*/MapMat);
     MapMesh.castShadow = true;
     MapMesh.receiveShadow = true;
 
@@ -3595,7 +3597,7 @@ function EndTutorial(){
     document.getElementsByClassName("player-data")[0].style.display = "initial";
     document.getElementById("leaderboard").style.display = "initial";
     document.getElementById("turn-counter").style.display = "initial";
-    document.getElementById("turn-counter-text").textContent = ServerTurn + "/15";
+    document.getElementById("turn-counter-text").textContent = ServerTurn + "/10";
     //Check if done turn or not
     if (PlayerData.turnsCompleted < ServerTurn){
         //Play your turn
@@ -3964,7 +3966,7 @@ function get_status_server(data){
                     UIPanels.login.style.display = "none";
                     document.getElementById("leaderboard").style.display = "initial";
                     document.getElementById("turn-counter").style.display = "initial";
-                    document.getElementById("turn-counter-text").textContent = ServerTurn + "/15";
+                    document.getElementById("turn-counter-text").textContent = ServerTurn + "/10";
                     UIState = "player";
                     turnStep = "tutorial";
                     document.getElementById("tutorial").style.display = "initial";
@@ -3977,7 +3979,7 @@ function get_status_server(data){
                     document.getElementsByClassName("player-data")[0].style.display = "initial";
                     document.getElementById("leaderboard").style.display = "initial";
                     document.getElementById("turn-counter").style.display = "initial";
-                    document.getElementById("turn-counter-text").textContent = ServerTurn + "/15";
+                    document.getElementById("turn-counter-text").textContent = ServerTurn + "/10";
                     //Check if done turn or not
                     if (PlayerData.turnsCompleted < ServerTurn){
                         //Play your turn
@@ -4061,7 +4063,7 @@ function announcement_server(data){
                 document.getElementById("leaderboard").style.display = "initial";
                 document.getElementById("items-button").disabled = false;
                 document.getElementById("turn-counter").style.display = "initial";
-                document.getElementById("turn-counter-text").textContent = ServerTurn + "/15";
+                document.getElementById("turn-counter-text").textContent = ServerTurn + "/10";
                 console.log(ServerTurn);
                 if (Object.hasOwn(data, "silverStar")){
                     SpawnSilverStarBoard(data.silverStar, lastStatus == "MINIGAME");
@@ -5147,5 +5149,4 @@ for (let i = 0; i < debugSet.length; i++){
 
 
 //TODO!!! Low quality version of webpage (no animations, no lighting, no filters)
-
 //Will have to see if anyone complains about performance

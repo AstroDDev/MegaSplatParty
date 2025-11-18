@@ -1365,6 +1365,17 @@
             </div>
         </div>
 
+        <div id="shaders" style="visibility: hidden;">
+            <script id="fragmentShader" type="text/glsl">
+                uniform sampler2D map;
+
+                varying vec2 uUv;
+
+                void main(){
+                    gl_FragColor.rgb
+                }
+            </script>
+        </div>
         <script type="module" src="script.js" defer></script>
     </body>
 </html>
