@@ -5283,6 +5283,7 @@
 				"w": true
 			},
 			"material": 33,
+			"coins": 3,
 			"wallMaterial": {
 				"n": 30,
 				"e": 30,
@@ -5301,6 +5302,7 @@
 				"w": true
 			},
 			"material": 33,
+			"coins": 3,
 			"wallMaterial": {
 				"n": 30,
 				"e": 30,
@@ -5824,6 +5826,7 @@
 				"w": true
 			},
 			"material": 57,
+			"coins": 3,
 			"wallMaterial": {
 				"n": 28,
 				"e": 28,
@@ -6500,6 +6503,7 @@
 				"w": true
 			},
 			"material": 57,
+			"coins": 3,
 			"wallMaterial": {
 				"n": 28,
 				"e": 28,
@@ -7023,6 +7027,7 @@
 				"w": true
 			},
 			"material": 33,
+			"coins": 3,
 			"wallMaterial": {
 				"n": 30,
 				"e": 30,
@@ -7041,6 +7046,7 @@
 				"w": true
 			},
 			"material": 33,
+			"coins": 3,
 			"wallMaterial": {
 				"n": 30,
 				"e": 30,
