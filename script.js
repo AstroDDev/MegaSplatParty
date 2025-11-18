@@ -1097,8 +1097,8 @@ const ShopWarpTiles = [
 
 var PlayerData = {
     position: {
-        x: 10,
-        y: 12
+        x: 15,
+        y: 30
     },
     roll: 0,
     items: ["doubledice"],
