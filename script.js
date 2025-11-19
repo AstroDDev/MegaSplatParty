@@ -985,7 +985,7 @@ var ItemData = {
         name: "Triple Dice",
         description: "Roll 3 dice and move their total value",
         url: "resources/textures/tripledice.png",
-        price: 12,
+        price: 15,
         usable: true,
         image: TexLoader.load("resources/textures/tripledice.png")
     },
