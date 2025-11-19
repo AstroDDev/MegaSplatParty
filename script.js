@@ -965,7 +965,8 @@ function buildMap(){
     Camera.position.set(Math.cos(angle) * 10 + (mapSize.x / 2), 5, Math.sin(angle) * 10 + (mapSize.y / 2));
     Camera.lookAt(new THREE.Vector3(mapSize.x / 2, 2.5, mapSize.y / 2));
 
-    InitializeSocket();
+    //TODO CHANGE BACK
+    //InitializeSocket();
 
     update();
 }
@@ -1167,8 +1168,8 @@ function update(){
     requestAnimationFrame(update);
 }
 
-var UIState = "menu";
-var lastUIState = "menu";
+var UIState = "orbit";
+var lastUIState = "orbit";
 var transitionValues = {
     filter: null,
     playerRot: null,
@@ -3599,7 +3600,7 @@ function EndTutorial(){
     document.getElementsByClassName("player-data")[0].style.display = "initial";
     document.getElementById("leaderboard").style.display = "initial";
     document.getElementById("turn-counter").style.display = "initial";
-    document.getElementById("turn-counter-text").textContent = ServerTurn + "/10";
+    document.getElementById("turn-counter-text").textContent = ServerTurn + "/12";
     //Check if done turn or not
     if (PlayerData.turnsCompleted < ServerTurn){
         //Play your turn
@@ -3968,7 +3969,7 @@ function get_status_server(data){
                     UIPanels.login.style.display = "none";
                     document.getElementById("leaderboard").style.display = "initial";
                     document.getElementById("turn-counter").style.display = "initial";
-                    document.getElementById("turn-counter-text").textContent = ServerTurn + "/10";
+                    document.getElementById("turn-counter-text").textContent = ServerTurn + "/12";
                     UIState = "player";
                     turnStep = "tutorial";
                     document.getElementById("tutorial").style.display = "initial";
@@ -3981,7 +3982,7 @@ function get_status_server(data){
                     document.getElementsByClassName("player-data")[0].style.display = "initial";
                     document.getElementById("leaderboard").style.display = "initial";
                     document.getElementById("turn-counter").style.display = "initial";
-                    document.getElementById("turn-counter-text").textContent = ServerTurn + "/10";
+                    document.getElementById("turn-counter-text").textContent = ServerTurn + "/12";
                     //Check if done turn or not
                     if (PlayerData.turnsCompleted < ServerTurn){
                         //Play your turn
@@ -4068,7 +4069,7 @@ function announcement_server(data){
                 document.getElementById("leaderboard").style.display = "initial";
                 document.getElementById("items-button").disabled = false;
                 document.getElementById("turn-counter").style.display = "initial";
-                document.getElementById("turn-counter-text").textContent = ServerTurn + "/10";
+                document.getElementById("turn-counter-text").textContent = ServerTurn + "/12";
                 console.log(ServerTurn);
                 if (Object.hasOwn(data, "silverStar")){
                     SpawnSilverStarBoard(data.silverStar, lastStatus == "MINIGAME");
@@ -5158,3 +5159,7 @@ for (let i = 0; i < debugSet.length; i++){
 
 //TODO!!! Low quality version of webpage (no animations, no lighting, no filters)
 //Will have to see if anyone complains about performance
+
+window.onerror = function(e){
+    document.getElementById("debug-2").textContent += "\n" + e;
+};
