@@ -5161,5 +5161,4 @@ for (let i = 0; i < debugSet.length; i++){
 
 window.onerror = function(e){
     document.getElementById("debug-2").textContent += "\n" + e;
-
 };
