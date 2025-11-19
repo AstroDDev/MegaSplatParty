@@ -965,8 +965,7 @@ function buildMap(){
     Camera.position.set(Math.cos(angle) * 10 + (mapSize.x / 2), 5, Math.sin(angle) * 10 + (mapSize.y / 2));
     Camera.lookAt(new THREE.Vector3(mapSize.x / 2, 2.5, mapSize.y / 2));
 
-    //TODO CHANGE BACK
-    //InitializeSocket();
+    InitializeSocket();
 
     update();
 }
@@ -5162,4 +5161,5 @@ for (let i = 0; i < debugSet.length; i++){
 
 window.onerror = function(e){
     document.getElementById("debug-2").textContent += "\n" + e;
+
 };
