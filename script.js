@@ -1167,8 +1167,8 @@ function update(){
     requestAnimationFrame(update);
 }
 
-var UIState = "orbit";
-var lastUIState = "orbit";
+var UIState = "menu";
+var lastUIState = "menu";
 var transitionValues = {
     filter: null,
     playerRot: null,
@@ -1361,7 +1361,15 @@ function UpdateUI(){
 
 function SetBlockTranparency(){
     for (let i = 0; i < BlockList.children.length; i++){
-        BlockList.children[i].material.opacity = Math.max(0, Math.min(1, Math.sign(PlayerData.position.y - BlockList.children[i].position.z)));
+        let tZ = PlayerData.position.y + EPSILON;
+        BlockList.children[i].material.opacity = getHeightTile(PlayerData.position.x, Math.round(tZ)) == getHeightTile(Math.round(BlockList.children[i].position.x), Math.round(BlockList.children[i].position.z)) ? 1 : Math.max(0, Math.min(1, Math.sign(tZ - BlockList.children[i].position.z)));
+    }
+}
+
+function SetBlockTranparencyFromCamera(){
+    for (let i = 0; i < BlockList.children.length; i++){
+        let tZ = Camera.position.z - 1.5 + EPSILON;
+        BlockList.children[i].material.opacity = Math.max(0, Math.min(1, Math.sign(tZ - BlockList.children[i].position.z)));
     }
 }
 
@@ -1606,6 +1614,10 @@ var turnAnimTimer = 0;
 var rollsRemaining = 1;
 var currentRoll = 0;
 var addToRoll = 0;
+let rollHistory = [];
+var rollBonus = false;
+const doubleDittoBonus = 10;
+const tripleDittoBonus = 20;
 var openShopPreview = "";
 var customDiceRoll = 0;
 var luckyOptions = document.getElementsByClassName("lucky-option");
@@ -1633,11 +1645,12 @@ function DoTurn(){
 
                     //Do Roll
                     currentRoll = Math.floor(Math.random() * 10) + 1;
+                    rollHistory.push(currentRoll);
                     PlayerData.roll += currentRoll + addToRoll;
                     addToRoll = 0;
                     spacesMoved = 0;
                     Dice[rollsRemaining - 1].children[5].geometry.dispose();
-                    Dice[rollsRemaining - 1].children[5].geometry = new TextGeometry("" + currentRoll, {font: DiceFont, size: 0.45, depth: 0, curveSegments: 1});
+                    Dice[rollsRemaining - 1].children[5].geometry = new TextGeometry(currentRoll.toString(), {font: DiceFont, size: 0.45, depth: 0, curveSegments: 1});
                     if (currentRoll == 10){
                         Dice[rollsRemaining - 1].children[5].position.set(-0.1625, -0.169, 0.2525);
                     }
@@ -1652,7 +1665,25 @@ function DoTurn(){
                     rollsRemaining--;
                     if (rollsRemaining == 0){
                         SetMoveUI();
-                        Socket.send(JSON.stringify({ method: "set_player_data", token: TOKEN, roll: PlayerData.roll }));
+
+                        if (rollHistory.length == 2) rollBonus = rollHistory[0] == rollHistory[1];
+                        else if (rollHistory.length == 3) rollBonus = rollHistory[0] == rollHistory[1] && rollHistory[1] == rollHistory[2];
+                        else rollBonus = false;
+
+                        if (rollBonus){
+                            if (rollHistory.length == 2){
+                                Socket.send(JSON.stringify({ method: "set_player_data", token: TOKEN, roll: PlayerData.roll, coins: PlayerData.coins + doubleDittoBonus }));
+                                document.getElementById("double-ditto-roll").style.display = "initial";
+                            }
+                            else if (rollHistory.length == 3){
+                                Socket.send(JSON.stringify({ method: "set_player_data", token: TOKEN, roll: PlayerData.roll, coins: PlayerData.coins + tripleDittoBonus }));
+                                document.getElementById("triple-ditto-roll").style.display = "initial";
+                            }
+                        }
+                        else{
+                            Socket.send(JSON.stringify({ method: "set_player_data", token: TOKEN, roll: PlayerData.roll }));
+                        }
+                        rollHistory = [];
                     }
                 }
             }
@@ -1701,11 +1732,16 @@ function DoTurn(){
                 }
                 else if (turnAnimTimer > 0){
                     //Put Dice Away
-                    let t = turnAnimTimer / 0.1;
-                    for (var i = 0; i < Dice.length; i++){
-                        Dice[i].scale.set(Math.max(Dice[i].scale.x - (8.5 * DeltaTime), 0), Math.max(Dice[i].scale.y - (8.5 * DeltaTime), 0), Math.max(Dice[i].scale.z - (8.5 * DeltaTime), 0));
+                    if (rollBonus){
+                        turnAnimTimer += DeltaTime;
                     }
-                    document.getElementsByClassName("roll-display")[0].style.transform = "scale(" + ((1 - t) * 100) + "%)";
+                    else{
+                        let t = turnAnimTimer / 0.1;
+                        for (var i = 0; i < Dice.length; i++){
+                            Dice[i].scale.set(Math.max(Dice[i].scale.x - (8.5 * DeltaTime), 0), Math.max(Dice[i].scale.y - (8.5 * DeltaTime), 0), Math.max(Dice[i].scale.z - (8.5 * DeltaTime), 0));
+                        }
+                        document.getElementsByClassName("roll-display")[0].style.transform = "scale(" + ((1 - t) * 100) + "%)";
+                    }
                 }
                 else{
                     for (var i = 0; i < Dice.length; i++){
@@ -1879,6 +1915,16 @@ function DoTurn(){
     RollClick = false;
 }
 
+document.getElementById("double-ditto-roll-okay").onclick = function(e){
+    TriggerCoinChangeAnimation(doubleDittoBonus);
+    document.getElementById("double-ditto-roll").style.display = "none";
+};
+
+document.getElementById("triple-ditto-roll-okay").onclick = function(e){
+    TriggerCoinChangeAnimation(tripleDittoBonus);
+    document.getElementById("triple-ditto-roll").style.display = "none";
+};
+
 document.getElementsByClassName("lucky-stop-button")[0].onclick = function(e){
     document.getElementsByClassName("lucky-stop-button")[0].disabled = true;
     luckyClickTimer = lerp(2, 4, Math.random());
@@ -2029,6 +2075,7 @@ document.getElementById("debug-set-button").onclick = function(e){
 document.getElementById("debug-map-button").onclick = function(e){
     UIState = "map";
     turnStep = "map";
+    Scene.add(mapSelectorBox);
 }
 document.getElementById("debug-player-button").onclick = function(e){
     UIState = "player";
@@ -2844,6 +2891,7 @@ function PipeWarpAnimation(){
         Player.position.set(endPlayerPos.x, 0, endPlayerPos.z);
         GreenPipe.position.set(startPlayerPos.x, startPlayerPos.y - 0.375 - lerp(0.1, 0.6, t), startPlayerPos.z);
         Camera.position.set(lerp(startPlayerPos.x, endPlayerPos.x, t), lerp(startPlayerPos.y + 0.125, endPlayerPos.y + 0.125, t), lerp(startPlayerPos.z + 1.5, endPlayerPos.z + 1.5, t));
+        SetBlockTranparencyFromCamera();
     }
     else if (animTimer > animLength - 4.45){
         let t = 1 - ((animTimer - animLength + 4.45) / 1);
@@ -2865,10 +2913,13 @@ function PipeWarpAnimation(){
         GreenPipe.rotation.set(0, Math.PI / 2, 0);
         GreenPipe.position.set(0, 0, 0);
         UIState = "player";
+        SetBlockTranparency();
         PlayerData.position = { x: pipeWarpLocation.x, y: pipeWarpLocation.y };
 
         transitionValues.cameraPos = Camera.position;
         transitionValues.cameraRot = Camera.rotation;
+        transitionValues.playerPos = Player.position;
+        transitionValues.playerRot = Player.rotation;
         
         if (turnStep == "pipe-warp-anim-end-turn"){
             SetMoveUI();
@@ -2951,6 +3002,8 @@ function GoldPipeWarpAnimation(){
         
         transitionValues.cameraPos = Camera.position;
         transitionValues.cameraRot = Camera.rotation;
+        transitionValues.playerPos = Player.position;
+        transitionValues.playerRot = Player.rotation;
 
         turnStep = "menu";
         document.getElementsByClassName("player-inputs")[0].style.display = "flex";
@@ -3118,7 +3171,9 @@ function GainCoinsAnimation(){
 
         UIState = "player";
         turnStep = coinsAnimTurnStepBuffer;
-        if (coinsAnimTurnStepBuffer == "popup") EndTurn();
+
+        if (coinsAnimTurnStepBuffer == "roll") rollBonus = false;
+        else if (coinsAnimTurnStepBuffer == "popup") EndTurn();
         else if (coinsAnimTurnStepBuffer == "menu"){
             document.getElementsByClassName("player-inputs")[0].style.display = "flex";
         }

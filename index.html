@@ -705,6 +705,22 @@
                 </div>
             </div>
 
+            <div id="double-ditto-roll" class="popup" style="display: none;">
+                <div class="popup-inset">
+                    <h4 style="color: white;">You rolled 2 of a kind!</h4>
+                    <h4 style="color: white;">Have 10<img style="transform: translateY(5px);" width="20px" src="resources/textures/squid_coin.svg"> to celebrate!</h4><br>
+                    <button id="double-ditto-roll-okay">Okay</button>
+                </div>
+            </div>
+
+            <div id="triple-ditto-roll" class="popup" style="display: none;">
+                <div class="popup-inset">
+                    <h4 style="color: white;">Wow! You rolled 3 of a kind!</h4>
+                    <h4 style="color: white;">Have 20<img style="transform: translateY(5px);" width="20px" src="resources/textures/squid_coin.svg"> to celebrate!</h4><br>
+                    <button id="triple-ditto-roll-okay">Okay</button>
+                </div>
+            </div>
+
             <div id="shop-1" class="popup shop-popup" style="display: none;">
                 <div class="popup-inset">
                     <h1>Shop</h1><br>
@@ -1364,18 +1380,6 @@
                     </div>
                 </div>
             </div>
-        </div>
-
-        <div id="shaders" style="visibility: hidden;">
-            <script id="fragmentShader" type="text/glsl">
-                uniform sampler2D map;
-
-                varying vec2 uUv;
-
-                void main(){
-                    gl_FragColor.rgb
-                }
-            </script>
         </div>
         <script type="module" src="script.js" defer></script>
     </body>
