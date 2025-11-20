@@ -1433,7 +1433,7 @@ button{
 }
 
 #minigame-interactive{
-    width: 90vmin;
+    width: min(calc(90vw - 80px), 90vh);
 }
 
 .new-minigame-window{
