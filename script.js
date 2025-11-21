@@ -3654,7 +3654,7 @@ function EndTutorial(){
     document.getElementsByClassName("player-data")[0].style.display = "initial";
     document.getElementById("leaderboard").style.display = "initial";
     document.getElementById("turn-counter").style.display = "initial";
-    document.getElementById("turn-counter-text").textContent = ServerTurn + "/12";
+    document.getElementById("turn-counter-text").textContent = ServerTurn + "/15";
     //Check if done turn or not
     if (PlayerData.turnsCompleted < ServerTurn){
         //Play your turn
@@ -4023,7 +4023,7 @@ function get_status_server(data){
                     UIPanels.login.style.display = "none";
                     document.getElementById("leaderboard").style.display = "initial";
                     document.getElementById("turn-counter").style.display = "initial";
-                    document.getElementById("turn-counter-text").textContent = ServerTurn + "/12";
+                    document.getElementById("turn-counter-text").textContent = ServerTurn + "/15";
                     UIState = "player";
                     turnStep = "tutorial";
                     document.getElementById("tutorial").style.display = "initial";
@@ -4036,7 +4036,7 @@ function get_status_server(data){
                     document.getElementsByClassName("player-data")[0].style.display = "initial";
                     document.getElementById("leaderboard").style.display = "initial";
                     document.getElementById("turn-counter").style.display = "initial";
-                    document.getElementById("turn-counter-text").textContent = ServerTurn + "/12";
+                    document.getElementById("turn-counter-text").textContent = ServerTurn + "/15";
                     //Check if done turn or not
                     if (PlayerData.turnsCompleted < ServerTurn){
                         //Play your turn
@@ -4123,7 +4123,7 @@ function announcement_server(data){
                 document.getElementById("leaderboard").style.display = "initial";
                 document.getElementById("items-button").disabled = false;
                 document.getElementById("turn-counter").style.display = "initial";
-                document.getElementById("turn-counter-text").textContent = ServerTurn + "/12";
+                document.getElementById("turn-counter-text").textContent = ServerTurn + "/15";
                 console.log(ServerTurn);
                 if (Object.hasOwn(data, "silverStar")){
                     SpawnSilverStarBoard(data.silverStar, lastStatus == "MINIGAME");
