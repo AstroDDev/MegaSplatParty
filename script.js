@@ -2431,12 +2431,15 @@ function UseItem(index){
     }
 }
 function ServerUseItem(item){
+    console.log(PlayerData.roll);
     if (PlayerData.roll > 0 || item == null) return;
+    console.log("1");
     document.getElementById("items-button").disabled = true;
     document.getElementsByClassName("used-item")[0].setAttribute("src", ItemData[item].url);
     switch (item){
         case "doubledice":
             rollsRemaining = 2;
+            console.log("use");
             document.getElementById("roll-button-item-preview").style.display = "initial";
             break;
         case "tripledice":
@@ -3903,6 +3906,9 @@ function InitializeSocket(){
             case "get_player_data":
                 get_player_data_server(data);
                 break;
+            case "set_player_data":
+                set_player_data_server(data);
+                break;
             case "send_message":
                 send_message_server(data);
                 break;
@@ -3923,6 +3929,103 @@ function startPingLoop(){
 }
 function endPingLoop(){
     if (pingLoop != null) clearInterval(pingLoop);
+}
+
+function set_player_data_server(data){
+    if (!data.success){
+        //Mod Flag was triggered
+        confirmMod(data);
+    }
+}
+
+function confirmMod(data){
+    PlayerData = {
+        position: {
+            x: data.data.position.x,
+            y: data.data.position.y
+        },
+        roll: data.data.roll,
+        items: data.data.items,
+        coins: data.data.coins,
+        stars: data.data.stars,
+        collectedSilverStars: data.data.collectedSilverStars,
+        turnsCompleted: data.data.turnsCompleted,
+        canDuel: data.data.canDuel,
+        canSteal: data.data.canSteal,
+        isStealing: data.data.isStealing,
+        tutorial: data.data.tutorial
+    };
+    duelBet = false;
+    UpdateItemUI();
+    UpdatePlayerUI();
+
+    Socket.send(JSON.stringify({ method: "confirm_mod", token: TOKEN, position: PlayerData.position, coins: PlayerData.coins, stars: PlayerData.stars, items: PlayerData.items, turnsCompleted: PlayerData.turnsCompleted }));
+    document.getElementById("mod-change").style.display = "initial";
+    UIPanels.waitMinigame.style.display = "none";
+
+    for (let i = 0; i < Dice.length; i++){
+        Dice[i].scale.set(0, 0, 0);
+    }
+    turnAnimTimer = 0;
+    rollsRemaining = 1;
+    addToRoll = 0;
+    spacesMoved = 0;
+    console.log(data.data.usedItem);
+    ServerUseItem(data.data.usedItem);
+    
+    document.getElementsByClassName("player-data")[0].style.display = "initial";
+    document.getElementById("turn-counter").style.display = "initial";
+    document.getElementById("wait-minigame-map").style.display = "none";
+    document.getElementsByClassName("map-overlay")[0].style.display = "none";
+
+    //
+    //Copied from get_status (Below)
+    //
+
+    if (Object.hasOwn(mapData[PlayerData.position.y][PlayerData.position.x], "popup")) document.getElementById(mapData[PlayerData.position.y][PlayerData.position.x].popup).style.display = "none";
+    document.getElementsByClassName("move-end-turn-button")[0].style.display = "none";
+    document.getElementsByClassName("move-undo-button")[0].style.display = "none";
+    document.getElementsByClassName("custom-dice-input")[0].style.display = "none";
+    document.getElementsByClassName("roll-inputs")[0].style.display = "none";
+    document.getElementsByClassName("roll-display")[0].style.transform = "scale(0%)";
+    document.getElementById("leaderboard").style.display = "initial";
+    document.getElementsByClassName("board-inputs")[0].style.display = "none";
+    document.getElementsByClassName("item-menu")[0].style.display = "none";
+    document.getElementsByClassName("item-toss-menu")[0].style.display = "none";
+    document.getElementsByClassName("map-overlay")[0].style.display = "none";
+    document.getElementById("turn-counter").style.display = "initial";
+    document.getElementsByClassName("player-data")[0].style.display = "initial";
+
+    transitionValues.playerPos = new THREE.Vector3(PlayerData.position.x, getHeightTile(PlayerData.position.x, PlayerData.position.y) + 0.375, PlayerData.position.y);
+
+    if (ServerStatus == "TURN"){
+        //Reset Turn UI and States
+        UIPanels.minigame.style.display = "none";
+        if (PlayerData.turnsCompleted == ServerTurn){
+            document.getElementsByClassName("player-inputs")[0].style.display = "none";
+            UIPanels.waitMinigame.style.display = "initial";
+            document.getElementById("wait-minigame-map").style.display = "initial";
+            turnStep = "wait";
+            UIState = "player";
+        }
+        else if (data.data.roll == 0){
+            document.getElementsByClassName("player-inputs")[0].style.display = "flex";
+            PlayerData.roll = 0;
+            turnStep = "menu";
+            UIState = "player";
+            UIPanels.waitMinigame.style.display = "none";
+        }
+        else{
+            document.getElementsByClassName("player-inputs")[0].style.display = "none";
+            PlayerData.roll = data.data.roll;
+            turnStep = "move";
+            UIState = "above";
+            UIPanels.waitMinigame.style.display = "none";
+            document.getElementsByClassName("roll-display")[0].style.transform = "scale(100%)";
+            document.getElementsByClassName("board-inputs")[0].style.display = "initial";
+            SetMoveUI();
+        }
+    }
 }
 
 var GetStatusServerTimeout;
@@ -4538,34 +4641,8 @@ function end_turn_server(data){
     clearTimeout(EndTurnServerTimeout);
     if (!data.success){
         //Mod Flag issue
-        PlayerData.position = data.data.position;
-        PlayerData.coins = data.data.coins;
-        PlayerData.stars = data.data.stars;
-        PlayerData.items = data.data.items;
-        PlayerData.turnsCompleted = data.data.turnsCompleted;
-        PlayerData.collectedSilverStars = data.data.collectedSilverStars;
-        PlayerData.canDuel = data.data.canDuel;
-        duelBet = false;
-
-        Socket.send(JSON.stringify({ method: "confirm_mod", token: TOKEN, position: PlayerData.position, coins: PlayerData.coins, stars: PlayerData.stars, items: PlayerData.items, turnsCompleted: PlayerData.turnsCompleted }));
-        document.getElementById("mod-change").style.display = "initial";
-
-        turnStep = "move";
-        UIState = "above";
-        UIPanels.waitMinigame.style.display = "none";
-
-        document.getElementsByClassName("roll-display")[0].style.transform = "scale(1)";
-        document.getElementsByClassName("roll-display")[0].style.display = "initial";
-        document.getElementsByClassName("player-data")[0].style.display = "initial";
-        document.getElementsByClassName("board-inputs")[0].style.display = "initial";
-        document.getElementById("turn-counter").style.display = "initial";
-        document.getElementById("wait-minigame-map").style.display = "none";
-        document.getElementsByClassName("map-overlay")[0].style.display = "none";
-
-        spacesMoved = 0;
-        SetMoveUI();
-        UpdateItemUI();
-        UpdatePlayerUI();
+        confirmMod(data);
+        
     }
 }
 
