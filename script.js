@@ -146,24 +146,10 @@ for (let i = 0; i < PlayerAvatars.length; i++){
 
 }
 
-const SKYBOX_TEX = new THREE.CubeTextureLoader().load([
-    "resources/Skyboxes/px.png",
-    "resources/Skyboxes/nx.png",
-    "resources/Skyboxes/py.png",
-    "resources/Skyboxes/ny.png",
-    "resources/Skyboxes/pz.png",
-    "resources/Skyboxes/nz.png"
-]);
-SKYBOX_TEX.colorSpace = THREE.SRGBColorSpace;
-const DARK_SKYBOX_TEX = new THREE.CubeTextureLoader().load([
-    "resources/Skyboxes/dpx.png",
-    "resources/Skyboxes/dnx.png",
-    "resources/Skyboxes/dpy.png",
-    "resources/Skyboxes/dny.png",
-    "resources/Skyboxes/dpz.png",
-    "resources/Skyboxes/dnz.png"
-]);
-DARK_SKYBOX_TEX.colorSpace = THREE.SRGBColorSpace;
+const CubeTexLoader = new THREE.CubeTextureLoader();
+
+var SKYBOX_TEX;
+var DARK_SKYBOX_TEX;
 
 var Star;
 var SilverStar;
@@ -178,7 +164,8 @@ ModelLoader.load("resources/models/squid_star.fbx", (object) => {
                 child.material = new THREE.MeshBasicMaterial({ map: child.material.map, transparent: true });
             }
             else{
-                child.material = new THREE.MeshStandardMaterial({ color: 0xffbf00, envMap: SKYBOX_TEX, roughness: 0.075, metalness: 0.8, emissive: 0xffdc73, emissiveIntensity: 0.5 });
+                child.material = new THREE.MeshStandardMaterial({ color: 0xffbf00, roughness: 0.075, metalness: 0.8, emissive: 0xffdc73, emissiveIntensity: 0.5 });
+                if (mapData != null) child.material.envMap = SKYBOX_TEX;
             }
         }
     });
@@ -192,7 +179,8 @@ ModelLoader.load("resources/models/squid_star.fbx", (object) => {
                 c.material = new THREE.MeshBasicMaterial({ map: c.material.map, transparent: true });
             }
             else{
-                c.material = new THREE.MeshStandardMaterial({ color: 0xaaaaaa, envMap: SKYBOX_TEX, roughness: 0.075, metalness: 0.8, emissive: 0xffffff, emissiveIntensity: 0.25 });
+                c.material = new THREE.MeshStandardMaterial({ color: 0xaaaaaa, roughness: 0.075, metalness: 0.8, emissive: 0xffffff, emissiveIntensity: 0.25 });
+                if (mapData != null) c.material.envMap = SKYBOX_TEX;
             }
         }
     });
@@ -258,19 +246,11 @@ ModelLoader.load("resources/models/pipe.fbx", (object) => {
 });
 
 
-const ATLAS = TexLoader.load("resources/textures/atlas.png");
-ATLAS.wrapS = THREE.RepeatWrapping;
-ATLAS.wrapT = THREE.RepeatWrapping;
-ATLAS.magFilter = THREE.NearestFilter;
-ATLAS.minFilter = THREE.NearestFilter;
-ATLAS.colorSpace = THREE.SRGBColorSpace;
+var ATLAS;
 
-const MapMat = new THREE.MeshStandardMaterial({map: ATLAS});
+var MapMat;// = new THREE.MeshStandardMaterial({map: ATLAS});
 
-
-Scene.background = SKYBOX_TEX;
-
-const ATLAS_SIZE = {x: 8, y: 8};
+const ATLAS_SIZE = {x: 16, y: 16};
 const ATLAS_UV_SIZE = {x: 1 / ATLAS_SIZE.x - (EPSILON * 2), y: 1 / ATLAS_SIZE.y - (EPSILON * 2)};
 
 const PlayerTex = TexLoader.load("resources/textures/AIRA_Pixel1.png");
@@ -366,7 +346,32 @@ fontLoader.load("resources/fonts/Jersey 10/Jersey 10_Regular.json", function(fon
 
 function loadMap(){
     fetch("resources/maps/barnacle-and-dime.json").then(res => res.json()).then(async res => {
-        mapData = res;
+        mapData = res.data;
+        tutorialStarPos = res.tutorialStar.pos;
+        tutorialStarRot = res.tutorialStar.rot;
+        tutorialShopPos = res.tutorialShop.pos;
+        tutorialShopRot = res.tutorialShop.rot;
+        ShopWarpTiles = res.shopWarpTiles;
+        StartingTile = res.startingTile;
+        SKYBOX_TEX = CubeTexLoader.load(res.skybox);
+        SKYBOX_TEX.colorSpace = THREE.SRGBColorSpace;
+        DARK_SKYBOX_TEX = CubeTexLoader.load(res.darkSkybox);
+        DARK_SKYBOX_TEX.colorSpace = THREE.SRGBColorSpace;
+        ATLAS = TexLoader.load(res.atlas);
+        ATLAS.colorSpace = THREE.SRGBColorSpace;
+        ATLAS.wrapS = THREE.RepeatWrapping;
+        ATLAS.wrapT = THREE.RepeatWrapping;
+        ATLAS.magFilter = THREE.NearestFilter;
+        ATLAS.minFilter = THREE.NearestFilter;
+        MapMat = new THREE.MeshStandardMaterial({map: ATLAS});
+
+        Scene.background = SKYBOX_TEX;
+
+        if (Star != null){
+            Star.children[1].material.envMap = SKYBOX_TEX;
+            SilverStar.children[1].material.envMap = SKYBOX_TEX;
+        }
+
         mapSize = {x: mapData[0].length, y: mapData.length};
         
         for (var i = 0; i < mapSize.x; i ++){
@@ -390,7 +395,7 @@ const LockTex = TexLoader.load("./resources/textures/lock.png");
 LockTex.colorSpace = THREE.SRGBColorSpace;
 LockTex.minFilter = THREE.NearestFilter;
 LockTex.magFilter = THREE.NearestFilter;
-const LockMat = new THREE.MeshBasicMaterial({ map: LockTex });
+const LockMat = new THREE.MeshBasicMaterial({ map: LockTex, alphaTest: 0.5 });
 var MapLocks = new THREE.Group();
 function buildMap(){
     //Make sure everything is loaded first
@@ -1088,12 +1093,8 @@ window.onkeydown = function(e){
 }
 window.onkeyup = function(e){ keys[e.keyCode] = false; }
 
-const StartingTile = { x: 15, y: 30 };
-const ShopWarpTiles = [
-    {x: 4, y: 11},
-    {x: 12, y: 15},
-    {x: 16, y: 21}
-];
+var StartingTile = { x: 15, y: 30 };
+var ShopWarpTiles = [];
 
 var PlayerData = {
     position: {
@@ -1108,6 +1109,8 @@ var PlayerData = {
     currentTurn: 1,
     turnsCompleted: 0,
     canDuel: true,
+    canSteal: true,
+    isStealing: false,
     tutorial: true
 };
 
@@ -1192,6 +1195,7 @@ const transitionLength = {
     tutorialshop: 500
 };
 var transitionStart = 0;
+var tutorialStarPos, tutorialStarRot, tutorialShopPos, tutorialShopRot;
 function UpdateUI(){
     var filter;
     var playerRot;
@@ -1298,15 +1302,15 @@ function UpdateUI(){
         filter = 0;
         playerRot = new THREE.Euler(0, 0, 0);
         playerPos = new THREE.Vector3(PlayerData.position.x, getHeightTile(PlayerData.position.x, PlayerData.position.y) + 0.375, PlayerData.position.y);
-        cameraPos = new THREE.Vector3(6, 5, 9);
-        cameraRot = new THREE.Euler(-Math.PI / 4, 0, 0);
+        cameraPos = new THREE.Vector3(tutorialStarPos.x, tutorialStarPos.y, tutorialStarPos.z);
+        cameraRot = new THREE.Euler(tutorialStarRot.x, tutorialStarRot.y, tutorialStarRot.z);
     }
     else if (UIState == "tutorialshop"){
         filter = 0;
         playerRot = new THREE.Euler(0, 0, 0);
         playerPos = new THREE.Vector3(PlayerData.position.x, getHeightTile(PlayerData.position.x, PlayerData.position.y) + 0.375, PlayerData.position.y);
-        cameraPos = new THREE.Vector3(16, 4, 22);
-        cameraRot = new THREE.Euler(-Math.PI / 4, 0, 0);
+        cameraPos = new THREE.Vector3(tutorialShopPos.x, tutorialShopPos.y, tutorialShopPos.z);
+        cameraRot = new THREE.Euler(tutorialShopRot.x, tutorialShopRot.y, tutorialShopRot.z);
     }
 
     if (lastUIState != UIState){
@@ -2202,7 +2206,7 @@ function TestMoveSpace(xOffset, yOffset){
             let newUnlockedDoorsArray = [];
             for (let i = 0; i < unlockedDoors.length; i++) newUnlockedDoorsArray.push(unlockedDoors[i]);
             moveHistory.push({ position: PlayerData.position, coins: PlayerData.coins, stars: PlayerData.stars, items: newItemArray, collectedSilverStars: newSilverStarArray,
-                unlockedDoors: newUnlockedDoorsArray, canDuel: PlayerData.canDuel
+                unlockedDoors: newUnlockedDoorsArray, canDuel: PlayerData.canDuel, canSteal: PlayerData.canSteal, isStealing: PlayerData.isStealing
              });
             PlayerData.position = { x: x, y: y };
             spacesMoved++;
@@ -2277,6 +2281,8 @@ document.getElementsByClassName("move-undo-button")[0].onclick = (e) => {
         if (PlayerData.collectedSilverStars > data.collectedSilverStars) UncollectLatestSilverStar();
         unlockedDoors = data.unlockedDoors;
         PlayerData.canDuel = data.canDuel;
+        PlayerData.canSteal = data.canSteal;
+        PlayerData.isStealing = data.isStealing;
         UpdatePlayerUI();
         UpdateItemUI();
         SetMoveUI();
@@ -2535,7 +2541,8 @@ function EndTurn(){
         document.getElementById("wait-minigame-map").style.display = "initial";
         saveCookies();
         resetDoorUnlocks();
-        Socket.send(JSON.stringify({ method: "end_turn", token: TOKEN, position: PlayerData.position, stars: PlayerData.stars, coins: PlayerData.coins, items: PlayerData.items, collectedSilverStars: PlayerData.collectedSilverStars, duel: duelBet, canDuel: PlayerData.canDuel }));
+        endTurnTimeout(0, JSON.stringify({ method: "end_turn", token: TOKEN, position: PlayerData.position, stars: PlayerData.stars, coins: PlayerData.coins, items: PlayerData.items, collectedSilverStars: PlayerData.collectedSilverStars, duel: duelBet, canDuel: PlayerData.canDuel, canSteal: PlayerData.canSteal, isStealing: PlayerData.isStealing }));
+        //Socket.send(JSON.stringify({ method: "end_turn", token: TOKEN, position: PlayerData.position, stars: PlayerData.stars, coins: PlayerData.coins, items: PlayerData.items, collectedSilverStars: PlayerData.collectedSilverStars, duel: duelBet, canDuel: PlayerData.canDuel }));
     }
 }
 
@@ -2567,10 +2574,14 @@ function OpenPopup(){
         duelButtons[1].disabled = PlayerData.coins <= 0;
         duelButtons[2].disabled = PlayerData.stars < 1;
 
-        console.log(PlayerData.canDuel);
-
         document.getElementById("canduel").style.display = PlayerData.canDuel ? "inline-block" : "none";
         document.getElementById("cantduel").style.display = PlayerData.canDuel ? "none" : "inline-block";
+    }
+    else if (mapData[PlayerData.position.y][PlayerData.position.x].popup == "star-steal"){
+        document.getElementById("star-steal-steal-button").disabled = PlayerData.coins < 30;
+
+        document.getElementById("cansteal").style.display = PlayerData.canSteal ? "inline-block" : "none";
+        document.getElementById("cantsteal").style.display = PlayerData.canSteal ? "none" : "inline-block";
     }
 }
 function ClosePopup(){
@@ -2640,6 +2651,7 @@ function PurchaseStar(){
         document.getElementById(mapData[PlayerData.position.y][PlayerData.position.x].popup).style.display = "none";
         TriggerStarGetAnimation(true, 1);
         PlayerData.canDuel = true;
+        PlayerData.canSteal = true;
     }
 }
 function Purchase2Stars(){
@@ -2683,7 +2695,7 @@ function StarGetAnimation(){
     let targetPlayerPos = new THREE.Vector3(PlayerData.position.x, getHeightTile(PlayerData.position.x, PlayerData.position.y) + 0.375, PlayerData.position.y);
 
     function HorizontalStarOffset(index){
-        return lerp(-0.5, 0.5, starGetAnimCount == 1 ? 0.5 : (index / (starGetAnimCount - 1)));
+        return lerp(-0.3, 0.3, starGetAnimCount == 1 ? 0.5 : (index / (starGetAnimCount - 1)));
     }
 
     if (animTimer > 4){
@@ -3211,7 +3223,7 @@ function LoseCoinsAnimation(){
         UIState = "player";
         turnStep = coinsAnimTurnStepBuffer;
         if (coinsAnimTurnStepBuffer == "popup"){
-            if (mapData[PlayerData.position.y][PlayerData.position.x].popup == "duel"){
+            if (mapData[PlayerData.position.y][PlayerData.position.x].popup == "duel" || mapData[PlayerData.position.y][PlayerData.position.x].popup == "star-steal"){
                 UIState = "above";
                 ClosePopup();
             }
@@ -3487,6 +3499,7 @@ function CloseMap(){
         else if (mapTriggeredFrom == "minigame"){
             UIState = "menu";
             turnStep = "minigame";
+            document.getElementById("turn-counter").style.display = "initial";
             document.getElementsByClassName("map-overlay")[0].style.display = "none";
             document.getElementById("wait-minigame-map").style.display = "initial";
             UIPanels.minigame.style.display = "initial";
@@ -3635,6 +3648,22 @@ document.getElementById("duel-leave-button").onclick = function(e){
     ClosePopup();
 };
 document.getElementById("cant-duel-leave-button").onclick = function(e){
+    ClosePopup();
+};
+
+
+document.getElementById("star-steal-steal-button").onclick = function(e){
+    if (PlayerData.coins >= 30 && PlayerData.canSteal){
+        PlayerData.isStealing = true;
+        document.getElementById(mapData[PlayerData.position.y][PlayerData.position.x].popup).style.display = "none";
+        TriggerCoinChangeAnimation(-30);
+        PlayerData.canSteal = false;
+    }
+};
+document.getElementById("star-steal-leave-button").onclick = function(e){
+    ClosePopup();
+};
+document.getElementById("cant-steal-leave-button").onclick = function(e){
     ClosePopup();
 };
 
@@ -3788,6 +3817,7 @@ function InitializeSocket(){
 
     Socket.onopen = function(e){
         console.log("Socket open");
+        startPingLoop();
         socketHasConnected = true;
         if (TOKEN != ""){
             signInTimeout(0);
@@ -3798,6 +3828,8 @@ function InitializeSocket(){
     }
 
     Socket.onclose = function(e){
+        endPingLoop();
+
         if (ServerStatus == "RESULTS") return;
 
         turnStep = "dc";
@@ -3834,10 +3866,13 @@ function InitializeSocket(){
     }
 
     Socket.onmessage = function(e){
+        if (e.data == "pong" || e.data == "ping") return;
+
         try{
             var data = JSON.parse(e.data);
         }
         catch {return;}
+
         console.log(data);
 
         switch (data.method){
@@ -3875,6 +3910,21 @@ function InitializeSocket(){
     }
 }
 
+var pingLoop;
+function startPingLoop(){
+    pingLoop = setInterval(() => {
+        if (ServerStatus == "REGISTRATION" || ServerStatus == "CHECK_IN"){
+            Socket.send("ping");
+        }
+        else{
+            endPingLoop();
+        }
+    }, 60000);
+}
+function endPingLoop(){
+    if (pingLoop != null) clearInterval(pingLoop);
+}
+
 var GetStatusServerTimeout;
 function getStatusTimeout(i){
     if (i > TIMEOUT_LIMIT) { disconnectError(); return; }
@@ -3886,7 +3936,10 @@ var ServerTurn = 0;
 function get_status_server(data){
     clearTimeout(GetStatusServerTimeout);
 
-    if (Object.hasOwn(data, "turn")) ServerTurn = data.turn;
+    if (Object.hasOwn(data, "turn")){
+        ServerTurn = data.turn;
+        document.getElementById("turn-counter-text").textContent = ServerTurn + "/15";
+    }
     if (Object.hasOwn(data, "endTime")) document.getElementById("turn-timer").textContent = new Date(data.endTime * 60000).toLocaleTimeString("en-US", {hour: "numeric", minute: "2-digit"});
 
     if (Object.hasOwn(data, "data")){
@@ -3907,6 +3960,8 @@ function get_status_server(data){
                 document.getElementsByClassName("item-menu")[0].style.display = "none";
                 document.getElementsByClassName("item-toss-menu")[0].style.display = "none";
                 document.getElementsByClassName("map-overlay")[0].style.display = "none";
+                document.getElementById("turn-counter").style.display = "initial";
+                document.getElementsByClassName("player-data")[0].style.display = "initial";
 
                 PlayerData = {
                     position: {
@@ -3920,6 +3975,8 @@ function get_status_server(data){
                     collectedSilverStars: data.data.collectedSilverStars,
                     turnsCompleted: data.data.turnsCompleted,
                     canDuel: data.data.canDuel,
+                    canSteal: data.data.canSteal,
+                    isStealing: data.data.isStealing,
                     tutorial: data.data.tutorial
                 };
 
@@ -3965,6 +4022,7 @@ function get_status_server(data){
     }
 
     if (Object.hasOwn(data, "modFlag") && data.modFlag){
+        document.getElementById("mod-change").style.display = "initial";
         Socket.send(JSON.stringify({ method: "confirm_mod", token: TOKEN, position: PlayerData.position, coins: PlayerData.coins, stars: PlayerData.stars, items: PlayerData.items, turnsCompleted: PlayerData.turnsCompleted }));
     }
 
@@ -4023,7 +4081,6 @@ function get_status_server(data){
                     UIPanels.login.style.display = "none";
                     document.getElementById("leaderboard").style.display = "initial";
                     document.getElementById("turn-counter").style.display = "initial";
-                    document.getElementById("turn-counter-text").textContent = ServerTurn + "/15";
                     UIState = "player";
                     turnStep = "tutorial";
                     document.getElementById("tutorial").style.display = "initial";
@@ -4036,7 +4093,6 @@ function get_status_server(data){
                     document.getElementsByClassName("player-data")[0].style.display = "initial";
                     document.getElementById("leaderboard").style.display = "initial";
                     document.getElementById("turn-counter").style.display = "initial";
-                    document.getElementById("turn-counter-text").textContent = ServerTurn + "/15";
                     //Check if done turn or not
                     if (PlayerData.turnsCompleted < ServerTurn){
                         //Play your turn
@@ -4087,13 +4143,16 @@ function get_status_server(data){
     ServerStatus = data.status;
 }
 
-const TIMEOUT_LIMIT = 10;
+const TIMEOUT_LIMIT = 5;
 function announcement_server(data){
     if (Object.hasOwn(data, "status")){
         let lastStatus = ServerStatus;
         ServerStatus = data.status;
         animTimer = 0;
-        if (Object.hasOwn(data, "turn")) ServerTurn = data.turn;
+        if (Object.hasOwn(data, "turn")){
+            ServerTurn = data.turn;
+            document.getElementById("turn-counter-text").textContent = ServerTurn + "/15";
+        }
         if (Object.hasOwn(data, "endTime")) document.getElementById("turn-timer").textContent = new Date(data.endTime * 60000).toLocaleTimeString("en-US", {hour: "numeric", minute: "2-digit"});
 
         if (ServerStatus == "CHECK_IN"){
@@ -4112,6 +4171,7 @@ function announcement_server(data){
 
                 UIPanels.waitTurn.style.display = "none";
                 duelBet = false;
+                PlayerData.isStealing = false;
                 if (turnStep == "map") CloseMap();
                 document.getElementById("wait-minigame-map").style.display = "none";
                 rollsRemaining = 1;
@@ -4123,15 +4183,12 @@ function announcement_server(data){
                 document.getElementById("leaderboard").style.display = "initial";
                 document.getElementById("items-button").disabled = false;
                 document.getElementById("turn-counter").style.display = "initial";
-                document.getElementById("turn-counter-text").textContent = ServerTurn + "/15";
                 console.log(ServerTurn);
                 if (Object.hasOwn(data, "silverStar")){
                     SpawnSilverStarBoard(data.silverStar, lastStatus == "MINIGAME");
                 }
                 else if (ServerTurn == 1){
-                    console.log("TURN 1");
                     if (PlayerData.tutorial){
-                        console.log("HELLO");
                         UIState = "player";
                         turnStep = "tutorial";
                         document.getElementById("tutorial").style.display = "initial";
@@ -4150,7 +4207,6 @@ function announcement_server(data){
                     getPlayerDataTimeout(0);
                 }
                 else{
-                    console.log("ELSE");
                     document.getElementsByClassName("player-inputs")[0].style.display = "flex";
                 }
             }
@@ -4472,7 +4528,14 @@ function UpdateGlobalLeaderboard(data){
     }
 }
 
+var EndTurnServerTimeout;
+function endTurnTimeout(index, message){
+    if (i > TIMEOUT_LIMIT) { disconnectError(); return; }
+    EndTurnServerTimeout = setTimeout(() => {endTurnTimeout(i+1, message)}, 3000);
+    Socket.send(message);
+}
 function end_turn_server(data){
+    clearTimeout(EndTurnServerTimeout);
     if (!data.success){
         //Mod Flag issue
         PlayerData.position = data.data.position;
@@ -4485,6 +4548,7 @@ function end_turn_server(data){
         duelBet = false;
 
         Socket.send(JSON.stringify({ method: "confirm_mod", token: TOKEN, position: PlayerData.position, coins: PlayerData.coins, stars: PlayerData.stars, items: PlayerData.items, turnsCompleted: PlayerData.turnsCompleted }));
+        document.getElementById("mod-change").style.display = "initial";
 
         turnStep = "move";
         UIState = "above";
@@ -4511,6 +4575,8 @@ var CurrentMinigame = "null";
 var CurrentMinigameLobby = [];
 var CurrentMinigameSetApartPlayers = [];
 var ServerDuelBet = false;
+var ServerSteal = false;
+var ServerBattle = false;
 function getLobbyTimeout(i){
     if (i > TIMEOUT_LIMIT) { disconnectError(); return; }
     GetLobbyServerTimeout = setTimeout(() => {getLobbyTimeout(i+1)}, 3000);
@@ -4518,6 +4584,22 @@ function getLobbyTimeout(i){
 }
 const teamBackgroundColors = ["rgba(0, 30, 255, 0.25)", "rgba(255, 132, 0, 0.25)", "rgba(0, 255, 34, 0.25)", "rgba(234, 0, 255, 0.25)"];
 const throwerBackgroundColor = "rgba(255, 0, 0, 0.25)";
+const placementText = ["1st", "2nd", "3rd", "4th", "5th", "6th", "7th", "8th"];
+const battleMinigameRewards = [
+    [],
+    [0],
+    [10, -10],
+    [10, 0, -10],
+    [10, 5, -5, -10]
+];
+const battleMinigameTieReward = 3;
+function isCoopTie(resultArray){
+    let target = resultArray[0];
+    for (let i = 1; i < resultArray.length; i++){
+        if (resultArray[i] != target) return false;
+    }
+    return true;
+}
 function get_lobby_server(data){
     clearTimeout(GetLobbyServerTimeout);
 
@@ -4548,7 +4630,8 @@ function get_lobby_server(data){
         document.getElementsByClassName("map-overlay")[0].style.display = "none";
 
         document.getElementById("leaderboard").style.display = "none";
-        document.getElementById("turn-counter").style.display = "none";
+        //document.getElementById("turn-counter").style.display = "none";
+        document.getElementById("turn-timer").textContent = "";
 
         document.getElementById("minigame-interactive").style.display = "inline-block";
         document.getElementById("minigame-waiting").style.display = "none";
@@ -4654,11 +4737,15 @@ function get_lobby_server(data){
         }
         document.getElementById("new-minigame-description").innerHTML = descrip;
 
-        //DUEL STUFF
+        //Special Minigame Types STUFF
         let rewardOptions = document.getElementsByClassName("new-minigame-reward-option");
         if (Object.hasOwn(data, "bet")){
+            //DUEL
             ServerDuelBet = data.bet;
+            ServerSteal = false;
+            ServerBattle = false;
             document.getElementById("minigame-type-title").textContent = "Duel Minigame";
+            document.getElementById("new-minigame-description").innerHTML = "This is a duel minigame. A player has waged their coins or star to initiate a duel. The winner of the duel gains a reward from the loser.<br><br>" + document.getElementById("new-minigame-description").innerHTML;
 
             //Set rewards
             for (let i = 0; i < rewardOptions.length; i++){
@@ -4671,8 +4758,49 @@ function get_lobby_server(data){
             rewardOptions[0].getElementsByTagName("img")[0].setAttribute("src", "resources/textures/" + (ServerDuelBet.type == "coins" ? "squid_coin.svg" : "squid_star.svg"));
             rewardOptions[1].getElementsByTagName("img")[0].setAttribute("src", "resources/textures/" + (ServerDuelBet.type == "coins" ? "squid_coin.svg" : "squid_star.svg"));
         }
-        else{
+        else if (Object.hasOwn(data, "steal")){
+            //STAR STEAL
+            ServerSteal = data.steal;
             ServerDuelBet = false;
+            ServerBattle = false;
+            document.getElementById("minigame-type-title").textContent = "Star Steal Minigame";
+            document.getElementById("new-minigame-description").innerHTML = "This is a star steal minigame. A player has paid coins to have a chance at stealing a star. They will steal a star if they win this minigame.<br><br>" + document.getElementById("new-minigame-description").innerHTML;
+
+            for (let i = 0; i < rewardOptions.length; i++){
+                rewardOptions[i].style.display = i < 2 ? "inline-block" : "none";
+            }
+            let yourUsernameIndex = -1;
+            for (let i = 0; i < data.lobby.length; i++) if (data.lobby[i].ign == COOKIES["ign"]) yourUsernameIndex = i;
+            if (yourUsernameIndex == -1) throw new Error("Could not find user in minigame");
+            rewardOptions[0].getElementsByClassName("new-minigame-reward-placement")[0].textContent = "Win";
+            rewardOptions[1].getElementsByClassName("new-minigame-reward-placement")[0].textContent = "Lose";
+            rewardOptions[0].getElementsByClassName("new-minigame-reward-coins")[0].textContent = ServerSteal.includes(yourUsernameIndex) ? 1 : 10;
+            rewardOptions[1].getElementsByClassName("new-minigame-reward-coins")[0].textContent = (ServerSteal.length == 2 || !ServerSteal.includes(yourUsernameIndex)) ? -1 : 0;
+            rewardOptions[0].getElementsByTagName("img")[0].setAttribute("src", "resources/textures/" + (ServerSteal.includes(yourUsernameIndex) ? "squid_star.svg" : "squid_coin.svg"));
+            rewardOptions[1].getElementsByTagName("img")[0].setAttribute("src", "resources/textures/" + ((ServerSteal.length == 2 || !ServerSteal.includes(yourUsernameIndex)) ? "squid_star.svg" : "squid_coin.svg"));
+        }
+        else if (Object.hasOwn(data, "battle")){
+            //BATTLE
+            ServerDuelBet = false;
+            ServerSteal = false;
+            ServerBattle = data.battle;
+            document.getElementById("minigame-type-title").textContent = "Battle Minigame";
+            document.getElementById("new-minigame-description").innerHTML = "This is a battle minigame. Winners of this minigame will steal coins from the losers.<br><br>" + document.getElementById("new-minigame-description").innerHTML;
+
+            for (let i = 0; i < rewardOptions.length; i++){
+                rewardOptions[i].style.display = i < (MinigameData[data.minigame].type == "coop" ? 3 : data.lobby.length) ? "inline-block" : "none";
+                if (i < (MinigameData[data.minigame].type == "coop" ? 3 : data.lobby.length)){
+                    rewardOptions[i].getElementsByClassName("new-minigame-reward-placement")[0].textContent = MinigameData[data.minigame].type == "coop" ? (i == 0 ? "Win" : (i == 1 ? "Lose" : "Tie")) : placementText[i];
+                    rewardOptions[i].getElementsByClassName("new-minigame-reward-coins")[0].textContent = (MinigameData[data.minigame].type == "coop" && i == 2) ? battleMinigameTieReward : battleMinigameRewards[(MinigameData[data.minigame].type == "coop" ? 2 : data.lobby.length)][i];
+                    rewardOptions[i].getElementsByTagName("img")[0].setAttribute("src", "resources/textures/squid_coin.svg");
+                }
+            }
+        }
+        else{
+            //NORMAL
+            ServerDuelBet = false;
+            ServerSteal = false;
+            ServerBattle = false;
             document.getElementById("minigame-type-title").textContent = "Minigame";
 
             //Set rewards
@@ -4685,7 +4813,6 @@ function get_lobby_server(data){
                 rewardOptions[0].getElementsByTagName("img")[0].setAttribute("src", "resources/textures/squid_coin.svg");
             }
             else if (MinigameData[CurrentMinigame].type == "vs"){
-                const placementText = ["1st", "2nd", "3rd", "4th", "5th", "6th", "7th", "8th"];
                 for (let i = 0; i < rewardOptions.length; i++){
                     if (i < data.lobby.length){
                         rewardOptions[i].style.display = "inline-block";
@@ -4746,6 +4873,12 @@ function get_lobby_server(data){
                         if (ServerDuelBet){
                             maxReward = Math.max(maxReward, MinigameChatHistory[i].result[j] == 0 ? ServerDuelBet.amount * 2 : 0);
                         }
+                        else if (ServerSteal){
+                            maxReward = 0;
+                        }
+                        else if (ServerBattle){
+                            maxReward = 20;
+                        }
                         else if (MinigameData[CurrentMinigame].type == "coin"){
                             maxReward = Math.max(maxReward, Math.floor(MinigameData[CurrentMinigame].rewards * MinigameChatHistory[i].result[j]));
                         }
@@ -4761,6 +4894,17 @@ function get_lobby_server(data){
                                 podiums[j].children[0].style.height = tie ? "55px" : lerp(20, 90, (MinigameChatHistory[i].result[j] == 0 ? ServerDuelBet.amount * 2 : 0) / maxReward) + "px";
                                 podiums[j].children[0].children[1].children[0].textContent = tie ? "0" : (MinigameChatHistory[i].result[j] == 0 ? "+" + ServerDuelBet.amount : -ServerDuelBet.amount);
                                 podiums[j].getElementsByClassName("minigame-podium-coins-image")[0].setAttribute("src", ServerDuelBet.type == "stars" ? "resources/textures/squid_star.svg" : "resources/textures/squid_coin.svg");
+                            }
+                            else if (ServerSteal){
+                                podiums[j].children[0].style.height = MinigameChatHistory[i].result[j] == 0 ? "90px" : "20px";
+                                podiums[j].children[0].children[1].children[0].textContent = ServerSteal.includes(j) ? (MinigameChatHistory[i].result[j] == 0 ? "+1" : (ServerSteal.length == 2 ? "-1" : "0")) : (MinigameChatHistory[i].result[j] == 0 ? "+10" : "-1");
+                                podiums[j].getElementsByClassName("minigame-podium-coins-image")[0].setAttribute("src", "resources/textures/" + (ServerSteal.includes(j) ? "squid_star.svg" : (MinigameChatHistory[i].result[j] == 0 ? "squid_coin.svg" : "squid_star.svg")));
+                            }
+                            else if (ServerBattle){
+                                let reward = isCoopTie(MinigameChatHistory[i].result) ? battleMinigameTieReward : battleMinigameRewards[MinigameData[CurrentMinigame].type == "coop" ? 2 : MinigameChatHistory[i].result.length][MinigameChatHistory[i].result[j]];
+                                podiums[j].children[0].style.height = lerp(20, 90, (reward + 10) / maxReward) + "px";
+                                podiums[j].children[0].children[1].children[0].textContent = (reward > 0 ? "+" : "") + reward;
+                                podiums[j].getElementsByClassName("minigame-podium-coins-image")[0].setAttribute("src", "resources/textures/squid_coin.svg");
                             }
                             else if (MinigameData[CurrentMinigame].type == "coin"){
                                 podiums[j].children[0].style.height = lerp(20, 90, Math.floor(MinigameData[CurrentMinigame].rewards * MinigameChatHistory[i].result[j]) / maxReward) + "px";
@@ -4956,7 +5100,8 @@ function register_server(data){
     clearTimeout(RegisterServerTimeout);
     if (data.success){
         TOKEN = data.token;
-        saveCookies(new Date(data.startTime * 1000 + 86400000));//1 day after start time
+        //TODO!!! Remove 0 on COOKIE
+        saveCookies(new Date(data.startTime * 1000 + 864000000));//1 day after start time
         
         signInTimeout(0);
     }
@@ -5084,6 +5229,12 @@ function send_message_server(data){
                 if (ServerDuelBet){
                     maxReward = Math.max(maxReward, data.data.result[j] == 0 ? ServerDuelBet.amount * 2 : 0);
                 }
+                else if (ServerSteal){
+                    maxReward = 0;
+                }
+                else if (ServerBattle){
+                    maxReward = 20;
+                }
                 else if (MinigameData[CurrentMinigame].type == "coin"){
                     maxReward = Math.max(maxReward, Math.floor(MinigameData[CurrentMinigame].rewards * data.data.result[j]));
                 }
@@ -5099,6 +5250,17 @@ function send_message_server(data){
                         podiums[j].children[0].style.height = tie ? "55px" : lerp(20, 90, (data.data.result[j] == 0 ? ServerDuelBet.amount * 2 : 0) / maxReward) + "px";
                         podiums[j].children[0].children[1].children[0].textContent = tie ? "0" : (data.data.result[j] == 0 ? "+" + ServerDuelBet.amount : -ServerDuelBet.amount);
                         podiums[j].getElementsByClassName("minigame-podium-coins-image")[0].setAttribute("src", ServerDuelBet.type == "stars" ? "resources/textures/squid_star.svg" : "resources/textures/squid_coin.svg");
+                    }
+                    else if (ServerSteal){
+                        podiums[j].children[0].style.height = data.data.result[j] == 0 ? "90px" : "20px";
+                        podiums[j].children[0].children[1].children[0].textContent = ServerSteal.includes(j) ? (data.data.result[j] == 0 ? "+1" : (ServerSteal.length == 2 ? "-1" : "0")) : (data.data.result[j] == 0 ? "+10" : "-1");
+                        podiums[j].getElementsByClassName("minigame-podium-coins-image")[0].setAttribute("src", "resources/textures/" + (ServerSteal.includes(j) ? "squid_star.svg" : (data.data.result[j] == 0 ? "squid_coin.svg" : "squid_star.svg")));
+                    }
+                    else if (ServerBattle){
+                        let reward = isCoopTie(data.data.result) ? battleMinigameTieReward : battleMinigameRewards[MinigameData[CurrentMinigame].type == "coop" ? 2 : data.data.result.length][data.data.result[j]];
+                        podiums[j].children[0].style.height = lerp(20, 90, (reward + 10) / maxReward) + "px";
+                        podiums[j].children[0].children[1].children[0].textContent = (reward > 0 ? "+" : "") + reward;
+                        podiums[j].getElementsByClassName("minigame-podium-coins-image")[0].setAttribute("src", "resources/textures/squid_coin.svg");
                     }
                     else if (MinigameData[CurrentMinigame].type == "coin"){
                         podiums[j].children[0].style.height = lerp(20, 90, Math.floor(MinigameData[CurrentMinigame].rewards * data.data.result[j]) / maxReward) + "px";

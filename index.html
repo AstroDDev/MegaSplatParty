@@ -228,6 +228,15 @@
                     </div>
                 </div>
 
+                <div id="star-steal-preview" class="map-shop" style="display: none;">
+                    <h2>Star Steal</h2>
+                    <p>Attempt to steal a star in the next minigame.</p>
+                    <div class="map-shop-item">
+                        <img class="map-shop-item-image" src="resources/textures/squid_star.svg">
+                        <h3 class="map-shop-price">30 <img src="resources/textures/squid_coin.svg" width="18px" height="18px"></h3>
+                    </div>
+                </div>
+
                 <h2 class="map-distance-text">9 Away</h2>
                 <button class="map-back-button">Back</button>
             </div>
@@ -816,7 +825,7 @@
             <div id="duel" class="popup" style="display: none;">
                 <div id="canduel" class="popup-inset" style="display: inline-block;">
                     <h1>Duel Minigame</h1><br>
-                    <p style="color: white;"><b>Landing on this space allows you to duel another player for coins or a star next minigame.</b></p><br>
+                    <p style="color: white;"><b>Crossing on this space allows you to duel another player for coins or a star next minigame.</b></p><br>
                     <button class="duel-button" style="background-image: url('resources/textures/10coin_ui.svg');"></button>
                     <button class="duel-button" style="background-image: url('resources/textures/allcoin_ui.svg');"></button>
                     <button class="duel-button" style="background-image: url('resources/textures/squid_star.svg');"></button>
@@ -830,6 +839,20 @@
                 </div>
             </div>
 
+            <div id="star-steal" class="popup" style="display: none;">
+                <div id="cansteal" class="popup-inset" style="display: inline-block;">
+                    <h1>Star Steal</h1><br>
+                    <p style="color: white;"><b>Crossing this space allows you to attempt to steal a star from another player.<br>To steal a star from another player you must beat them in the next minigame.</b></p><br>
+                    <button id="star-steal-steal-button" style="font-size: 1.5em;">Steal <img class="coin-shop-image" src="resources/textures/squid_star.svg"> (30 <img class="coin-shop-image" src="resources/textures/squid_coin.svg">)</button>
+                    <button id="star-steal-leave-button" style="font-size: 1.5em;">Leave</button>
+                </div>
+                <div id="cantsteal" class="popup-inset" style="display: none;">
+                    <h1>Star Steal</h1><br>
+                    <p style="color: white;">Sorry, you can only try stealing a star <b>once</b> per star purchase.<br>Come back after buying another star.</p><br>
+                    <button id="cant-steal-leave-button">Okay</button>
+                </div>
+            </div>
+
             <div id="lucky-space" class="popup" style="display: none;">
                 <div class="popup-inset">
                     <h2 style="font-size: 2.75em;">Lucky Space</h2><br>
@@ -840,6 +863,14 @@
                     <div class="lucky-option">Custom Dice</div>
                     <div class="lucky-option">15 <img class="coin-lucky-img" src="resources/textures/squid_coin.svg"></div><br>
                     <button class="lucky-stop-button">Stop</button>
+                </div>
+            </div>
+
+            <div id="mod-change" class="popup" style="display: none; z-index: 999999;">
+                <div class="popup-inset">
+                    <h3>A change has been made to your stats.</h3><br>
+                    <p style="color: white;"><b>You might have to replay your turn.</b></p><br>
+                    <button onclick="document.getElementById('mod-change').style.display = 'none';">Okay</button>
                 </div>
             </div>
 
@@ -954,8 +985,8 @@
                                 <span class="help-sidebar-group-title">Minigames</span>
                                 <div class="help-sidebar-subgroup">
                                     <span class="help-sidebar-subgroup-title">Playing Together</span>
-                                    <span class="help-sidebar-subgroup-title">Submit Results</span>
                                     <span class="help-sidebar-subgroup-title">Late Players</span>
+                                    <span class="help-sidebar-subgroup-title">Submit Results</span>
                                     <span class="help-sidebar-subgroup-title">Teams</span>
                                 </div>
                             </div>
@@ -1069,7 +1100,7 @@
                                 <p>
                                     After the final minigame has concluded, a results screen will appear with crowning whoever had the most stars the victor of Mega Splat Party!
                                     A leaderboard will also allow you to see how well you and all your friends did. MSP is now over and you can enjoy the rest of your evening.
-                                    If you happened to be the winner, you have earned yourself the grand prize of a sendou badge! Your badge will be automatically added to your profile if you have a sendou.ink account, no need to ask for it in the discord server.
+                                    If you happened to be one of the top 3 players, you have earned yourself the grand prize of a sendou badge! Your badge will be automatically added to your profile if you have a sendou.ink account, no need to ask for it in the discord server.
                                 </p>
                                 <img src="resources/help-images/badgeapple.gif" width="200px">
                                 <p>
@@ -1272,7 +1303,7 @@
                                     Some of these minigames will require players to be together in a room in Splatoon.
                                     You can use the minigame chat to coordinate who will host the room.
                                     When hosting or joining a room in Splatoon, make sure to use the pool and password provided on the website.
-                                    Players have 4 minutes to join the room. If a player does not show up, start the game and refer to <a class="help-subgroup-link" index="27">Late Players</a> for submitting their result.
+                                    Players have 4 minutes to join the room. If a player does not show up, start the game and refer to <a class="help-subgroup-link" index="26">Late Players</a> for submitting their result.
                                 </p>
                             </div>
                             <div class="help-subject" style="display: none;">
@@ -1361,11 +1392,11 @@
                             <div class="help-subject" style="display: none;">
                                 <br><h2>Badge</h2><br>
                                 <p>
-                                    The player who wins Mega Splat Party will win a sendou.ink badge for their profile.
+                                    The top 3 players at the end of Mega Splat Party will win a sendou.ink badge for their profile.
                                 </p>
                                 <img src="resources/help-images/badgeapple.gif" width="200px">
                                 <p>
-                                    The badge will be automatically added to the winner's profile if they have a sendou account.
+                                    The badge will be automatically added to the winners' profiles if they have a sendou account.
                                     If the next day the badge has not appeared on your account or you made an account after winning, send a message in the help-desk channel of the discord to have it manually added to your profile.
                                 </p>
                             </div>
