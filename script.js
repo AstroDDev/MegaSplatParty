@@ -59,6 +59,15 @@ const AvatarDecorations = {
         { url: "resources/avatars/Hat/hat-11.png", offsets: [{ x: 0, y: 0 },{ x: 0, y: 1 },{ x: 0, y: 2 },{ x: 0, y: 2 },{ x: 0, y: 2 },{ x: 0, y: 2 }] },
         { url: "resources/avatars/Hat/hat-12.png", offsets: [{ x: 0, y: 0 },{ x: 0, y: 0 },{ x: 0, y: 0 },{ x: 0, y: 0 },{ x: 0, y: 0 },{ x: 0, y: 0 }] },
         { url: "resources/avatars/Hat/hat-13.png", offsets: [{ x: 1, y: 0 },{ x: 1, y: 0 },{ x: 1, y: 1 },{ x: 1, y: 1 },{ x: 1, y: 1 },{ x: 1, y: 1 }] },
+        { url: "resources/avatars/Hat/hat-14.png", offsets: [{ x: 0, y: 0 },{ x: 0, y: 0 },{ x: 0, y: 1 },{ x: 0, y: 1 },{ x: 0, y: 1 },{ x: 0, y: 1 }] },
+        { url: "resources/avatars/Hat/hat-15.png", offsets: [{ x: 0, y: 0 },{ x: 0, y: 0 },{ x: 0, y: 1 },{ x: 0, y: 1 },{ x: 0, y: 1 },{ x: 0, y: 1 }] },
+        { url: "resources/avatars/Hat/hat-16.png", offsets: [{ x: 0, y: 0 },{ x: 0, y: 0 },{ x: 0, y: 0 },{ x: 0, y: 0 },{ x: 0, y: 0 },{ x: 0, y: 0 }] },
+        { url: "resources/avatars/Hat/hat-17.png", offsets: [{ x: 0, y: 0 },{ x: 0, y: 0 },{ x: 1, y: 1 },{ x: 1, y: 1 },{ x: 1, y: 1 },{ x: 1, y: 1 }] },
+        { url: "resources/avatars/Hat/hat-18.png", offsets: [{ x: 0, y: 0 },{ x: 0, y: 0 },{ x: 0, y: 0 },{ x: 0, y: 0 },{ x: 0, y: 0 },{ x: 0, y: 0 }] },
+
+        { url: "resources/avatars/Hat/hat-19.png", offsets: [{ x: 0, y: -1 },{ x: 0, y: -1 },{ x: 0, y: 0 },{ x: 0, y: 0 },{ x: 0, y: 0 },{ x: 0, y: 0 }] },
+        { url: "resources/avatars/Hat/hat-20.png", offsets: [{ x: 0, y: -1 },{ x: 0, y: -1 },{ x: 0, y: 0 },{ x: 0, y: 0 },{ x: 0, y: 0 },{ x: 0, y: 0 }] },
+        { url: "resources/avatars/Hat/hat-21.png", offsets: [{ x: 0, y: 0 },{ x: 0, y: 0 },{ x: 0, y: 0 },{ x: 0, y: 0 },{ x: 0, y: 0 },{ x: 0, y: 0 }] },
     ],
     shirt: [
         "resources/avatars/Shirt/shirt-0.png",
@@ -1152,7 +1161,8 @@ function buildMap(){
     Camera.position.set(Math.cos(angle) * 10 + (mapSize.x / 2), 5, Math.sin(angle) * 10 + (mapSize.y / 2));
     Camera.lookAt(new THREE.Vector3(mapSize.x / 2, 2.5, mapSize.y / 2));
 
-    InitializeSocket();
+    //TODO!!! Switch Back
+    //InitializeSocket();
 
     update();
 }
