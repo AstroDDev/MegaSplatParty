@@ -1076,10 +1076,10 @@ button{
 .results-podium-image{
     position: absolute;
     width: 80px;
-    height: 80px;
+    height: 100px;
     image-rendering: pixelated;
     left: 50%;
-    top: -80px;
+    top: -100px;
     transform: translateX(-50%);
 }
 .results-podium-stars, .results-podium-coins{
@@ -1197,10 +1197,10 @@ button{
     position: absolute;
     display: block;
     image-rendering: pixelated;
-    bottom: -4px;
+    bottom: -6px;
     left: 32px;
     width: 32px;
-    height: 36px;
+    height: 40px;
     transform: translateY(1px);
 }
 
@@ -1670,6 +1670,59 @@ button{
 .used-item{
     filter: drop-shadow(0 0 0.125rem black);
 }
+
+.cc-options{
+    position: relative;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 400px;
+    height: 400px;
+}
+
+.cc-display{
+    position: absolute;
+    width: 320px;
+    height: 400px;
+    left: 50%;
+    transform: translateX(-50%);
+    image-rendering: pixelated;
+}
+
+.cc-decrease-button{
+    position: absolute;
+    width: 60px;
+    height: 30px;
+    left: 0;
+    transform: translateY(-50%) rotate(-90deg);
+    border: none;
+
+    background: url("resources/textures/white_arrow.svg");
+    background-size: 100% 100%;
+
+    z-index: 100;
+}
+
+.cc-increase-button{
+    position: absolute;
+    width: 60px;
+    height: 30px;
+    right: 0;
+    transform: translateY(-50%) rotate(90deg);
+    border: none;
+
+    background: url("resources/textures/white_arrow.svg");
+    background-size: 100% 100%;
+
+    z-index: 100;
+}
+
+.cc-increase-button:active, .cc-decrease-button:active{
+    opacity: 80%;
+}
+
+
+
+
 
 
 

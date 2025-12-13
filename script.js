@@ -3,6 +3,180 @@ import { TextGeometry } from "three/addons/geometries/TextGeometry.js";
 import { FontLoader } from "three/addons/loaders/FontLoader.js";
 import { FBXLoader } from "three/addons/loaders/FBXLoader.js";
 
+const TIMEOUT_LIMIT = 5;
+
+const AvatarDecorations = {
+    hair: [
+        "resources/avatars/Hair/hair-0.png",
+        "resources/avatars/Hair/hair-1.png",
+        "resources/avatars/Hair/hair-2.png",
+        "resources/avatars/Hair/hair-3.png",
+        "resources/avatars/Hair/hair-4.png",
+        "resources/avatars/Hair/hair-5.png",
+        "resources/avatars/Hair/hair-6.png",
+        "resources/avatars/Hair/hair-7.png",
+        "resources/avatars/Hair/hair-8.png",
+        "resources/avatars/Hair/hair-9.png",
+        "resources/avatars/Hair/hair-10.png",
+        "resources/avatars/Hair/hair-11.png",
+        "resources/avatars/Hair/hair-12.png",
+        "resources/avatars/Hair/hair-13.png",
+        "resources/avatars/Hair/hair-14.png",
+        "resources/avatars/Hair/hair-15.png",
+        "resources/avatars/Hair/hair-16.png",
+        "resources/avatars/Hair/hair-17.png",
+        "resources/avatars/Hair/hair-18.png",
+        "resources/avatars/Hair/hair-19.png",
+        "resources/avatars/Hair/hair-20.png",
+        "resources/avatars/Hair/hair-21.png",
+        "resources/avatars/Hair/hair-22.png",
+        "resources/avatars/Hair/hair-23.png",
+        "resources/avatars/Hair/hair-24.png",
+        "resources/avatars/Hair/hair-25.png",
+        "resources/avatars/Hair/hair-26.png",
+        "resources/avatars/Hair/hair-27.png",
+        "resources/avatars/Hair/hair-28.png",
+        "resources/avatars/Hair/hair-29.png",
+        "resources/avatars/Hair/hair-30.png",
+        "resources/avatars/Hair/hair-31.png",
+        "resources/avatars/Hair/hair-32.png",
+        "resources/avatars/Hair/hair-33.png",
+        "resources/avatars/Hair/hair-34.png",
+        "resources/avatars/Hair/hair-35.png"
+    ],
+    hat: [
+        { url: "resources/avatars/Hat/hat-0.png", offsets: [{ x: 0, y: 0 },{ x: 0, y: 0 },{ x: 0, y: 0 },{ x: 0, y: 0 },{ x: 0, y: 0 },{ x: 0, y: 0 }] },
+        { url: "resources/avatars/Hat/hat-1.png", offsets: [{ x: 0, y: 0 },{ x: 0, y: 0 },{ x: 1, y: 1 },{ x: 0, y: 1 },{ x: 1, y: 1 },{ x: 1, y: 1 }] },
+        { url: "resources/avatars/Hat/hat-2.png", offsets: [{ x: 0, y: 0 },{ x: 0, y: 0 },{ x: 0, y: 1 },{ x: 0, y: 1 },{ x: 0, y: 1 },{ x: 0, y: 1 }] },
+        { url: "resources/avatars/Hat/hat-3.png", offsets: [{ x: 0, y: 0 },{ x: 0, y: 0 },{ x: 0, y: 0 },{ x: 0, y: 1 },{ x: 0, y: 1 },{ x: 0, y: 1 }] },
+        { url: "resources/avatars/Hat/hat-4.png", offsets: [{ x: 0, y: 0 },{ x: 0, y: 0 },{ x: 0, y: 0 },{ x: 0, y: 0 },{ x: 0, y: 0 },{ x: 0, y: 0 }] },
+        { url: "resources/avatars/Hat/hat-5.png", offsets: [{ x: 0, y: 0 },{ x: 0, y: 0 },{ x: 0, y: 0 },{ x: 0, y: 1 },{ x: 0, y: 1 },{ x: 0, y: 1 }] },
+        { url: "resources/avatars/Hat/hat-6.png", offsets: [{ x: 0, y: 0 },{ x: 0, y: 0 },{ x: 0, y: 0 },{ x: 0, y: 0 },{ x: 0, y: 0 },{ x: 0, y: 0 }] },
+        { url: "resources/avatars/Hat/hat-7.png", offsets: [{ x: 0, y: 0 },{ x: 0, y: 1 },{ x: 0, y: 2 },{ x: 0, y: 2 },{ x: 0, y: 2 },{ x: 0, y: 2 }] },
+        { url: "resources/avatars/Hat/hat-8.png", offsets: [{ x: 0, y: 0 },{ x: 0, y: 0 },{ x: 0, y: 0 },{ x: 0, y: 0 },{ x: 0, y: 0 },{ x: 0, y: 0 }] },
+        { url: "resources/avatars/Hat/hat-9.png", offsets: [{ x: 0, y: 0 },{ x: 0, y: 0 },{ x: 0, y: 1 },{ x: 0, y: 1 },{ x: 0, y: 1 },{ x: 0, y: 1 }] },
+        { url: "resources/avatars/Hat/hat-10.png", offsets: [{ x: 0, y: 0 },{ x: 0, y: 1 },{ x: 0, y: 2 },{ x: 0, y: 2 },{ x: 0, y: 2 },{ x: 0, y: 2 }] },
+        { url: "resources/avatars/Hat/hat-11.png", offsets: [{ x: 0, y: 0 },{ x: 0, y: 1 },{ x: 0, y: 2 },{ x: 0, y: 2 },{ x: 0, y: 2 },{ x: 0, y: 2 }] },
+        { url: "resources/avatars/Hat/hat-12.png", offsets: [{ x: 0, y: 0 },{ x: 0, y: 0 },{ x: 0, y: 0 },{ x: 0, y: 0 },{ x: 0, y: 0 },{ x: 0, y: 0 }] },
+        { url: "resources/avatars/Hat/hat-13.png", offsets: [{ x: 1, y: 0 },{ x: 1, y: 0 },{ x: 1, y: 1 },{ x: 1, y: 1 },{ x: 1, y: 1 },{ x: 1, y: 1 }] },
+    ],
+    shirt: [
+        "resources/avatars/Shirt/shirt-0.png",
+        "resources/avatars/Shirt/shirt-1.png",
+        "resources/avatars/Shirt/shirt-2.png",
+        "resources/avatars/Shirt/shirt-3.png",
+        "resources/avatars/Shirt/shirt-4.png",
+        "resources/avatars/Shirt/shirt-5.png",
+        "resources/avatars/Shirt/shirt-6.png",
+        "resources/avatars/Shirt/shirt-7.png",
+        "resources/avatars/Shirt/shirt-8.png",
+        "resources/avatars/Shirt/shirt-9.png",
+        "resources/avatars/Shirt/shirt-10.png",
+        "resources/avatars/Shirt/shirt-11.png",
+        "resources/avatars/Shirt/shirt-12.png",
+        "resources/avatars/Shirt/shirt-13.png",
+        "resources/avatars/Shirt/shirt-14.png",
+        "resources/avatars/Shirt/shirt-15.png",
+        "resources/avatars/Shirt/shirt-16.png",
+        "resources/avatars/Shirt/shirt-17.png",
+        "resources/avatars/Shirt/shirt-18.png",
+        "resources/avatars/Shirt/shirt-19.png",
+        "resources/avatars/Shirt/shirt-20.png",
+        "resources/avatars/Shirt/shirt-21.png",
+        "resources/avatars/Shirt/shirt-22.png",
+        "resources/avatars/Shirt/shirt-23.png",
+        "resources/avatars/Shirt/shirt-24.png",
+        "resources/avatars/Shirt/shirt-25.png",
+        "resources/avatars/Shirt/shirt-26.png",
+        "resources/avatars/Shirt/shirt-27.png",
+        "resources/avatars/Shirt/shirt-28.png",
+        "resources/avatars/Shirt/shirt-29.png",
+        "resources/avatars/Shirt/shirt-30.png",
+        "resources/avatars/Shirt/shirt-31.png",
+        "resources/avatars/Shirt/shirt-32.png",
+        "resources/avatars/Shirt/shirt-33.png",
+        "resources/avatars/Shirt/shirt-34.png",
+        "resources/avatars/Shirt/shirt-35.png"
+    ],
+    skin: [
+        "resources/avatars/Skin/skin-0.png",
+        "resources/avatars/Skin/skin-1.png",
+        "resources/avatars/Skin/skin-2.png",
+        "resources/avatars/Skin/skin-3.png",
+        "resources/avatars/Skin/skin-4.png",
+        "resources/avatars/Skin/skin-5.png",
+    ]
+}
+var AvatarImages = {
+    hair: [],
+    hat: [],
+    skin: [],
+    shirt: []
+}
+
+for (let i = 0; i < AvatarDecorations.hair.length; i++){
+    let img = document.createElement("img");
+    img.src = AvatarDecorations.hair[i];
+    AvatarImages.hair.push(img);
+}
+for (let i = 0; i < AvatarDecorations.hat.length; i++){
+    let img = document.createElement("img");
+    img.src = AvatarDecorations.hat[i].url;
+    AvatarImages.hat.push(img);
+}
+for (let i = 0; i < AvatarDecorations.skin.length; i++){
+    let img = document.createElement("img");
+    img.src = AvatarDecorations.skin[i];
+    AvatarImages.skin.push(img);
+}
+for (let i = 0; i < AvatarDecorations.shirt.length; i++){
+    let img = document.createElement("img");
+    img.src = AvatarDecorations.shirt[i];
+    AvatarImages.shirt.push(img);
+}
+
+const CCCanvas = document.createElement("canvas");
+CCCanvas.width = 16;
+CCCanvas.height = 20;
+const ctx = CCCanvas.getContext("2d");
+var playerTextureCache = {};
+function CharacterToInt(char) { return ((char.skin) + (char.shirt * 1000) + (char.hair * 1000 * 1000) + (char.hat * 1000 * 1000 * 1000)).toString(); }
+function GeneratePlayerTexture(char){
+    let v = CharacterToInt(char);
+    if (Object.hasOwn(playerTextureCache, v)) return playerTextureCache[v];
+
+    ctx.clearRect(0, 0, 16, 20);
+    ctx.drawImage(AvatarImages.skin[char.skin], 0, 0);
+    ctx.drawImage(AvatarImages.shirt[char.shirt], 0, 0);
+    ctx.drawImage(AvatarImages.hair[char.hair], 0, 0);
+    ctx.drawImage(AvatarImages.hat[char.hat].url, AvatarImages.hat[char.hat].offsets[chat.hat % AvatarImages.hat[char.hat].offsets.length].x, AvatarImages.hat[char.hat].offsets[chat.hat % AvatarImages.hat[char.hat].offsets.length].y);
+    let tex = new THREE.CanvasTexture(CCCanvas);
+    tex.needsUpdate = false;
+    tex.colorSpace = THREE.SRGBColorSpace;
+    tex.minFilter = THREE.NearestFilter;
+    tex.magFilter = THREE.NearestFilter;
+
+    Object.defineProperty(playerURLCache, v, { writable: false, enumerable: true, configurable: true, value: CCCanvas.toDataURL() });
+    Object.defineProperty(playerTextureCache, v, { writable: false, enumerable: true, configurable: true, value: tex });
+
+    return tex;
+}
+var playerURLCache = {};
+function GeneratePlayerURL(char){
+    let v = CharacterToInt(char);
+    if (Object.hasOwn(playerURLCache, v)) return playerURLCache[v];
+
+    ctx.clearRect(0, 0, 16, 20);
+    ctx.drawImage(AvatarImages.skin[char.skin], 0, 0);
+    ctx.drawImage(AvatarImages.shirt[char.shirt], 0, 0);
+    ctx.drawImage(AvatarImages.hair[char.hair], 0, 0);
+    ctx.drawImage(AvatarImages.hat[char.hat].url, AvatarImages.hat[char.hat].offsets[chat.hat % AvatarImages.hat[char.hat].offsets.length].x, AvatarImages.hat[char.hat].offsets[chat.hat % AvatarImages.hat[char.hat].offsets.length].y);
+    let url = CCCanvas.toDataURL();
+
+    Object.defineProperty(playerURLCache, v, { writable: false, enumerable: true, configurable: true, value: url });
+
+    return url;
+}
 
 function lerp(a, b, t) { return a * (1 - t) + b * t; }
 function lerpVector(a, b, t) { return new THREE.Vector3(lerp(a.x, b.x, t), lerp(a.y, b.y, t), lerp(a.z, b.z, t)); }
@@ -87,7 +261,7 @@ const TrimMat = new THREE.MeshStandardMaterial({ color: 0xaaaaaa, alphaTest: 0.5
 const TexLoader = new THREE.TextureLoader();
 const ModelLoader = new FBXLoader();
 
-var PlayerAvatars = [
+/*var PlayerAvatars = [
     "resources/avatars/blue_octo_1.png",
     "resources/avatars/blue_octo_2.png",
     "resources/avatars/blue_octo_3.png",
@@ -144,7 +318,7 @@ for (let i = 0; i < PlayerAvatars.length; i++){
     tex.magFilter = THREE.NearestFilter;
     PlayerAvatarsTex.push(tex);
 
-}
+}*/
 
 const CubeTexLoader = new THREE.CubeTextureLoader();
 
@@ -258,7 +432,7 @@ PlayerTex.magFilter = THREE.NearestFilter;
 PlayerTex.minFilter = THREE.NearestFilter;
 PlayerTex.colorSpace = THREE.SRGBColorSpace;
 
-var Player = new THREE.Mesh(new THREE.PlaneGeometry(0.75, 0.75), new THREE.MeshStandardMaterial({map: PlayerTex, alphaTest: 0.5, side: THREE.DoubleSide}));
+var Player = new THREE.Mesh(new THREE.PlaneGeometry(0.6, 0.75), new THREE.MeshStandardMaterial({map: PlayerTex, alphaTest: 0.5, side: THREE.DoubleSide}));
 Player.castShadow = true;
 Player.receiveShadow = false;
 Player.position.set(10, 2.875, 15);
@@ -1136,6 +1310,7 @@ var lastFrameTime = Date.now();
 const UIPanels = {
     connecting: document.getElementById("connecting"),
     login: document.getElementById("login"),
+    characterCreator: document.getElementById("character-creator"),
     checkin: document.getElementById("checkin"),
     waitMinigame: document.getElementById("waiting-minigame"),
     waitTurn: document.getElementById("waiting-turn"),
@@ -3800,6 +3975,63 @@ function TutorialGiveAnimation(){
     }
 }
 
+const CCElements = document.getElementsByClassName("cc-display");
+const CCIncreaseButtons = document.getElementsByClassName("cc-increase-button");
+const CCDecreaseButtons = document.getElementsByClassName("cc-decrease-button");
+var CCHatIndex = Math.floor(Math.random() * AvatarDecorations.hat.length);
+CCIncreaseButtons[0].onclick = function(e){
+    CCHatIndex = (CCHatIndex + 1) % AvatarDecorations.hat.length;
+    CCElements[3].src = AvatarDecorations.hat[CCHatIndex].url;
+    CCElements[3].style.transform = "translate(calc(-50% + " + (AvatarDecorations.hat[CCHatIndex].offsets[CCHairIndex % AvatarDecorations.hat[CCHatIndex].offsets.length].x * 20) + "px), " + (AvatarDecorations.hat[CCHatIndex].offsets[CCHairIndex % AvatarDecorations.hat[CCHatIndex].offsets.length].y * 20) + "px)";
+};
+CCDecreaseButtons[0].onclick = function(e){
+    CCHatIndex = (CCHatIndex + AvatarDecorations.hat.length - 1) % AvatarDecorations.hat.length;
+    CCElements[3].src = AvatarDecorations.hat[CCHatIndex].url;
+    CCElements[3].style.transform = "translate(calc(-50% + " + (AvatarDecorations.hat[CCHatIndex].offsets[CCHairIndex % AvatarDecorations.hat[CCHatIndex].offsets.length].x * 20) + "px), " + (AvatarDecorations.hat[CCHatIndex].offsets[CCHairIndex % AvatarDecorations.hat[CCHatIndex].offsets.length].y * 20) + "px)";
+};
+var CCHairIndex = Math.floor(Math.random() * AvatarDecorations.hair.length);
+CCIncreaseButtons[1].onclick = function(e){
+    CCHairIndex = (CCHairIndex + 1) % AvatarDecorations.hair.length;
+    CCElements[2].src = AvatarDecorations.hair[CCHairIndex];
+    CCElements[3].style.transform = "translate(calc(-50% + " + (AvatarDecorations.hat[CCHatIndex].offsets[CCHairIndex % AvatarDecorations.hat[CCHatIndex].offsets.length].x * 20) + "px), " + (AvatarDecorations.hat[CCHatIndex].offsets[CCHairIndex % AvatarDecorations.hat[CCHatIndex].offsets.length].y * 20) + "px)";
+};
+CCDecreaseButtons[1].onclick = function(e){
+    CCHairIndex = (CCHairIndex + AvatarDecorations.hair.length - 1) % AvatarDecorations.hair.length;
+    CCElements[2].src = AvatarDecorations.hair[CCHairIndex];
+    CCElements[3].style.transform = "translate(calc(-50% + " + (AvatarDecorations.hat[CCHatIndex].offsets[CCHairIndex % AvatarDecorations.hat[CCHatIndex].offsets.length].x * 20) + "px), " + (AvatarDecorations.hat[CCHatIndex].offsets[CCHairIndex % AvatarDecorations.hat[CCHatIndex].offsets.length].y * 20) + "px)";
+};
+var CCSkinIndex = Math.floor(Math.random() * AvatarDecorations.skin.length);
+CCIncreaseButtons[2].onclick = function(e){
+    CCSkinIndex = (CCSkinIndex + 1) % AvatarDecorations.skin.length;
+    CCElements[0].src = AvatarDecorations.skin[CCSkinIndex];
+};
+CCDecreaseButtons[2].onclick = function(e){
+    CCSkinIndex = (CCSkinIndex + AvatarDecorations.skin.length - 1) % AvatarDecorations.skin.length;
+    CCElements[0].src = AvatarDecorations.skin[CCSkinIndex];
+};
+var CCShirtIndex = Math.floor(Math.random() * AvatarDecorations.shirt.length);
+CCIncreaseButtons[3].onclick = function(e){
+    CCShirtIndex = (CCShirtIndex + 1) % AvatarDecorations.shirt.length;
+    CCElements[1].src = AvatarDecorations.shirt[CCShirtIndex];
+};
+CCDecreaseButtons[3].onclick = function(e){
+    CCShirtIndex = (CCShirtIndex + AvatarDecorations.shirt.length - 1) % AvatarDecorations.shirt.length;
+    CCElements[1].src = AvatarDecorations.shirt[CCShirtIndex];
+};
+
+CCElements[0].src = AvatarDecorations.skin[CCSkinIndex];
+CCElements[1].src = AvatarDecorations.shirt[CCShirtIndex];
+CCElements[2].src = AvatarDecorations.hair[CCHairIndex];
+CCElements[3].src = AvatarDecorations.hat[CCHatIndex].url;
+CCElements[3].style.transform = "translate(calc(-50% + " + (AvatarDecorations.hat[CCHatIndex].offsets[CCHairIndex % AvatarDecorations.hat[CCHatIndex].offsets.length].x * 20) + "px), " + (AvatarDecorations.hat[CCHatIndex].offsets[CCHairIndex % AvatarDecorations.hat[CCHatIndex].offsets.length].y * 20) + "px)";
+
+document.getElementById("cc-submit-button").onclick = function(e){
+    UIPanels.characterCreator.style.display = "none";
+    UIPanels.connecting.style.display = "initial";
+    registerTimeout(registerDiscord, registerIGN, { hat: CCHatIndex, hair: CCHairIndex, skin: CCSkinIndex, shirt: CCShirtIndex }, 0);
+    //Socket.send(JSON.stringify({ method: "set_player_data", token: TOKEN, character: { hat: CCHatIndex, hair: CCHairIndex, skin: CCSkinIndex, shirt: CCShirtIndex } }));
+};
+
 
 
 
@@ -4246,7 +4478,6 @@ function get_status_server(data){
     ServerStatus = data.status;
 }
 
-const TIMEOUT_LIMIT = 5;
 function announcement_server(data){
     if (Object.hasOwn(data, "status")){
         let lastStatus = ServerStatus;
@@ -4384,9 +4615,9 @@ function TriggerResultsAnimation(data, skipAnim){
     Scene.add(Block1, Block2, Block3);
 
     //Put players on podium
-    var Player1 = new THREE.Mesh(new THREE.PlaneGeometry(0.75, 0.75), new THREE.MeshStandardMaterial({map: PlayerAvatarsTex[stringToIndex(ResultsData.data[0].ign) % PlayerAvatars.length], alphaTest: 0.5, side: THREE.DoubleSide}));
-    var Player2 = new THREE.Mesh(new THREE.PlaneGeometry(0.75, 0.75), new THREE.MeshStandardMaterial({map: PlayerAvatarsTex[stringToIndex(ResultsData.data[1].ign) % PlayerAvatars.length], alphaTest: 0.5, side: THREE.DoubleSide}));
-    var Player3 = new THREE.Mesh(new THREE.PlaneGeometry(0.75, 0.75), new THREE.MeshStandardMaterial({map: PlayerAvatarsTex[stringToIndex(ResultsData.data[2].ign) % PlayerAvatars.length], alphaTest: 0.5, side: THREE.DoubleSide}));
+    var Player1 = new THREE.Mesh(new THREE.PlaneGeometry(0.75, 0.75), new THREE.MeshStandardMaterial({map: GeneratePlayerTexture(ResultsData.data[0].character), alphaTest: 0.5, side: THREE.DoubleSide}));
+    var Player2 = new THREE.Mesh(new THREE.PlaneGeometry(0.75, 0.75), new THREE.MeshStandardMaterial({map: GeneratePlayerTexture(ResultsData.data[1].character), alphaTest: 0.5, side: THREE.DoubleSide}));
+    var Player3 = new THREE.Mesh(new THREE.PlaneGeometry(0.75, 0.75), new THREE.MeshStandardMaterial({map: GeneratePlayerTexture(ResultsData.data[2].character), alphaTest: 0.5, side: THREE.DoubleSide}));
     Player1.castShadow = true;
     Player2.castShadow = true;
     Player3.castShadow = true;
@@ -4520,9 +4751,9 @@ function GenerateResultsPage(data){
     podiumStars[0].textContent = data.data[0].stars;
     podiumStars[1].textContent = data.data[1].stars;
     podiumStars[2].textContent = data.data[2].stars;
-    podiumAvatars[0].setAttribute("src", PlayerAvatars[stringToIndex(data.data[0].ign) % PlayerAvatars.length]);
-    podiumAvatars[1].setAttribute("src", PlayerAvatars[stringToIndex(data.data[1].ign) % PlayerAvatars.length]);
-    podiumAvatars[2].setAttribute("src", PlayerAvatars[stringToIndex(data.data[2].ign) % PlayerAvatars.length]);
+    podiumAvatars[0].setAttribute("src", GeneratePlayerURL(data.data[0].character));
+    podiumAvatars[1].setAttribute("src", GeneratePlayerURL(data.data[1].character));
+    podiumAvatars[2].setAttribute("src", GeneratePlayerURL(data.data[2].character));
 
     //Generate scrollable leaderboard
     let foundYou = false;
@@ -4539,7 +4770,7 @@ function GenerateResultsPage(data){
         listElement.children[0].classList.add("results-list-placement");
         listElement.children[0].textContent = (i + 1) + ". ";
         listElement.appendChild(document.createElement("img"));
-        listElement.children[1].setAttribute("src", PlayerAvatars[stringToIndex(data.data[i].ign) % PlayerAvatars.length]);
+        listElement.children[1].setAttribute("src", GeneratePlayerURL(data.data[i].character));
         listElement.children[1].classList.add("results-list-avatar");
         listElement.appendChild(document.createElement("span"));
         listElement.children[2].classList.add("results-list-username");
@@ -4624,7 +4855,7 @@ function UpdateGlobalLeaderboard(data){
 
     for (var i = 0; i < data.data.length; i++){
         GlobalLeaderboard.children[i].children[0].textContent = (i + 1) + ". ";
-        GlobalLeaderboard.children[i].children[1].setAttribute("src", PlayerAvatars[stringToIndex(data.data[i].ign) % PlayerAvatars.length]);
+        GlobalLeaderboard.children[i].children[1].setAttribute("src", GeneratePlayerURL(data.data[i].character));
         GlobalLeaderboard.children[i].children[2].textContent = data.data[i].ign.split("#")[0];
         GlobalLeaderboard.children[i].children[4].children[0].textContent = data.data[i].stars + " ";
         GlobalLeaderboard.children[i].children[3].children[0].textContent = data.data[i].coins + " ";
@@ -4993,7 +5224,7 @@ function get_lobby_server(data){
                                 podiums[j].children[0].children[1].children[0].textContent = "+" + MinigameData[CurrentMinigame].rewards[MinigameChatHistory[i].result[j]];
                                 podiums[j].getElementsByClassName("minigame-podium-coins-image")[0].setAttribute("src", "resources/textures/squid_coin.svg");
                             }
-                            podiums[j].children[0].children[0].setAttribute("src", PlayerAvatars[stringToIndex(CurrentMinigameLobby[j].ign) % PlayerAvatars.length]);
+                            podiums[j].children[0].children[0].setAttribute("src", GeneratePlayerURL(CurrentMinigameLobby[j].character));
                             podiums[j].children[0].children[2].textContent = CurrentMinigameLobby[j].ign.split("#")[0];
                         }
                         else{
@@ -5056,7 +5287,8 @@ function sign_in_server(data){
         UIState = "menu";
         checkedIn = data.checkedIn;
 
-        Player.material.map = PlayerAvatarsTex[stringToIndex(COOKIES["ign"]) % PlayerAvatarsTex.length];
+        Player.material.map = GeneratePlayerTexture(data.character);
+        //PlayerAvatarsTex[stringToIndex(COOKIES["ign"]) % PlayerAvatarsTex.length];
 
         UIPanels.checkin.children[0].children[0].textContent = "Game starts " + new Date(data.startTime * 1000).toLocaleString("en-US", { weekday: "short", month: "short", day: "numeric", hour: "numeric", minute: "numeric", timeZoneName: "short" });
         UIPanels.connecting.style.display = "none";
@@ -5077,11 +5309,12 @@ function sign_in_server(data){
 }
 
 var RegisterServerTimeout;
-function registerTimeout(discord, ign, i){
+function registerTimeout(discord, ign, char, i){
     if (i > TIMEOUT_LIMIT) { disconnectError(); return; }
-    Socket.send(JSON.stringify({ method: "register", discord: discord, ign: ign }));
-    RegisterServerTimeout = setTimeout(() => {registerTimeout(discord, ign, i+1);}, 3000);
+    Socket.send(JSON.stringify({ method: "register", discord: discord, ign: ign, character: char }));
+    RegisterServerTimeout = setTimeout(() => {registerTimeout(discord, ign, char, i+1);}, 3000);
 }
+let registerDiscord, registerIGN;
 function loginSubmit(loginType){
     if (Socket.readyState == Socket.OPEN || true){
         let discord, ign;
@@ -5148,11 +5381,13 @@ function loginSubmit(loginType){
         document.cookie = "ign=" + ign + "; expires=" + new Date(2999, 12, 30).toUTCString();
         document.cookie = "discord=" + discord + "; expires=" + new Date(2999, 12, 30).toUTCString();
         loadCookies();
-        registerTimeout(discord, ign, 0);
+
+        registerDiscord = discord;
+        registerIGN = ign;
 
         UIState = "menu";
         UIPanels.login.style.display = "none";
-        UIPanels.connecting.style.display = "initial";
+        UIPanels.characterCreator.style.display = "initial";
     }
 }
 document.getElementById("login-form").onsubmit = function(e){
@@ -5177,8 +5412,7 @@ function register_server(data){
     clearTimeout(RegisterServerTimeout);
     if (data.success){
         TOKEN = data.token;
-        //TODO!!! Remove 0 on COOKIE
-        saveCookies(new Date(data.startTime * 1000 + 864000000));//1 day after start time
+        saveCookies(new Date(data.startTime * 1000 + 86400000));//1 day after start time
         
         signInTimeout(0);
     }
@@ -5349,7 +5583,7 @@ function send_message_server(data){
                         podiums[j].children[0].children[1].children[0].textContent = "+" + MinigameData[CurrentMinigame].rewards[data.data.result[j]];
                         podiums[j].getElementsByClassName("minigame-podium-coins-image")[0].setAttribute("src", "resources/textures/squid_coin.svg");
                     }
-                    podiums[j].children[0].children[0].setAttribute("src", PlayerAvatars[stringToIndex(CurrentMinigameLobby[j].ign) % PlayerAvatars.length]);
+                    podiums[j].children[0].children[0].setAttribute("src", GeneratePlayerURL(CurrentMinigameLobby[j].character));
                     podiums[j].children[0].children[2].textContent = CurrentMinigameLobby[j].ign.split("#")[0];
                 }
                 else{
