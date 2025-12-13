@@ -149,7 +149,7 @@ function GeneratePlayerTexture(char){
     ctx.drawImage(AvatarImages.skin[char.skin], 0, 0);
     ctx.drawImage(AvatarImages.shirt[char.shirt], 0, 0);
     ctx.drawImage(AvatarImages.hair[char.hair], 0, 0);
-    ctx.drawImage(AvatarImages.hat[char.hat].url, AvatarDecorations.hat[char.hat].offsets[char.hat % AvatarDecorations.hat[char.hat].offsets.length].x, AvatarDecorations.hat[char.hat].offsets[char.hat % AvatarDecorations.hat[char.hat].offsets.length].y);
+    ctx.drawImage(AvatarImages.hat[char.hat], AvatarDecorations.hat[char.hat].offsets[char.hat % AvatarDecorations.hat[char.hat].offsets.length].x, AvatarDecorations.hat[char.hat].offsets[char.hat % AvatarDecorations.hat[char.hat].offsets.length].y);
     let tex = new THREE.CanvasTexture(CCCanvas);
     tex.needsUpdate = false;
     tex.colorSpace = THREE.SRGBColorSpace;
@@ -170,7 +170,7 @@ function GeneratePlayerURL(char){
     ctx.drawImage(AvatarImages.skin[char.skin], 0, 0);
     ctx.drawImage(AvatarImages.shirt[char.shirt], 0, 0);
     ctx.drawImage(AvatarImages.hair[char.hair], 0, 0);
-    ctx.drawImage(AvatarImages.hat[char.hat].url, AvatarDecorations.hat[char.hat].offsets[char.hat % AvatarDecorations.hat[char.hat].offsets.length].x, AvatarDecorations.hat[char.hat].offsets[char.hat % AvatarDecorations.hat[char.hat].offsets.length].y);
+    ctx.drawImage(AvatarImages.hat[char.hat], AvatarDecorations.hat[char.hat].offsets[char.hat % AvatarDecorations.hat[char.hat].offsets.length].x, AvatarDecorations.hat[char.hat].offsets[char.hat % AvatarDecorations.hat[char.hat].offsets.length].y);
     let url = CCCanvas.toDataURL();
 
     Object.defineProperty(playerURLCache, v, { writable: false, enumerable: true, configurable: true, value: url });
