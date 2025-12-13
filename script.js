@@ -114,23 +114,28 @@ var AvatarImages = {
     shirt: []
 }
 
+var AvatarDecorationsLoaded = 0;
 for (let i = 0; i < AvatarDecorations.hair.length; i++){
     let img = document.createElement("img");
+    img.onload = () => { AvatarDecorationsLoaded++; };
     img.src = AvatarDecorations.hair[i];
     AvatarImages.hair.push(img);
 }
 for (let i = 0; i < AvatarDecorations.hat.length; i++){
     let img = document.createElement("img");
+    img.onload = () => { AvatarDecorationsLoaded++; };
     img.src = AvatarDecorations.hat[i].url;
     AvatarImages.hat.push(img);
 }
 for (let i = 0; i < AvatarDecorations.skin.length; i++){
     let img = document.createElement("img");
+    img.onload = () => { AvatarDecorationsLoaded++; };
     img.src = AvatarDecorations.skin[i];
     AvatarImages.skin.push(img);
 }
 for (let i = 0; i < AvatarDecorations.shirt.length; i++){
     let img = document.createElement("img");
+    img.onload = () => { AvatarDecorationsLoaded++; };
     img.src = AvatarDecorations.shirt[i];
     AvatarImages.shirt.push(img);
 }
@@ -145,11 +150,12 @@ function GeneratePlayerTexture(char){
     let v = CharacterToInt(char);
     if (Object.hasOwn(playerTextureCache, v)) return playerTextureCache[v];
 
-    ctx.clearRect(0, 0, 16, 20);
+    ctx.reset();
     ctx.drawImage(AvatarImages.skin[char.skin], 0, 0);
     ctx.drawImage(AvatarImages.shirt[char.shirt], 0, 0);
     ctx.drawImage(AvatarImages.hair[char.hair], 0, 0);
     ctx.drawImage(AvatarImages.hat[char.hat], AvatarDecorations.hat[char.hat].offsets[char.hat % AvatarDecorations.hat[char.hat].offsets.length].x, AvatarDecorations.hat[char.hat].offsets[char.hat % AvatarDecorations.hat[char.hat].offsets.length].y);
+
     let tex = new THREE.CanvasTexture(CCCanvas);
     tex.needsUpdate = false;
     tex.colorSpace = THREE.SRGBColorSpace;
@@ -166,7 +172,7 @@ function GeneratePlayerURL(char){
     let v = CharacterToInt(char);
     if (Object.hasOwn(playerURLCache, v)) return playerURLCache[v];
 
-    ctx.clearRect(0, 0, 16, 20);
+    ctx.reset();
     ctx.drawImage(AvatarImages.skin[char.skin], 0, 0);
     ctx.drawImage(AvatarImages.shirt[char.shirt], 0, 0);
     ctx.drawImage(AvatarImages.hair[char.hair], 0, 0);
@@ -573,8 +579,10 @@ const LockMat = new THREE.MeshBasicMaterial({ map: LockTex, alphaTest: 0.5 });
 var MapLocks = new THREE.Group();
 function buildMap(){
     //Make sure everything is loaded first
-    if (SilverStar == null || Star == null || KeyGateModel == null || GreenPipe == null || GoldPipe == null){
-        console.log("Waiting for models to load...");
+    if (SilverStar == null || Star == null || KeyGateModel == null || GreenPipe == null || GoldPipe == null ||
+        AvatarDecorationsLoaded < AvatarDecorations.hair.length + AvatarDecorations.hat.length + AvatarDecorations.skin.length + AvatarDecorations.shirt.length
+    ){
+        console.log("Waiting for resources to load...");
         setTimeout(buildMap, 100);
         return;
     }
