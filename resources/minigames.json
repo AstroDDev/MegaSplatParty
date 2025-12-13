@@ -225,7 +225,7 @@
     },
     "splatzones": {
         "weight": 1,
-        "battleable": true,
+        "battleable": false,
         "timeLimit": 13,
         "lobbySize": 8,
         "minLobbySize": 4,
