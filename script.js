@@ -3298,7 +3298,7 @@ var coinsTextWidth;
 var coinsAnimFirstTrigger = true;
 var coinsAnimTurnStepBuffer;
 function TriggerCoinChangeAnimation(amount){
-    if (PlayerData.coins + amount < 0) amount = PlayerData.coins;
+    if (PlayerData.coins + amount < 0) amount = -PlayerData.coins;
 
     coinsAnimTurnStepBuffer = turnStep;
     UIState = "player";
