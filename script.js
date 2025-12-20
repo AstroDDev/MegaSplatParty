@@ -148,48 +148,60 @@ for (let i = 0; i < AvatarDecorations.shirt.length; i++){
     AvatarImages.shirt.push(img);
 }
 
-const CCCanvas = document.createElement("canvas");
-CCCanvas.width = 16;
-CCCanvas.height = 20;
-const ctx = CCCanvas.getContext("2d");
 var playerTextureCache = {};
+var playerURLCache = {};
 function CharacterToInt(char) { return ((char.skin) + (char.shirt * 1000) + (char.hair * 1000 * 1000) + (char.hat * 1000 * 1000 * 1000)).toString(); }
 function GeneratePlayerTexture(char){
     let v = CharacterToInt(char);
     if (Object.hasOwn(playerTextureCache, v)) return playerTextureCache[v];
 
-    ctx.reset();
+    let canvas = document.createElement("canvas");
+    canvas.width = 16;
+    canvas.height = 20;
+    let ctx = canvas.getContext("2d");
+
     ctx.drawImage(AvatarImages.skin[char.skin], 0, 0);
     ctx.drawImage(AvatarImages.shirt[char.shirt], 0, 0);
     ctx.drawImage(AvatarImages.hair[char.hair], 0, 0);
-    ctx.drawImage(AvatarImages.hat[char.hat], AvatarDecorations.hat[char.hat].offsets[char.hat % AvatarDecorations.hat[char.hat].offsets.length].x, AvatarDecorations.hat[char.hat].offsets[char.hat % AvatarDecorations.hat[char.hat].offsets.length].y);
+    ctx.drawImage(AvatarImages.hat[char.hat], AvatarDecorations.hat[char.hat].offsets[char.hair % AvatarDecorations.hat[char.hat].offsets.length].x, AvatarDecorations.hat[char.hat].offsets[char.hair % AvatarDecorations.hat[char.hat].offsets.length].y);
 
-    let tex = new THREE.CanvasTexture(CCCanvas);
-    tex.needsUpdate = false;
+    let tex = new THREE.CanvasTexture(canvas);
+    //tex.needsUpdate = true;
+    //let tex = new THREE.DataTexture(ctx.getImageData(0, 0, 16, 20).data, 16, 20);
     tex.colorSpace = THREE.SRGBColorSpace;
     tex.minFilter = THREE.NearestFilter;
     tex.magFilter = THREE.NearestFilter;
-
-    Object.defineProperty(playerURLCache, v, { writable: false, enumerable: true, configurable: true, value: CCCanvas.toDataURL() });
+    
+    Object.defineProperty(playerURLCache, v, { writable: false, enumerable: true, configurable: true, value: canvas.toDataURL() });
     Object.defineProperty(playerTextureCache, v, { writable: false, enumerable: true, configurable: true, value: tex });
 
     return tex;
 }
-var playerURLCache = {};
 function GeneratePlayerURL(char){
     let v = CharacterToInt(char);
     if (Object.hasOwn(playerURLCache, v)) return playerURLCache[v];
 
-    ctx.reset();
+    let canvas = document.createElement("canvas");
+    canvas.width = 16;
+    canvas.height = 20;
+    let ctx = canvas.getContext("2d");
+
     ctx.drawImage(AvatarImages.skin[char.skin], 0, 0);
     ctx.drawImage(AvatarImages.shirt[char.shirt], 0, 0);
     ctx.drawImage(AvatarImages.hair[char.hair], 0, 0);
-    ctx.drawImage(AvatarImages.hat[char.hat], AvatarDecorations.hat[char.hat].offsets[char.hat % AvatarDecorations.hat[char.hat].offsets.length].x, AvatarDecorations.hat[char.hat].offsets[char.hat % AvatarDecorations.hat[char.hat].offsets.length].y);
-    let url = CCCanvas.toDataURL();
+    ctx.drawImage(AvatarImages.hat[char.hat], AvatarDecorations.hat[char.hat].offsets[char.hair % AvatarDecorations.hat[char.hat].offsets.length].x, AvatarDecorations.hat[char.hat].offsets[char.hair % AvatarDecorations.hat[char.hat].offsets.length].y);
 
-    Object.defineProperty(playerURLCache, v, { writable: false, enumerable: true, configurable: true, value: url });
+    let tex = new THREE.CanvasTexture(canvas);
+    //tex.needsUpdate = true;
+    //let tex = new THREE.DataTexture(ctx.getImageData(0, 0, 16, 20).data, 16, 20);
+    tex.colorSpace = THREE.SRGBColorSpace;
+    tex.minFilter = THREE.NearestFilter;
+    tex.magFilter = THREE.NearestFilter;
+    
+    Object.defineProperty(playerURLCache, v, { writable: false, enumerable: true, configurable: true, value: canvas.toDataURL() });
+    Object.defineProperty(playerTextureCache, v, { writable: false, enumerable: true, configurable: true, value: tex });
 
-    return url;
+    return playerURLCache[v];
 }
 
 function lerp(a, b, t) { return a * (1 - t) + b * t; }
@@ -1356,7 +1368,7 @@ function update(){
     AnimateSilverStars();
 
     updateDoorOpenings();
-    
+
     Renderer.render(Scene, Camera);
     requestAnimationFrame(update);
 }
