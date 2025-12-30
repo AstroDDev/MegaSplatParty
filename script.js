@@ -5,6 +5,9 @@ import { FBXLoader } from "three/addons/loaders/FBXLoader.js";
 
 const TIMEOUT_LIMIT = 5;
 
+var VOLUME = 1;
+var REDUCED_MOTION = false;
+
 const AvatarDecorations = {
     hair: [
         "resources/avatars/Hair/hair-0.png",
@@ -248,6 +251,8 @@ function saveCookies(expiry){
     else{
         document.cookie = "playerToken=" + TOKEN + "; expires=" + expiry.toUTCString();
         document.cookie = "expiryTime=" + expiry.toUTCString() + "; expires=" + expiry.toUTCString();
+        document.cookie = "volume=" + VOLUME + "; expires=" + new Date(2999, 0, 0).toUTCString();
+        document.cookie = "reducedMotion=" + REDUCED_MOTION + "; expires=" + new Date(2999, 0, 0).toUTCString();
     }
 }
 
@@ -263,6 +268,17 @@ const EPSILON = 0.001;
 
 const NotifSFX = new Audio("resources/sfx/notification.ogg");
 const StartTurnSFX = new Audio("resources/sfx/start_turn.ogg");
+
+if (Object.hasOwn(COOKIES, "volume")){
+    VOLUME = COOKIES.volume;
+    NotifSFX.volume = VOLUME;
+    StartTurnSFX.volume = VOLUME;
+    document.getElementById("volume").value = VOLUME;
+}
+if (Object.hasOwn(COOKIES, "reducedMotion")){
+    REDUCED_MOTION = COOKIES.reducedMotion;
+    document.getElementById("reduced-motion").checked = REDUCED_MOTION;
+}
 
 var Scene = new THREE.Scene();
 const Camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
@@ -1413,7 +1429,7 @@ function UpdateUI(){
 
     if (UIState == "menu"){
         filter = 1;
-        let angle = Date.now() / 10000 % (Math.PI * 2);
+        let angle = REDUCED_MOTION ? Math.PI / 4 : Date.now() / 10000 % (Math.PI * 2);
         playerRot = new THREE.Euler(0, 0, 0);
         let yPos = mapData[PlayerData.position.y][PlayerData.position.x].ramp ? (mapData[PlayerData.position.y][PlayerData.position.x].height.pos + mapData[PlayerData.position.y][PlayerData.position.x].height.neg) / 2 : mapData[PlayerData.position.y][PlayerData.position.x].height;
         playerPos = new THREE.Vector3(PlayerData.position.x, yPos + 0.375, PlayerData.position.y);
@@ -1495,7 +1511,7 @@ function UpdateUI(){
     }
     else if (UIState == "podium"){
         filter = 1;
-        let angle = (Date.now() - resultsAnimEndTime) / 10000 % (Math.PI * 2) + (Math.PI / 2);
+        let angle = REDUCED_MOTION ? Math.PI / 2 : (Date.now() - resultsAnimEndTime) / 10000 % (Math.PI * 2) + (Math.PI / 2);
         cameraPos = new THREE.Vector3(PodiumPosition.x + (Math.cos(angle) * 2.5), getHeightTile(PodiumPosition.x, PodiumPosition.y) + 1.25, PodiumPosition.y + (Math.sin(angle) * 2.5));
         cameraRot = new THREE.Euler(-0.09966865249116202, Math.PI / 2 - angle, 0, "YXZ");
         playerRot = new THREE.Euler(0, 0, 0);
@@ -2039,6 +2055,7 @@ function DoTurn(){
 
                     document.getElementsByClassName("leaderboard-button")[0].style.display = "none";
                     document.getElementsByClassName("help-button")[0].style.display = "none";
+                    document.getElementsByClassName("options-button")[0].style.display = "none";
                 }
             }
             else{
@@ -2047,6 +2064,7 @@ function DoTurn(){
 
                 document.getElementsByClassName("leaderboard-button")[0].style.display = "initial";
                 document.getElementsByClassName("help-button")[0].style.display = "initial";
+                document.getElementsByClassName("options-button")[0].style.display = "initial";
             }
         }
         else{
@@ -2894,6 +2912,8 @@ function TriggerStarGetAnimation(warp, amount){
         starGetAnimStarObjs.push(Star.clone(true));
         Scene.add(starGetAnimStarObjs[i]);
     }
+
+    minigameCoinGiveCheck = false;
 }
 
 function StarGetAnimation(){
@@ -2998,6 +3018,8 @@ function TriggerStarLoseAnimation(){
     StarRingParticle.position.set(Player.position.x, Player.position.y, Player.position.z + 0.05);
 
     UpdatePlayerUI();
+
+    minigameCoinGiveCheck = false;
 }
 function StarLoseAnimation(){
     const animLength = 3;
@@ -3673,6 +3695,7 @@ function CloseMap(){
     if (turnStep == "map"){
         document.getElementsByClassName("leaderboard-button")[0].style.display = "initial";
         document.getElementsByClassName("help-button")[0].style.display = "initial";
+        document.getElementsByClassName("options-button")[0].style.display = "initial";
 
         if (mapTriggeredFrom == "menu"){
             UIState = "player";
@@ -3818,6 +3841,33 @@ document.getElementsByClassName("help-button")[0].onclick = function(e){
 };
 document.getElementsByClassName("help-close-button")[0].onclick = function(e){
     helpElement.style.display = "none";
+};
+
+var settingsElement = document.getElementById("settings");
+document.getElementsByClassName("options-button")[0].onclick = function(e){
+    settingsElement.style.display = settingsElement.style.display == "initial" ? "none" : "initial";
+};
+document.getElementsByClassName("settings-close-button")[0].onclick = function(e){
+    settingsElement.style.display = "none";
+};
+document.getElementById("volume").onchange = function(e){
+    VOLUME = document.getElementById("volume").value;
+    NotifSFX.volume = VOLUME;
+    StartTurnSFX.volume = VOLUME;
+    document.cookie = "volume=" + VOLUME + "; expires=" + new Date(2999, 12, 31).toUTCString();
+};
+document.getElementById("reduced-motion").onchange = function(e){
+    REDUCED_MOTION = document.getElementById("reduced-motion").checked;
+    document.cookie = "reducedMotion=" + REDUCED_MOTION + "; expires=" + new Date(2999, 12, 31).toUTCString();
+};
+document.getElementsByClassName("edit-character")[0].onclick = function(e){
+    settingsElement.style.display = "none";
+    UIPanels.characterCreator.style.display = "initial";
+};
+document.getElementsByClassName("sign-out")[0].onclick = function(e){
+    TOKEN = null;
+    document.cookie = "playerToken=null; expiry=" + new Date(1999, 0).toUTCString();
+    window.location.reload();
 };
 
 var duelBet = false;
@@ -4047,17 +4097,23 @@ CCDecreaseButtons[3].onclick = function(e){
     CCElements[1].src = AvatarDecorations.shirt[CCShirtIndex];
 };
 
-CCElements[0].src = AvatarDecorations.skin[CCSkinIndex];
-CCElements[1].src = AvatarDecorations.shirt[CCShirtIndex];
-CCElements[2].src = AvatarDecorations.hair[CCHairIndex];
-CCElements[3].src = AvatarDecorations.hat[CCHatIndex].url;
-CCElements[3].style.transform = "translate(calc(-50% + " + (AvatarDecorations.hat[CCHatIndex].offsets[CCHairIndex % AvatarDecorations.hat[CCHatIndex].offsets.length].x * 20) + "px), " + (AvatarDecorations.hat[CCHatIndex].offsets[CCHairIndex % AvatarDecorations.hat[CCHatIndex].offsets.length].y * 20) + "px)";
+function updateAllCCElements(){
+    CCElements[0].src = AvatarDecorations.skin[CCSkinIndex];
+    CCElements[1].src = AvatarDecorations.shirt[CCShirtIndex];
+    CCElements[2].src = AvatarDecorations.hair[CCHairIndex];
+    CCElements[3].src = AvatarDecorations.hat[CCHatIndex].url;
+    CCElements[3].style.transform = "translate(calc(-50% + " + (AvatarDecorations.hat[CCHatIndex].offsets[CCHairIndex % AvatarDecorations.hat[CCHatIndex].offsets.length].x * 20) + "px), " + (AvatarDecorations.hat[CCHatIndex].offsets[CCHairIndex % AvatarDecorations.hat[CCHatIndex].offsets.length].y * 20) + "px)";
+}
+updateAllCCElements();
 
 document.getElementById("cc-submit-button").onclick = function(e){
+    Socket.send(JSON.stringify({ method: "set_player_data", token: TOKEN, character: { hat: CCHatIndex, hair: CCHairIndex, skin: CCSkinIndex, shirt: CCShirtIndex } }));
+    Player.material.map = GeneratePlayerTexture({ hat: CCHatIndex, hair: CCHairIndex, skin: CCSkinIndex, shirt: CCShirtIndex });
+
     UIPanels.characterCreator.style.display = "none";
-    UIPanels.connecting.style.display = "initial";
-    registerTimeout(registerDiscord, registerIGN, { hat: CCHatIndex, hair: CCHairIndex, skin: CCSkinIndex, shirt: CCShirtIndex }, 0);
-    //Socket.send(JSON.stringify({ method: "set_player_data", token: TOKEN, character: { hat: CCHatIndex, hair: CCHairIndex, skin: CCSkinIndex, shirt: CCShirtIndex } }));
+    UIPanels.checkin.style.display = "initial";
+
+    window.location.reload();
 };
 
 
@@ -5082,6 +5138,10 @@ function get_lobby_server(data){
             ServerBattle = false;
             document.getElementById("minigame-type-title").textContent = "Duel Minigame";
             document.getElementById("new-minigame-description").innerHTML = "This is a duel minigame. A player has waged their coins or star to initiate a duel. The winner of the duel gains a reward from the loser.<br><br>" + document.getElementById("new-minigame-description").innerHTML;
+            document.getElementById("battle-minigame-flair").style.display = "none";
+            document.getElementById("star-steal-minigame-flair").style.display = "none";
+            document.getElementById("duel-minigame-flair").style.display = "block";
+            document.getElementById("coin-minigame-flair").style.display = "none";
 
             //Set rewards
             for (let i = 0; i < rewardOptions.length; i++){
@@ -5101,6 +5161,10 @@ function get_lobby_server(data){
             ServerBattle = false;
             document.getElementById("minigame-type-title").textContent = "Star Steal Minigame";
             document.getElementById("new-minigame-description").innerHTML = "This is a star steal minigame. A player has paid coins to have a chance at stealing a star. They will steal a star if they win this minigame.<br><br>" + document.getElementById("new-minigame-description").innerHTML;
+            document.getElementById("battle-minigame-flair").style.display = "none";
+            document.getElementById("star-steal-minigame-flair").style.display = "block";
+            document.getElementById("duel-minigame-flair").style.display = "none";
+            document.getElementById("coin-minigame-flair").style.display = "none";
 
             for (let i = 0; i < rewardOptions.length; i++){
                 rewardOptions[i].style.display = i < 2 ? "inline-block" : "none";
@@ -5122,6 +5186,10 @@ function get_lobby_server(data){
             ServerBattle = data.battle;
             document.getElementById("minigame-type-title").textContent = "Battle Minigame";
             document.getElementById("new-minigame-description").innerHTML = "This is a battle minigame. Winners of this minigame will steal coins from the losers.<br><br>" + document.getElementById("new-minigame-description").innerHTML;
+            document.getElementById("battle-minigame-flair").style.display = "block";
+            document.getElementById("star-steal-minigame-flair").style.display = "none";
+            document.getElementById("duel-minigame-flair").style.display = "none";
+            document.getElementById("coin-minigame-flair").style.display = "none";
 
             for (let i = 0; i < rewardOptions.length; i++){
                 rewardOptions[i].style.display = i < (MinigameData[data.minigame].type == "coop" ? 3 : data.lobby.length) ? "inline-block" : "none";
@@ -5137,7 +5205,11 @@ function get_lobby_server(data){
             ServerDuelBet = false;
             ServerSteal = false;
             ServerBattle = false;
-            document.getElementById("minigame-type-title").textContent = "Minigame";
+            document.getElementById("minigame-type-title").textContent = MinigameData[CurrentMinigame].type == "coin" ? "Coin Minigame" : "Minigame";
+            document.getElementById("battle-minigame-flair").style.display = "none";
+            document.getElementById("star-steal-minigame-flair").style.display = "none";
+            document.getElementById("duel-minigame-flair").style.display = "none";
+            document.getElementById("coin-minigame-flair").style.display = MinigameData[CurrentMinigame].type == "coin" ? "block" : "none";
 
             //Set rewards
             if (MinigameData[CurrentMinigame].type == "coin"){
@@ -5315,32 +5387,48 @@ function sign_in_server(data){
         UIState = "menu";
         checkedIn = data.checkedIn;
 
-        Player.material.map = GeneratePlayerTexture(data.character);
-        //PlayerAvatarsTex[stringToIndex(COOKIES["ign"]) % PlayerAvatarsTex.length];
+        document.getElementsByClassName("edit-character")[0].disabled = false;
+        document.getElementsByClassName("sign-out")[0].disabled = false;
 
         UIPanels.checkin.children[0].children[0].textContent = "Game starts " + new Date(data.startTime * 1000).toLocaleString("en-US", { weekday: "short", month: "short", day: "numeric", hour: "numeric", minute: "numeric", timeZoneName: "short" });
-        UIPanels.connecting.style.display = "none";
-        UIPanels.checkin.style.display = "initial";
-
         UpdatePlayerUI();
+
+        if (data.character.hat != -1 && data.character.hair != -1 && data.character.skin != -1 && data.character.shirt != -1){
+            Player.material.map = GeneratePlayerTexture(data.character);
+
+            CCHatIndex = data.character.hat;
+            CCHairIndex = data.character.hair;
+            CCSkinIndex = data.character.skin;
+            CCShirtIndex = data.character.shirt;
+            updateAllCCElements();
+
+            UIPanels.connecting.style.display = "none";
+            UIPanels.checkin.style.display = "initial";
+
+            ServerStatus = "null";
+            getStatusTimeout(0);
+        }
+        else{
+            UIPanels.connecting.style.display = "none";
+            UIPanels.characterCreator.style.display = "initial";
+        }
     }
     else{
         SignedIn = false;
         UIPanels.login.style.display = "initial";
         UIPanels.connecting.style.display = "none";
         document.getElementById("login-error-message").innerHTML = "There was a problem signing up / logging in";
+
+        ServerStatus = "null";
+        getStatusTimeout(0);
     }
-
-    ServerStatus = "null";
-
-    getStatusTimeout(0);
 }
 
 var RegisterServerTimeout;
-function registerTimeout(discord, ign, char, i){
+function registerTimeout(discord, ign, i){
     if (i > TIMEOUT_LIMIT) { disconnectError(); return; }
-    Socket.send(JSON.stringify({ method: "register", discord: discord, ign: ign, character: char }));
-    RegisterServerTimeout = setTimeout(() => {registerTimeout(discord, ign, char, i+1);}, 3000);
+    Socket.send(JSON.stringify({ method: "register", discord: discord, ign: ign }));
+    RegisterServerTimeout = setTimeout(() => {registerTimeout(discord, ign, i+1);}, 3000);
 }
 let registerDiscord, registerIGN;
 function loginSubmit(loginType){
@@ -5415,7 +5503,9 @@ function loginSubmit(loginType){
 
         UIState = "menu";
         UIPanels.login.style.display = "none";
-        UIPanels.characterCreator.style.display = "initial";
+        UIPanels.connecting.style.display = "initial";
+
+        registerTimeout(registerDiscord, registerIGN, 0);
     }
 }
 document.getElementById("login-form").onsubmit = function(e){
@@ -5436,12 +5526,13 @@ document.getElementsByClassName("login-form-swap")[1].onclick = function(e){
     document.getElementById("login-form").style.display = "initial";
     document.getElementById("login-sendou-form").style.display = "none";
 };
+var hasCharacter = true;
 function register_server(data){
     clearTimeout(RegisterServerTimeout);
     if (data.success){
         TOKEN = data.token;
         saveCookies(new Date(data.startTime * 1000 + 86400000));//1 day after start time
-        
+        hasCharacter = data.character.hat != -1 && data.character.hair != -1 && data.character.skin != -1 && data.character.shirt != -1;
         signInTimeout(0);
     }
     else{

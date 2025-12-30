@@ -250,11 +250,77 @@
             <div id="wait-minigame-map" style="display: none;">
                 <button class="board-map-button turn-button">Map</button>
             </div>
-            <!--<button class="options-button"></button>-->
             <button class="leaderboard-button" style="display: none;"></button>
         </div>
+        <button class="options-button"></button>
         <button class="help-button" style="display: initial"></button>
         <div class="popups">
+            <div id="tutorial" class="popup-bottom" style="display: none;">
+                <div class="popup-inset-bottom">
+                    <!--Look at player-->
+                    <div class="tutorial-text" style="display: initial;">
+                        Is this your first time playing?
+                        <br><br>
+                        <button class="tutorial-next-button">Yes</button><button class="tutorial-cancel-button">No</button>
+                    </div>
+                    <!--Orbit the board-->
+                    <div class="tutorial-text" style="display: none;">
+                        <h4 style="font-size: 1.25em;">Welcome to Mega Splat Party, the Splatoon party game!</h4>
+                        This game is played across both this website and Splatoon 3.<br>
+                        This tutorial will teach you how to play on this website.
+                        <br><br>
+                        <button class="tutorial-next-button">Continue</button>
+                    </div>
+                    <!--Look at star spaces-->
+                    <div class="tutorial-text" style="display: none;">
+                        To win Mega Splat Party you need to have the most Stars
+                        <img class="tutorial-text-image" src="resources/textures/squid_star.svg">
+                        by the end of the game.<br>
+                        You can get Stars
+                        <img class="tutorial-text-image" src="resources/textures/squid_star.svg">
+                        by buying them on these spaces for 20 Coins
+                        <img class="tutorial-text-image" src="resources/textures/squid_coin.svg">
+                        <br><br>
+                        <button class="tutorial-next-button">Continue</button>
+                    </div>
+                    <!--Look at player-->
+                    <div class="tutorial-text" style="display: none;">
+                        You can get Coins
+                        <img class="tutorial-text-image" src="resources/textures/squid_coin.svg">
+                        in many different ways. The most common is by doing well in the <b>Minigame</b> at the end of each turn.
+                        Some spaces on the board might give you coins too.
+                        <br><br>
+                        <button class="tutorial-next-button">Continue</button>
+                    </div>
+                    <!--Look at shop space-->
+                    <div class="tutorial-text" style="display: none;">
+                        You can also use your Coins
+                        <img class="tutorial-text-image" src="resources/textures/squid_coin.svg">
+                        to purchase powerful <b>Items</b> that will help you get across the board.
+                        Make sure to stop by a <b>Shop</b> and check them out.
+                        <br><br>
+                        <button class="tutorial-next-button">Continue</button>
+                    </div>
+                    <!--Look at player-->
+                    <div class="tutorial-text" style="display: none;">
+                        Speaking of items and coins, why don't I give you 10 Coins
+                        <img class="tutorial-text-image" src="resources/textures/squid_coin.svg">
+                        and a Double Dice to start the game with.
+                        <br><br>
+                        <button class="tutorial-next-button">Continue</button>
+                    </div>
+                    <!--Give Item & Coins Animation-->
+                    <!--Look at Player-->
+                    <div class="tutorial-text" style="display: none;">
+                        If you ever have questions, you can take a look at the <b>Quick Reference Guide</b> anytime by clicking the "<b>?</b>" button in the top right.
+                        You can also ask in the help-desk channel of the discord if you need extra help.
+                        <br><br>
+                        <button class="tutorial-next-button">Start Playing</button>
+                    </div>
+                    <!--Tutorial Over-->
+                </div>
+            </div>
+
             <div id="disconnected" class="popup" style="display: none">
                 <div class="popup-inset">
                     <h1 id="disconnect-reason">Disconnected</h1><br>
@@ -348,9 +414,29 @@
             </div>
 
             <div id="new-minigame" class="popup" style="display: none;">
-                <div class="popup-inset">
+                <div class="popup-inset new-minigame-inset">
                     <div id="minigame-interactive" style="display: inline-block;">
-                        <h1 id="minigame-type-title" style="font-size: 3.25em;">Minigame</h1>
+                        <h1 id="minigame-title" style="font-size: 3.25em;">
+                            <div id="battle-minigame-flair" style="display: none;">
+                                <img class="battle-minigame-flair-img" src="resources/textures/boxing_glove_back.svg">
+                                <img class="battle-minigame-flair-img" src="resources/textures/boxing_glove_front.svg">
+                            </div>
+                            <div id="star-steal-minigame-flair" style="display: none;">
+                                <img class="star-steal-minigame-flair-img" src="resources/textures/star_steal_minigame.svg">
+                            </div>
+                            <div id="duel-minigame-flair" style="display: none;">
+
+                            </div>
+                            <div id="coin-minigame-flair" style="display: block;">
+                                <img class="coin-minigame-flair-img" src="resources/textures/sideways_coin.svg">
+                                <img class="coin-minigame-flair-img" src="resources/textures/sideways_coin.svg">
+                                <img class="coin-minigame-flair-img" src="resources/textures/sideways_coin.svg">
+                                <img class="coin-minigame-flair-img" src="resources/textures/sideways_coin.svg">
+                                <img class="coin-minigame-flair-img" src="resources/textures/sideways_coin.svg">
+                                <img class="coin-minigame-flair-img" src="resources/textures/sideways_coin.svg">
+                            </div>
+                            <text id="minigame-type-title">Coin Minigame</text>
+                        </h1>
                         <div class="new-minigame-rewards">
                             <div class="new-minigame-reward-option">
                                 <span class="new-minigame-reward-placement">1st</span>
@@ -362,46 +448,46 @@
                             <div class="new-minigame-reward-option">
                                 <span class="new-minigame-reward-placement">2nd</span>
                                 <div>
-                                    <span class="new-minigame-reward-coins">7</span>
+                                    <span class="new-minigame-reward-coins">5</span>
                                     <img src="resources/textures/squid_coin.svg" width="24px" style="transform: translateY(3px);">
                                 </div>
                             </div>
                             <div class="new-minigame-reward-option">
                                 <span class="new-minigame-reward-placement">3rd</span>
                                 <div>
-                                    <span class="new-minigame-reward-coins">5</span>
+                                    <span class="new-minigame-reward-coins">2</span>
                                     <img src="resources/textures/squid_coin.svg" width="24px" style="transform: translateY(3px);">
                                 </div>
                             </div>
                             <div class="new-minigame-reward-option">
                                 <span class="new-minigame-reward-placement">4th</span>
                                 <div>
-                                    <span class="new-minigame-reward-coins">4</span>
+                                    <span class="new-minigame-reward-coins">0</span>
                                     <img src="resources/textures/squid_coin.svg" width="24px" style="transform: translateY(3px);">
                                 </div>
                             </div>
-                            <div class="new-minigame-reward-option">
+                            <div class="new-minigame-reward-option" style="display: none;">
                                 <span class="new-minigame-reward-placement">5th</span>
                                 <div>
                                     <span class="new-minigame-reward-coins">3</span>
                                     <img src="resources/textures/squid_coin.svg" width="24px" style="transform: translateY(3px);">
                                 </div>
                             </div>
-                            <div class="new-minigame-reward-option">
+                            <div class="new-minigame-reward-option" style="display: none;">
                                 <span class="new-minigame-reward-placement">6th</span>
                                 <div>
                                     <span class="new-minigame-reward-coins">2</span>
                                     <img src="resources/textures/squid_coin.svg" width="24px" style="transform: translateY(3px);">
                                 </div>
                             </div>
-                            <div class="new-minigame-reward-option">
+                            <div class="new-minigame-reward-option" style="display: none;">
                                 <span class="new-minigame-reward-placement">7th</span>
                                 <div>
                                     <span class="new-minigame-reward-coins">1</span>
                                     <img src="resources/textures/squid_coin.svg" width="24px" style="transform: translateY(3px);">
                                 </div>
                             </div>
-                            <div class="new-minigame-reward-option">
+                            <div class="new-minigame-reward-option" style="display: none;">
                                 <span class="new-minigame-reward-placement">8th</span>
                                 <div>
                                     <span class="new-minigame-reward-coins">0</span>
@@ -661,8 +747,72 @@
                         <h3>Waiting for other lobbies to finish...</h3>
                     </div>
                     <div class="new-minigame-timer-text">
-                        Start Time: <b id="minigame-start-time">2:00 PM</b><br>
-                        End Time: <b id="minigame-end-time">2:12 PM</b>
+                        Start Time: <b id="minigame-start-time">00:00 PM</b><br>
+                        End Time: <b id="minigame-end-time">00:00 PM</b>
+                    </div>
+                </div>
+            </div>
+
+            <div id="minigame-animation" class="popup" style="display: none;">
+                <div class="popup-inset">
+                    <h1>Minigame</h1><br>
+                    <div class="new-minigame-rewards">
+                        <div class="new-minigame-reward-option">
+                            <span class="new-minigame-reward-placement">1st</span>
+                            <div>
+                                <span class="new-minigame-reward-coins">10</span>
+                                <img src="resources/textures/squid_coin.svg" width="24px" style="transform: translateY(3px);">
+                            </div>
+                        </div>
+                        <div class="new-minigame-reward-option">
+                            <span class="new-minigame-reward-placement">2nd</span>
+                            <div>
+                                <span class="new-minigame-reward-coins">7</span>
+                                <img src="resources/textures/squid_coin.svg" width="24px" style="transform: translateY(3px);">
+                            </div>
+                        </div>
+                        <div class="new-minigame-reward-option">
+                            <span class="new-minigame-reward-placement">3rd</span>
+                            <div>
+                                <span class="new-minigame-reward-coins">5</span>
+                                <img src="resources/textures/squid_coin.svg" width="24px" style="transform: translateY(3px);">
+                            </div>
+                        </div>
+                        <div class="new-minigame-reward-option">
+                            <span class="new-minigame-reward-placement">4th</span>
+                            <div>
+                                <span class="new-minigame-reward-coins">4</span>
+                                <img src="resources/textures/squid_coin.svg" width="24px" style="transform: translateY(3px);">
+                            </div>
+                        </div>
+                        <div class="new-minigame-reward-option">
+                            <span class="new-minigame-reward-placement">5th</span>
+                            <div>
+                                <span class="new-minigame-reward-coins">3</span>
+                                <img src="resources/textures/squid_coin.svg" width="24px" style="transform: translateY(3px);">
+                            </div>
+                        </div>
+                        <div class="new-minigame-reward-option">
+                            <span class="new-minigame-reward-placement">6th</span>
+                            <div>
+                                <span class="new-minigame-reward-coins">2</span>
+                                <img src="resources/textures/squid_coin.svg" width="24px" style="transform: translateY(3px);">
+                            </div>
+                        </div>
+                        <div class="new-minigame-reward-option">
+                            <span class="new-minigame-reward-placement">7th</span>
+                            <div>
+                                <span class="new-minigame-reward-coins">1</span>
+                                <img src="resources/textures/squid_coin.svg" width="24px" style="transform: translateY(3px);">
+                            </div>
+                        </div>
+                        <div class="new-minigame-reward-option">
+                            <span class="new-minigame-reward-placement">8th</span>
+                            <div>
+                                <span class="new-minigame-reward-coins">0</span>
+                                <img src="resources/textures/squid_coin.svg" width="24px" style="transform: translateY(3px);">
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -673,72 +823,6 @@
                     <p style="color: white;">Would you like to use a <b>Skeleton Key</b> to open it?</p><br>
                     <button id="key-door-yes-button">Yes</button>
                     <button id="key-door-no-button">No</button>
-                </div>
-            </div>
-
-            <div id="tutorial" class="popup-bottom" style="display: none;">
-                <div class="popup-inset-bottom">
-                    <!--Look at player-->
-                    <div class="tutorial-text" style="display: initial;">
-                        Is this your first time playing?
-                        <br><br>
-                        <button class="tutorial-next-button">Yes</button><button class="tutorial-cancel-button">No</button>
-                    </div>
-                    <!--Orbit the board-->
-                    <div class="tutorial-text" style="display: none;">
-                        <h4 style="font-size: 1.25em;">Welcome to Mega Splat Party, the Splatoon party game!</h4>
-                        This game is played across both this website and Splatoon 3.<br>
-                        This tutorial will teach you how to play on this website.
-                        <br><br>
-                        <button class="tutorial-next-button">Continue</button>
-                    </div>
-                    <!--Look at star spaces-->
-                    <div class="tutorial-text" style="display: none;">
-                        To win Mega Splat Party you need to have the most Stars
-                        <img class="tutorial-text-image" src="resources/textures/squid_star.svg">
-                        by the end of the game.<br>
-                        You can get Stars
-                        <img class="tutorial-text-image" src="resources/textures/squid_star.svg">
-                        by buying them on these spaces for 20 Coins
-                        <img class="tutorial-text-image" src="resources/textures/squid_coin.svg">
-                        <br><br>
-                        <button class="tutorial-next-button">Continue</button>
-                    </div>
-                    <!--Look at player-->
-                    <div class="tutorial-text" style="display: none;">
-                        You can get Coins
-                        <img class="tutorial-text-image" src="resources/textures/squid_coin.svg">
-                        in many different ways. The most common is by doing well in the <b>Minigame</b> at the end of each turn.
-                        Some spaces on the board might give you coins too.
-                        <br><br>
-                        <button class="tutorial-next-button">Continue</button>
-                    </div>
-                    <!--Look at shop space-->
-                    <div class="tutorial-text" style="display: none;">
-                        You can also use your Coins
-                        <img class="tutorial-text-image" src="resources/textures/squid_coin.svg">
-                        to purchase powerful <b>Items</b> that will help you get across the board.
-                        Make sure to stop by a <b>Shop</b> and check them out.
-                        <br><br>
-                        <button class="tutorial-next-button">Continue</button>
-                    </div>
-                    <!--Look at player-->
-                    <div class="tutorial-text" style="display: none;">
-                        Speaking of items and coins, why don't I give you 10 Coins
-                        <img class="tutorial-text-image" src="resources/textures/squid_coin.svg">
-                        and a Double Dice to start the game with.
-                        <br><br>
-                        <button class="tutorial-next-button">Continue</button>
-                    </div>
-                    <!--Give Item & Coins Animation-->
-                    <!--Look at Player-->
-                    <div class="tutorial-text" style="display: none;">
-                        If you ever have questions, you can take a look at the <b>Quick Reference Guide</b> anytime by clicking the "<b>?</b>" button in the top right.
-                        You can also ask in the help-desk channel of the discord if you need extra help.
-                        <br><br>
-                        <button class="tutorial-next-button">Start Playing</button>
-                    </div>
-                    <!--Tutorial Over-->
                 </div>
             </div>
 
@@ -1013,7 +1097,7 @@
                                 <span class="help-sidebar-group-title">Minigames</span>
                                 <div class="help-sidebar-subgroup">
                                     <span class="help-sidebar-subgroup-title">Playing Together</span>
-                                    <span class="help-sidebar-subgroup-title">Late Players</span>
+                                    <span class="help-sidebar-subgroup-title">Late Players & Disconnects</span>
                                     <span class="help-sidebar-subgroup-title">Submit Results</span>
                                     <span class="help-sidebar-subgroup-title">Teams</span>
                                 </div>
@@ -1335,19 +1419,23 @@
                                     Some of these minigames will require players to be together in a room in Splatoon.
                                     You can use the minigame chat to coordinate who will host the room.
                                     When hosting or joining a room in Splatoon, make sure to use the pool and password provided on the website.
-                                    Players have 4 minutes to join the room. If a player does not show up, start the game and refer to <a class="help-subgroup-link" index="26">Late Players</a> for submitting their result.
+                                    Players have 4 minutes to join the room. If a player does not show up, start the game and refer to <a class="help-subgroup-link" index="26">Late Players & Disconnects</a> for submitting their result.
                                 </p>
                             </div>
                             <div class="help-subject" style="display: none;">
-                                <br><h2>Late Players</h2><br>
+                                <br><h2>Late Players & Disconnects</h2><br>
                                 <p>
-                                    If after 4 minutes if not all players are in the room, start the minigame anyways and assign all players who are not present the following:
+                                    All players have 4 minutes to make and join a lobby for minigames requiring players to play together. For both players that take more than 4 minutes to join a lobby for the minigame & players that disconnect in the middle of the minigame, continue the minigame without them.
+                                    <br><br>
+                                    Do the following for reporting scores for both Late and Disconnected players:
                                     <ul>
                                         <li>If the player is on a team with other players, their result will be the same as their team.</li>
                                         <li>If the result options are <b>Win/Lose</b> and the player is not on a team, assign them <b>Lose</b></li>
                                         <li>If the result options are <b>1st/2nd/3rd/Ect.</b> and the player is not on a team, assign them last place. Any other player who would normally get last place will get second to last.</li>
                                         <li>If the result options are a <b>Numeric Input</b> and the player is not on a team, enter "0" as their score.</li>
                                     </ul>
+                                    <br>
+                                    If the lobby wants to and there is no opposition, they can agree to rule differently on either reporting results or allowing DC'd players to rejoin. Keep in mind that there is limited time to play each minigame, that is why the default is to keep playing even if a player disconnects.
                                 </p>
                             </div>
                             <div class="help-subject" style="display: none;">
@@ -1441,6 +1529,19 @@
                             <button class="help-close-button">Close</button>
                         </div>
                     </div>
+                </div>
+            </div>
+
+            <div id="settings" class="popup" style="display: none;">
+                <div class="popup-inset">
+                    <h1>Settings</h1><br>
+                    <div style="color: white; font-size: 1.125em;">
+                        <b>Volume </b><input id="volume" type="range" min="0" max="1" step="0.01" value="1"><br>
+                        <b>Reduced Motion </b><input id="reduced-motion" type="checkbox">
+                    </div><br>
+                    <button class="edit-character" disabled>Edit Character</button><br>
+                    <button class="sign-out" disabled>Sign Out</button><br>
+                    <button class="settings-close-button">Close</button>
                 </div>
             </div>
         </div>
