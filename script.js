@@ -4,8 +4,10 @@ import { FontLoader } from "three/addons/loaders/FontLoader.js";
 import { FBXLoader } from "three/addons/loaders/FBXLoader.js";
 
 const TIMEOUT_LIMIT = 5;
+var MAP = "barnacle-and-dime";
 
 var VOLUME = 1;
+var MUSIC_VOLUME = 1;
 var REDUCED_MOTION = false;
 
 const AvatarDecorations = {
@@ -252,6 +254,7 @@ function saveCookies(expiry){
         document.cookie = "playerToken=" + TOKEN + "; expires=" + expiry.toUTCString();
         document.cookie = "expiryTime=" + expiry.toUTCString() + "; expires=" + expiry.toUTCString();
         document.cookie = "volume=" + VOLUME + "; expires=" + new Date(2999, 0, 0).toUTCString();
+        document.cookies = "music=" + MUSIC_VOLUME + "; expires=" + new Date(2999, 0, 0).toUTCString();
         document.cookie = "reducedMotion=" + REDUCED_MOTION + "; expires=" + new Date(2999, 0, 0).toUTCString();
     }
 }
@@ -268,12 +271,38 @@ const EPSILON = 0.001;
 
 const NotifSFX = new Audio("resources/sfx/notification.ogg");
 const StartTurnSFX = new Audio("resources/sfx/start_turn.ogg");
+const MusicPlaylist = [
+    new Audio("resources/music/ThisSongIsIn15-8Time.mp3"),
+    new Audio("resources/music/ThisSongIsIn15-8Time2.mp3"),
+    new Audio("resources/music/Astro Dwarf - The Title Screen Before a Recurring Rival.mp3")
+];
+var PlaylistOrder = [];
+var CurrentSong = 0;
+for (let i = 0; i < MusicPlaylist.length; i++){
+    MusicPlaylist[i].loop = true;
+    PlaylistOrder.push(i);
+}
+//Shuffle Playlist
+for (let i = 0; i < MusicPlaylist.length; i++){
+    let rng = Math.floor(Math.random() * MusicPlaylist.length);
+    console.log(PlaylistOrder);
+    let temp = PlaylistOrder[i];
+    PlaylistOrder[i] = PlaylistOrder[rng];
+    PlaylistOrder[rng] = temp;
+}
 
 if (Object.hasOwn(COOKIES, "volume")){
     VOLUME = COOKIES.volume;
     NotifSFX.volume = VOLUME;
     StartTurnSFX.volume = VOLUME;
     document.getElementById("volume").value = VOLUME;
+}
+if (Object.hasOwn(COOKIES, "music")){
+    MUSIC_VOLUME = COOKIES.music;
+    for (let i = 0; i < MusicPlaylist.length; i++){
+        MusicPlaylist[i].volume = MUSIC_VOLUME;
+    }
+    document.getElementById("music").value = MUSIC_VOLUME;
 }
 if (Object.hasOwn(COOKIES, "reducedMotion")){
     REDUCED_MOTION = COOKIES.reducedMotion;
@@ -561,7 +590,7 @@ fontLoader.load("resources/fonts/Jersey 10/Jersey 10_Regular.json", function(fon
 
 
 function loadMap(){
-    fetch("resources/maps/barnacle-and-dime.json").then(res => res.json()).then(async res => {
+    fetch("resources/maps/" + MAP + "/map.json").then(res => res.json()).then(async res => {
         mapData = res.data;
         tutorialStarPos = res.tutorialStar.pos;
         tutorialStarRot = res.tutorialStar.rot;
@@ -569,11 +598,13 @@ function loadMap(){
         tutorialShopRot = res.tutorialShop.rot;
         ShopWarpTiles = res.shopWarpTiles;
         StartingTile = res.startingTile;
+        for (let i = 0; i < res.skybox.length; i++) res.skybox[i] = "resources/maps/" + MAP + "/" + res.skybox[i];
         SKYBOX_TEX = CubeTexLoader.load(res.skybox);
         SKYBOX_TEX.colorSpace = THREE.SRGBColorSpace;
+        for (let i = 0; i < res.darkSkybox.length; i++) res.darkSkybox[i] = "resources/maps/" + MAP + "/" + res.darkSkybox[i];
         DARK_SKYBOX_TEX = CubeTexLoader.load(res.darkSkybox);
         DARK_SKYBOX_TEX.colorSpace = THREE.SRGBColorSpace;
-        ATLAS = TexLoader.load(res.atlas);
+        ATLAS = TexLoader.load("resources/maps/" + MAP + "/" + res.atlas);
         ATLAS.colorSpace = THREE.SRGBColorSpace;
         ATLAS.wrapS = THREE.RepeatWrapping;
         ATLAS.wrapT = THREE.RepeatWrapping;
@@ -1200,7 +1231,7 @@ var ItemData = {
         name: "Double Dice",
         description: "Roll 2 dice and move their total value",
         url: "resources/textures/doubledice.png",
-        price: 7,
+        price: 6,
         usable: true,
         image: TexLoader.load("resources/textures/doubledice.png")
     },
@@ -1208,7 +1239,7 @@ var ItemData = {
         name: "Triple Dice",
         description: "Roll 3 dice and move their total value",
         url: "resources/textures/tripledice.png",
-        price: 15,
+        price: 12,
         usable: true,
         image: TexLoader.load("resources/textures/tripledice.png")
     },
@@ -1216,7 +1247,7 @@ var ItemData = {
         name: "Warp Pipe",
         description: "Warps you to a random tile on the board",
         url: "resources/textures/pipe.png",
-        price: 4,
+        price: 6,
         usable: true,
         image: TexLoader.load("resources/textures/pipe.png")
     },
@@ -1224,7 +1255,7 @@ var ItemData = {
         name: "Gold Pipe",
         description: "Warps you directly to the star",
         url: "resources/textures/goldpipe.png",
-        price: 25,
+        price: 20,
         usable: true,
         image: TexLoader.load("resources/textures/goldpipe.png")
     },
@@ -1248,7 +1279,7 @@ var ItemData = {
         name: "Shop Hop Box",
         description: "Warp to a random shop",
         url: "resources/textures/shophopbox.png",
-        price: 5,
+        price: 4,
         usable: true,
         image: TexLoader.load("resources/textures/shophopbox.png")
     },
@@ -2245,6 +2276,8 @@ window.onpointermove = function(e){
 //THIS IS A MAP BUILDING FUNCTION
 var targetDebugPos;
 window.onmousedown = function(e){
+    UpdateMusicPlaylist();
+
     /*if (turnStep == "map"){
         raycaster.setFromCamera(pointer, Camera);
         var intersections = raycaster.intersectObject(MapMesh, false);
@@ -3856,6 +3889,13 @@ document.getElementById("volume").onchange = function(e){
     StartTurnSFX.volume = VOLUME;
     document.cookie = "volume=" + VOLUME + "; expires=" + new Date(2999, 12, 31).toUTCString();
 };
+document.getElementById("music").onchange = function(e){
+    MUSIC_VOLUME = document.getElementById("music").value;
+    for (let i = 0; i < MusicPlaylist.length; i++){
+        MusicPlaylist[i].volume = MUSIC_VOLUME;
+    }
+    document.cookie = "music=" + MUSIC_VOLUME + "; expires=" + new Date(2999, 12, 31).toUTCString();
+};
 document.getElementById("reduced-motion").onchange = function(e){
     REDUCED_MOTION = document.getElementById("reduced-motion").checked;
     document.cookie = "reducedMotion=" + REDUCED_MOTION + "; expires=" + new Date(2999, 12, 31).toUTCString();
@@ -4150,6 +4190,10 @@ function InitializeSocket(){
         endPingLoop();
 
         if (ServerStatus == "RESULTS") return;
+
+        for (let i = 0; i < MusicPlaylist.length; i++){
+            MusicPlaylist[i].pause();
+        }
 
         turnStep = "dc";
         UIState = "menu";
@@ -4560,6 +4604,7 @@ function get_status_server(data){
         }
     }
     ServerStatus = data.status;
+    UpdateMusicPlaylist();
 }
 
 function announcement_server(data){
@@ -4645,6 +4690,30 @@ function announcement_server(data){
             TriggerResultsAnimation(data, false);
         }
     }
+    UpdateMusicPlaylist();
+
+}
+
+function UpdateMusicPlaylist(){
+    if (!checkedIn || !SignedIn){
+        MusicPlaylist[PlaylistOrder[CurrentSong]].pause();
+    }
+    else if (ServerStatus == "MINIGAME"){
+        if (document.getElementById("minigame-waiting").style.display == "initial" || UIPanels.waitMinigame.style.display == "initial"){
+            MusicPlaylist[PlaylistOrder[CurrentSong]].play();
+        }
+        else{
+            MusicPlaylist[PlaylistOrder[CurrentSong]].pause();
+            CurrentSong = (CurrentSong + 1) % MusicPlaylist.length;
+            MusicPlaylist[PlaylistOrder[CurrentSong]].currentTime = 0;
+        }
+    }
+    else if (ServerStatus == "RESULTS"){
+        MusicPlaylist[PlaylistOrder[CurrentSong]].pause();
+    }
+    else if (ServerStatus == "TURN"){
+        MusicPlaylist[PlaylistOrder[CurrentSong]].play();
+    }
 }
 
 const PodiumPosition = { x: 4, y: 4 };
@@ -4699,9 +4768,9 @@ function TriggerResultsAnimation(data, skipAnim){
     Scene.add(Block1, Block2, Block3);
 
     //Put players on podium
-    var Player1 = new THREE.Mesh(new THREE.PlaneGeometry(0.75, 0.75), new THREE.MeshStandardMaterial({map: GeneratePlayerTexture(ResultsData.data[0].character), alphaTest: 0.5, side: THREE.DoubleSide}));
-    var Player2 = new THREE.Mesh(new THREE.PlaneGeometry(0.75, 0.75), new THREE.MeshStandardMaterial({map: GeneratePlayerTexture(ResultsData.data[1].character), alphaTest: 0.5, side: THREE.DoubleSide}));
-    var Player3 = new THREE.Mesh(new THREE.PlaneGeometry(0.75, 0.75), new THREE.MeshStandardMaterial({map: GeneratePlayerTexture(ResultsData.data[2].character), alphaTest: 0.5, side: THREE.DoubleSide}));
+    var Player1 = new THREE.Mesh(new THREE.PlaneGeometry(0.6, 0.75), new THREE.MeshStandardMaterial({map: GeneratePlayerTexture(ResultsData.data[0].character), alphaTest: 0.5, side: THREE.DoubleSide}));
+    var Player2 = new THREE.Mesh(new THREE.PlaneGeometry(0.6, 0.75), new THREE.MeshStandardMaterial({map: GeneratePlayerTexture(ResultsData.data[1].character), alphaTest: 0.5, side: THREE.DoubleSide}));
+    var Player3 = new THREE.Mesh(new THREE.PlaneGeometry(0.6, 0.75), new THREE.MeshStandardMaterial({map: GeneratePlayerTexture(ResultsData.data[2].character), alphaTest: 0.5, side: THREE.DoubleSide}));
     Player1.castShadow = true;
     Player2.castShadow = true;
     Player3.castShadow = true;
@@ -5371,6 +5440,8 @@ function get_lobby_server(data){
             UIState = "menu";
         }
     }
+
+    UpdateMusicPlaylist();
 }
 
 var checkedIn = false;
@@ -5729,6 +5800,8 @@ function send_message_server(data){
         //Clear notification
         minigameChatNotification.style.display = "none";
     }
+
+    UpdateMusicPlaylist();
 }
 
 var leaderboardPlaces = document.getElementsByClassName("leaderboard-player");
