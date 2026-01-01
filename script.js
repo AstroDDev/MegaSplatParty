@@ -274,7 +274,8 @@ const StartTurnSFX = new Audio("resources/sfx/start_turn.ogg");
 const MusicPlaylist = [
     new Audio("resources/music/ThisSongIsIn15-8Time.mp3"),
     new Audio("resources/music/ThisSongIsIn15-8Time2.mp3"),
-    new Audio("resources/music/Astro Dwarf - The Title Screen Before a Recurring Rival.mp3")
+    new Audio("resources/music/Astro Dwarf - The Title Screen Before a Recurring Rival.mp3"),
+    new Audio("resources/music/ThisSongIsIn7-4Time.mp3")
 ];
 var PlaylistOrder = [];
 var CurrentSong = 0;
@@ -285,7 +286,6 @@ for (let i = 0; i < MusicPlaylist.length; i++){
 //Shuffle Playlist
 for (let i = 0; i < MusicPlaylist.length; i++){
     let rng = Math.floor(Math.random() * MusicPlaylist.length);
-    console.log(PlaylistOrder);
     let temp = PlaylistOrder[i];
     PlaylistOrder[i] = PlaylistOrder[rng];
     PlaylistOrder[rng] = temp;
@@ -621,6 +621,17 @@ function loadMap(){
 
         //Generate Shops
         for (const [key, value] of Object.entries(res.shops)){
+            //Shop Map Preview
+            let mapElem = document.createElement("div");
+            document.getElementById("shop-previews").appendChild(mapElem);
+            mapElem.id = key + "-preview";
+            mapElem.classList.add("map-shop");
+            mapElem.style.display = "none";
+
+            mapElem.appendChild(document.createElement("h2"));
+            mapElem.children[0].textContent = "Shop Preview";
+
+            //Actual Shop UI
             let shopElem = document.createElement("div");
             shopElem.id = key;
             shopElem.classList.add("popup");
@@ -638,6 +649,7 @@ function loadMap(){
             shopContent.classList.add("popup-shop");
 
             for (let i = 0; i < value.length; i++){
+                //Actual Shop
                 let shopItem = document.createElement("div");
                 shopContent.appendChild(shopItem);
                 shopItem.classList.add("shop-item");
@@ -651,6 +663,19 @@ function loadMap(){
 
                 shopItem.appendChild(document.createElement("h3"));
                 shopItem.children[2].innerHTML = ItemData[value[i]].price + ' <img class="coin-shop-image" src="resources/textures/squid_coin.svg">';
+
+                //Shop Map Preview
+                let mapShopItem = document.createElement("div");
+                mapElem.appendChild(mapShopItem);
+                mapShopItem.classList.add("map-shop-item");
+
+                mapShopItem.appendChild(document.createElement("img"));
+                mapShopItem.children[0].classList.add("map-shop-item-image");
+                mapShopItem.children[0].src = ItemData[value[i]].url;
+
+                mapShopItem.appendChild(document.createElement("h3"));
+                mapShopItem.children[1].classList.add("map-shop-price");
+                mapShopItem.children[1].innerHTML = ItemData[value[i]].price + ' <img src="resources/textures/squid_coin.svg" width="18px" height="18px">';
             }
 
             let description = document.createElement("p");
