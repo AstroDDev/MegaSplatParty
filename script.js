@@ -597,6 +597,7 @@ function loadMap(){
         tutorialShopPos = res.tutorialShop.pos;
         tutorialShopRot = res.tutorialShop.rot;
         ShopWarpTiles = res.shopWarpTiles;
+        StarWarpLocation = res.starWarpTile;
         StartingTile = res.startingTile;
         for (let i = 0; i < res.skybox.length; i++) res.skybox[i] = "resources/maps/" + MAP + "/" + res.skybox[i];
         SKYBOX_TEX = CubeTexLoader.load(res.skybox);
@@ -611,6 +612,81 @@ function loadMap(){
         ATLAS.magFilter = THREE.NearestFilter;
         ATLAS.minFilter = THREE.NearestFilter;
         MapMat = new THREE.MeshStandardMaterial({map: ATLAS});
+        PodiumPosition = res.podiumPosition;
+        if (res.resultsAnimCamPoses.length == ResultsAnimCamPos.length){
+            for (let i = 0; i < res.resultsAnimCamPoses.length; i++){
+                ResultsAnimCamPos[i] = new THREE.Vector3(res.resultsAnimCamPoses[i].x, res.resultsAnimCamPoses[i].y, res.resultsAnimCamPoses[i].z);
+            }
+        }
+
+        //Generate Shops
+        for (const [key, value] of Object.entries(res.shops)){
+            let shopElem = document.createElement("div");
+            shopElem.id = key;
+            shopElem.classList.add("popup");
+            shopElem.classList.add("shop-popup");
+            shopElem.style.display = "none";
+
+            shopElem.appendChild(document.createElement("div"));
+            shopElem.children[0].classList.add("popup-inset");
+            shopElem.children[0].appendChild(document.createElement("h1"));
+            shopElem.children[0].children[0].textContent = "Shop";
+            shopElem.children[0].appendChild(document.createElement("br"));
+
+            let shopContent = document.createElement("div");
+            shopElem.children[0].appendChild(shopContent);
+            shopContent.classList.add("popup-shop");
+
+            for (let i = 0; i < value.length; i++){
+                let shopItem = document.createElement("div");
+                shopContent.appendChild(shopItem);
+                shopItem.classList.add("shop-item");
+
+                shopItem.appendChild(document.createElement("button"));
+                shopItem.children[0].classList.add("shop-button");
+                shopItem.children[0].setAttribute("item", value[i]);
+                shopItem.children[0].style.backgroundImage = "url('" + ItemData[value[i]].url + "')";
+
+                shopItem.appendChild(document.createElement("br"));
+
+                shopItem.appendChild(document.createElement("h3"));
+                shopItem.children[2].innerHTML = ItemData[value[i]].price + ' <img class="coin-shop-image" src="resources/textures/squid_coin.svg">';
+            }
+
+            let description = document.createElement("p");
+            description.classList.add("shop-description");
+            description.textContent = "Hover over an item to learn about it";
+            shopContent.appendChild(description);
+
+            shopContent.appendChild(document.createElement("br"));
+
+            let leavebutton = document.createElement("button");
+            leavebutton.classList.add("shop-leave-button");
+            leavebutton.textContent = "Leave";
+            shopContent.appendChild(leavebutton);
+
+            document.getElementById("shops").appendChild(shopElem);
+        }
+
+        shopItems = document.getElementsByClassName("shop-button");
+        for (let i = 0; i < shopItems.length; i++){
+            let shopItem = shopItems[i].getAttribute("item");
+            shopItems[i].onmouseover = (e) => {
+                let descriptions = document.getElementsByClassName("shop-description");
+                for (let j = 0; j < descriptions.length; j++) document.getElementsByClassName("shop-description")[j].innerHTML = "<b>" + ItemData[shopItem].name + ":</b> " + ItemData[shopItem].description;
+            }
+            shopItems[i].onmouseout = (e) => {
+                let descriptions = document.getElementsByClassName("shop-description");
+                for (let j = 0; j < descriptions.length; j++) document.getElementsByClassName("shop-description")[j].innerHTML = "Hover over an item to learn about it";
+            }
+            shopItems[i].onclick = (e) => {
+                PurchaseItem(shopItem);
+            }
+        }
+        shopLeaveButtons = document.getElementsByClassName("shop-leave-button");
+        for (let i = 0; i < shopLeaveButtons.length; i++){
+            shopLeaveButtons[i].onclick = LeaveShop;
+        }
 
         Scene.background = SKYBOX_TEX;
 
@@ -2756,30 +2832,11 @@ document.getElementsByClassName("move-end-turn-button")[0].onclick = (e) => {
     }
 }
 
-var shopItems = document.getElementsByClassName("shop-button");
-for (var i = 0; i < shopItems.length; i++){
-    let shopItem = shopItems[i].getAttribute("item");
-    shopItems[i].onmouseover = (e) => {
-        document.getElementsByClassName("shop-description")[0].innerHTML = "<b>" + ItemData[shopItem].name + ":</b> " + ItemData[shopItem].description;
-        document.getElementsByClassName("shop-description")[1].innerHTML = "<b>" + ItemData[shopItem].name + ":</b> " + ItemData[shopItem].description;
-        document.getElementsByClassName("shop-description")[2].innerHTML = "<b>" + ItemData[shopItem].name + ":</b> " + ItemData[shopItem].description;
-    }
-    shopItems[i].onmouseout = (e) => {
-        document.getElementsByClassName("shop-description")[0].innerHTML = "Hover over an item to learn about it";
-        document.getElementsByClassName("shop-description")[1].innerHTML = "Hover over an item to learn about it";
-        document.getElementsByClassName("shop-description")[2].innerHTML = "Hover over an item to learn about it";
-    }
-    shopItems[i].onclick = (e) => {
-        PurchaseItem(shopItem);
-    }
-}
+var shopItems;
+var shopLeaveButtons;
 
 function LeaveShop(){
     ClosePopup();
-}
-var shopLeaveButtons = document.getElementsByClassName("shop-leave-button");
-for (var i = 0; i < shopLeaveButtons.length; i++){
-    shopLeaveButtons[i].onclick = LeaveShop;
 }
 
 function EndTurn(){
@@ -3210,7 +3267,7 @@ function PipeWarpAnimation(){
         }
     }
 }
-const StarWarpLocation = { x: 6, y: 7 };
+var StarWarpLocation = { x: 6, y: 7 };
 function TriggerGoldPipeWarpAnimation(){
     UIState = "override";
     turnStep = "gold-pipe-warp-anim";
@@ -4716,7 +4773,7 @@ function UpdateMusicPlaylist(){
     }
 }
 
-const PodiumPosition = { x: 4, y: 4 };
+var PodiumPosition = { x: 4, y: 4 };
 var ResultsData;
 var resultsAnimLightTargets = [];
 var resultsAnimEndTime = 0;
@@ -4806,7 +4863,7 @@ function TriggerResultsAnimation(data, skipAnim){
         resultsAnimLightTargets[2].position.set(targetPos.x, targetPos.y + 1, targetPos.z);
     }
 }
-const ResultsAnimCamPos = [
+var ResultsAnimCamPos = [
     new THREE.Vector3(15, 5, 35),
     new THREE.Vector3(15, 4, 25),
     new THREE.Vector3(20, 3.5, 20),
