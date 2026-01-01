@@ -43,6 +43,17 @@
 		"skybox/b&d-dnz.png"
 	],
 	"atlas": "atlas.png",
+	"shops": {
+		"shop-1": [
+			"tacticooler", "pipe", "doubledice"
+		],
+		"shop-2": [
+			"key", "tripledice", "goldpipe"
+		],
+		"shop-3": [
+			"tacticooler", "doubledice", "shophopbox"
+		]
+	},
 	"data": [
 	[
 		{
