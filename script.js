@@ -308,6 +308,10 @@ if (Object.hasOwn(COOKIES, "reducedMotion")){
     REDUCED_MOTION = COOKIES.reducedMotion;
     document.getElementById("reduced-motion").checked = REDUCED_MOTION;
 }
+else{
+    REDUCED_MOTION = false;
+    document.getElementById("reduced-motion").checked = false;
+}
 
 var Scene = new THREE.Scene();
 const Camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
@@ -3797,7 +3801,7 @@ function OpenMap(){
         turnStep = "map";
         document.getElementsByClassName("map-overlay")[0].style.display = "initial";
         document.getElementById("wait-minigame-map").style.display = "none";
-        UIPanels.minigame.style.display = "none";
+        UIPanels.minigame.style.visibility = "hidden";
     }
 }
 document.getElementById("map-button").onclick = OpenMap;
@@ -3846,7 +3850,7 @@ function CloseMap(){
             document.getElementById("turn-counter").style.display = "initial";
             document.getElementsByClassName("map-overlay")[0].style.display = "none";
             document.getElementById("wait-minigame-map").style.display = "initial";
-            UIPanels.minigame.style.display = "initial";
+            UIPanels.minigame.style.visibility = "visible";
         }
     }
 }
@@ -4777,7 +4781,7 @@ function announcement_server(data){
 }
 
 function UpdateMusicPlaylist(){
-    if (!checkedIn || !SignedIn){
+    if (!checkedIn || !SignedIn || Socket.readyState != WebSocket.OPEN){
         MusicPlaylist[PlaylistOrder[CurrentSong]].pause();
     }
     else if (ServerStatus == "MINIGAME"){
@@ -5149,6 +5153,8 @@ function get_lobby_server(data){
     if (data.success){
         NotifSFX.currentTime = 0;
         NotifSFX.play();
+
+        UIPanels.minigame.style.visibility = "visible";
 
         document.getElementsByClassName("roll-display")[0].style.transform = "scale(0)";
         document.getElementsByClassName("custom-dice-input")[0].style.display = "none";
