@@ -34,14 +34,6 @@
 		"skybox/b&d-pz.png",
 		"skybox/b&d-nz.png"
 	],
-	"darkSkybox": [
-		"skybox/b&d-dpx.png",
-		"skybox/b&d-dnx.png",
-		"skybox/b&d-dpy.png",
-		"skybox/b&d-dny.png",
-		"skybox/b&d-dpz.png",
-		"skybox/b&d-dnz.png"
-	],
 	"atlas": "atlas.png",
 	"shops": {
 		"shop-1": [
@@ -4060,7 +4052,7 @@
 				"w": false
 			},
 			"material": 61,
-			"popup": "shop-1",
+			"popup": "shop-3",
 			"walkOver": true,
 			"wallMaterial": {
 				"n": 28,
@@ -4080,7 +4072,7 @@
 				"w": true
 			},
 			"material": 61,
-			"popup": "shop-1",
+			"popup": "shop-3",
 			"walkOver": true,
 			"wallMaterial": {
 				"n": 28,
@@ -4100,7 +4092,7 @@
 				"w": true
 			},
 			"material": 61,
-			"popup": "shop-1",
+			"popup": "shop-3",
 			"walkOver": true,
 			"wallMaterial": {
 				"n": 28,
