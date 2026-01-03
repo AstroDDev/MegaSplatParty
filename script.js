@@ -274,7 +274,7 @@ const StartTurnSFX = new Audio("resources/sfx/start_turn.ogg");
 const MusicPlaylist = [
     new Audio("resources/music/ThisSongIsIn15-8Time.mp3"),
     new Audio("resources/music/ThisSongIsIn15-8Time2.mp3"),
-    new Audio("resources/music/Astro Dwarf - The Title Screen Before a Recurring Rival.mp3"),
+    new Audio("resources/music/a-recurring-rival-remix.mp3"),
     new Audio("resources/music/ThisSongIsIn7-4Time.mp3")
 ];
 var PlaylistOrder = [];
