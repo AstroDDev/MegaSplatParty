@@ -292,20 +292,20 @@ for (let i = 0; i < MusicPlaylist.length; i++){
 }
 
 if (Object.hasOwn(COOKIES, "volume")){
-    VOLUME = COOKIES.volume;
+    VOLUME = Number.parseFloat(COOKIES.volume);
     NotifSFX.volume = VOLUME;
     StartTurnSFX.volume = VOLUME;
     document.getElementById("volume").value = VOLUME;
 }
 if (Object.hasOwn(COOKIES, "music")){
-    MUSIC_VOLUME = COOKIES.music;
+    MUSIC_VOLUME = Number.parseFloat(COOKIES.music);
     for (let i = 0; i < MusicPlaylist.length; i++){
         MusicPlaylist[i].volume = MUSIC_VOLUME;
     }
     document.getElementById("music").value = MUSIC_VOLUME;
 }
 if (Object.hasOwn(COOKIES, "reducedMotion")){
-    REDUCED_MOTION = COOKIES.reducedMotion;
+    REDUCED_MOTION = typeof COOKIES.reducedMotion == "string" ? COOKIES.reducedMotion === "true" : COOKIES.reducedMotion;
     document.getElementById("reduced-motion").checked = REDUCED_MOTION;
 }
 else{
@@ -398,7 +398,6 @@ for (let i = 0; i < PlayerAvatars.length; i++){
 const CubeTexLoader = new THREE.CubeTextureLoader();
 
 var SKYBOX_TEX;
-var DARK_SKYBOX_TEX;
 
 var Star;
 var SilverStar;
@@ -606,9 +605,6 @@ function loadMap(){
         for (let i = 0; i < res.skybox.length; i++) res.skybox[i] = "resources/maps/" + MAP + "/" + res.skybox[i];
         SKYBOX_TEX = CubeTexLoader.load(res.skybox);
         SKYBOX_TEX.colorSpace = THREE.SRGBColorSpace;
-        for (let i = 0; i < res.darkSkybox.length; i++) res.darkSkybox[i] = "resources/maps/" + MAP + "/" + res.darkSkybox[i];
-        DARK_SKYBOX_TEX = CubeTexLoader.load(res.darkSkybox);
-        DARK_SKYBOX_TEX.colorSpace = THREE.SRGBColorSpace;
         ATLAS = TexLoader.load("resources/maps/" + MAP + "/" + res.atlas);
         ATLAS.colorSpace = THREE.SRGBColorSpace;
         ATLAS.wrapS = THREE.RepeatWrapping;
@@ -1439,11 +1435,11 @@ window.onkeydown = function(e){
         Scene.remove(MapMesh);
         buildMap();
     }*/
-    /*if (e.keyCode == 27){
+    if (e.keyCode == 27){
         //ESC
         navigator.clipboard.writeText(JSON.stringify(mapData, null, "\t"));
         console.log("COPY!!!!");
-    }*/
+    }
 }
 window.onkeyup = function(e){ keys[e.keyCode] = false; }
 
@@ -2383,7 +2379,7 @@ var targetDebugPos;
 window.onmousedown = function(e){
     UpdateMusicPlaylist();
 
-    /*if (turnStep == "map"){
+    if (turnStep == "map"){
         raycaster.setFromCamera(pointer, Camera);
         var intersections = raycaster.intersectObject(MapMesh, false);
 
@@ -2410,7 +2406,7 @@ window.onmousedown = function(e){
             //}
             
         }
-    }*/
+    }
 }
 document.getElementById("debug-set-button").onclick = function(e){
     let data = JSON.parse(document.getElementById("debug-text-input").value);
@@ -4223,6 +4219,14 @@ CCDecreaseButtons[3].onclick = function(e){
     CCElements[1].src = AvatarDecorations.shirt[CCShirtIndex];
 };
 
+if (Object.hasOwn(COOKIES, "character")){
+    let char = JSON.parse(COOKIES.character);
+    CCHatIndex = char.hat;
+    CCHairIndex = char.hair;
+    CCSkinIndex = char.skin;
+    CCShirtIndex = char.shirt;
+}
+
 function updateAllCCElements(){
     CCElements[0].src = AvatarDecorations.skin[CCSkinIndex];
     CCElements[1].src = AvatarDecorations.shirt[CCShirtIndex];
@@ -4234,10 +4238,11 @@ updateAllCCElements();
 
 document.getElementById("cc-submit-button").onclick = function(e){
     Socket.send(JSON.stringify({ method: "set_player_data", token: TOKEN, character: { hat: CCHatIndex, hair: CCHairIndex, skin: CCSkinIndex, shirt: CCShirtIndex } }));
-    Player.material.map = GeneratePlayerTexture({ hat: CCHatIndex, hair: CCHairIndex, skin: CCSkinIndex, shirt: CCShirtIndex });
 
     UIPanels.characterCreator.style.display = "none";
     UIPanels.checkin.style.display = "initial";
+
+    document.cookie = "character=" + JSON.stringify({ hat: CCHatIndex, hair: CCHairIndex, skin: CCSkinIndex, shirt: CCShirtIndex }) + "; expires=" + expiry.toUTCString();
 
     window.location.reload();
 };
@@ -4762,6 +4767,20 @@ function announcement_server(data){
         }
         else if (ServerStatus == "MINIGAME"){
             document.getElementsByClassName("leaderboard-button")[0].style.display = "initial";
+
+            UIPanels.minigame.style.animation = "";
+            document.getElementById("minigame-title").style.animation = "";
+            document.getElementsByClassName("new-minigame-rewards")[0].style.animation = "";
+            document.getElementsByClassName("new-minigame-window")[0].style.animation = "";
+            document.getElementsByClassName("new-minigame-timer-text")[0].style.animation = "";
+            let battleFlair = document.getElementsByClassName("battle-minigame-flair-img");
+            let starStealFlair = document.getElementsByClassName("star-steal-minigame-flair-img");
+            let duelFlair = document.getElementsByClassName("duel-minigame-flair-img");
+            let coinFlair = document.getElementsByClassName("coin-minigame-flair-img");
+            for (let i = 0; i < battleFlair.length; i++) battleFlair[i].style.animation = "";
+            for (let i = 0; i < starStealFlair.length; i++) starStealFlair[i].style.animation = "";
+            for (let i = 0; i < duelFlair.length; i++) duelFlair[i].style.animation = "";
+            for (let i = 0; i < coinFlair.length; i++) coinFlair[i].style.animation = "";
             
             if (SignedIn && checkedIn){
                 minigameNavButtons[0].onclick();
@@ -4835,7 +4854,6 @@ function TriggerResultsAnimation(data, skipAnim){
     Scene.remove(Player);
     Scene.remove(light);
     ambient.intensity = 0.1;
-    //Scene.background = DARK_SKYBOX_TEX;
     Scene.backgroundIntensity = 0.01;
 
     //Set up Podium
@@ -5147,6 +5165,7 @@ function isCoopTie(resultArray){
     }
     return true;
 }
+
 function get_lobby_server(data){
     clearTimeout(GetLobbyServerTimeout);
 

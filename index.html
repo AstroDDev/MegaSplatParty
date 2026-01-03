@@ -30,13 +30,13 @@
 
         <div id="world"></div>
         <div class="game-ui">
-            <div class="custom-dice-input" style="display: none;">
-                <button class="increase-dice-button"></button>
-                <button class="decrease-dice-button"></button>
-            </div>
             <div class="roll-inputs" style="display: none;">
                 <div class="roll-canvas-button"></div>
                 <button class="roll-back-button">Back</button>
+            </div>
+            <div class="custom-dice-input" style="display: none;">
+                <button class="increase-dice-button"></button>
+                <button class="decrease-dice-button"></button>
             </div>
             <div class="roll-display" style="transform: scale(0%);">
                 <h1>10</h1>
@@ -368,31 +368,31 @@
                 </div>
             </div>
 
-            <div id="new-minigame" class="popup" style="display: none;">
+            <div id="new-minigame" class="popup" style="display: none; animation: none !important;">
                 <div class="popup-inset new-minigame-inset">
                     <div id="minigame-interactive" style="display: inline-block;">
-                        <h1 id="minigame-title" style="font-size: 3.25em;">
+                        <h1 id="minigame-title" style="font-size: 3.25em; animation: none !important;">
                             <div id="battle-minigame-flair" style="display: none;">
-                                <img class="battle-minigame-flair-img" src="resources/textures/boxing_glove_back.svg">
-                                <img class="battle-minigame-flair-img" src="resources/textures/boxing_glove_front.svg">
+                                <img class="battle-minigame-flair-img" src="resources/textures/boxing_glove_back.svg" style="animation: none !important;">
+                                <img class="battle-minigame-flair-img" src="resources/textures/boxing_glove_front.svg" style="animation: none !important;">
                             </div>
                             <div id="star-steal-minigame-flair" style="display: none;">
-                                <img class="star-steal-minigame-flair-img" src="resources/textures/star_steal_minigame.svg">
+                                <img class="star-steal-minigame-flair-img" src="resources/textures/star_steal_minigame.svg" style="animation: none !important;">
                             </div>
                             <div id="duel-minigame-flair" style="display: none;">
 
                             </div>
                             <div id="coin-minigame-flair" style="display: block;">
-                                <img class="coin-minigame-flair-img" src="resources/textures/sideways_coin.svg">
-                                <img class="coin-minigame-flair-img" src="resources/textures/sideways_coin.svg">
-                                <img class="coin-minigame-flair-img" src="resources/textures/sideways_coin.svg">
-                                <img class="coin-minigame-flair-img" src="resources/textures/sideways_coin.svg">
-                                <img class="coin-minigame-flair-img" src="resources/textures/sideways_coin.svg">
-                                <img class="coin-minigame-flair-img" src="resources/textures/sideways_coin.svg">
+                                <img class="coin-minigame-flair-img" src="resources/textures/sideways_coin.svg" style="animation: none !important;">
+                                <img class="coin-minigame-flair-img" src="resources/textures/sideways_coin.svg" style="animation: none !important;">
+                                <img class="coin-minigame-flair-img" src="resources/textures/sideways_coin.svg" style="animation: none !important;">
+                                <img class="coin-minigame-flair-img" src="resources/textures/sideways_coin.svg" style="animation: none !important;">
+                                <img class="coin-minigame-flair-img" src="resources/textures/sideways_coin.svg" style="animation: none !important;">
+                                <img class="coin-minigame-flair-img" src="resources/textures/sideways_coin.svg" style="animation: none !important;">
                             </div>
                             <text id="minigame-type-title">Coin Minigame</text>
                         </h1>
-                        <div class="new-minigame-rewards">
+                        <div class="new-minigame-rewards" style="animation: none !important;">
                             <div class="new-minigame-reward-option">
                                 <span class="new-minigame-reward-placement">1st</span>
                                 <div>
@@ -450,7 +450,7 @@
                                 </div>
                             </div>
                         </div><br><br>
-                        <div class="new-minigame-window">
+                        <div class="new-minigame-window" style="animation: none !important;">
                             <div class="new-minigame-navigator">
                                 <button class="new-minigame-navigator-button new-minigame-navigator-selected">Results</button>
                                 <button class="new-minigame-navigator-button">Chat<div class="new-minigame-chat-notification" style="display: none;"></div></button>
@@ -701,7 +701,7 @@
                         </div><br>
                         <h3>Waiting for other lobbies to finish...</h3>
                     </div>
-                    <div class="new-minigame-timer-text">
+                    <div class="new-minigame-timer-text" style="animation: none !important;">
                         Start Time: <b id="minigame-start-time">00:00 PM</b><br>
                         End Time: <b id="minigame-end-time">00:00 PM</b>
                     </div>
