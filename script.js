@@ -5624,10 +5624,27 @@ function loginSubmit(loginType){
             if (request.status === 200){
                 let xml = new DOMParser().parseFromString(request.responseText, "text/html").body;
                 let scripts = xml.getElementsByTagName("script");
-                let data = scripts[scripts.length - 2].textContent.replace("window.__remixContext = ", "");
-                data = JSON.parse(data.slice(0, data.length - 1));
-                ign = data.state.loaderData["features/user-page/routes/u.$identifier.index"].user.inGameName;
-                discord = data.state.loaderData["features/user-page/routes/u.$identifier.index"].user.discordUniqueName;
+                let data = "";
+                for (let i = 0; i < scripts.length; i++){
+                    //console.log(scripts[i].textContent);
+                    if (scripts[i].textContent.includes("window.__reactRouterContext.streamController.enqueue(\"")){
+                        data = scripts[i].textContent.replace("window.__reactRouterContext.streamController.enqueue(\"", "").replaceAll("\\", "");
+                        data = JSON.parse(data.slice(0, data.length - 4));
+                        break;
+                    }
+                }
+                if (data == "") throw new Error("Error with loading sendou.ink data, did not expect response");
+                
+                for (let i = 0; i < data.length; i++){
+                    if (data[i] == "inGameName"){
+                        ign = data[i + 1];
+                    }
+                    else if (data[i] == "discordId"){
+                        discord = data[i + 1];
+                    }
+                }
+                //ign = data.state.loaderData["features/user-page/routes/u.$identifier.index"].user.inGameName;
+                //discord = data.state.loaderData["features/user-page/routes/u.$identifier.index"].user.discordUniqueName;
                 
                 if (ign == null || discord == null){
                     document.getElementById("login-error-message").innerHTML = "Cannot sign up with sendou profile.<br>Please sign up with discord and username instead.";
