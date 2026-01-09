@@ -1320,7 +1320,7 @@ function buildMap(){
     Camera.position.set(Math.cos(angle) * 10 + (mapSize.x / 2), 5, Math.sin(angle) * 10 + (mapSize.y / 2));
     Camera.lookAt(new THREE.Vector3(mapSize.x / 2, 2.5, mapSize.y / 2));
 
-    InitializeSocket();
+    //InitializeSocket();
 
     update();
 }
@@ -1521,8 +1521,8 @@ function update(){
     requestAnimationFrame(update);
 }
 
-var UIState = "menu";
-var lastUIState = "menu";
+var UIState = "orbit";
+var lastUIState = "orbit";
 var transitionValues = {
     filter: null,
     playerRot: null,
@@ -1583,7 +1583,7 @@ function UpdateUI(){
         let yPos = mapData[PlayerData.position.y][PlayerData.position.x].ramp ? (mapData[PlayerData.position.y][PlayerData.position.x].height.pos + mapData[PlayerData.position.y][PlayerData.position.x].height.neg) / 2 : mapData[PlayerData.position.y][PlayerData.position.x].height;
         playerPos = new THREE.Vector3(PlayerData.position.x, yPos + 0.375, PlayerData.position.y);
         cameraPos = new THREE.Vector3(Player.position.x, Player.position.y + 0.125, Player.position.z + 1.5);
-        cameraRot = new THREE.Euler(0, 0, 0);
+        cameraRot = new THREE.Euler(0, 0, 0, "YXZ");
     }
     else if (UIState == "roll"){
         filter = 0;
@@ -1591,7 +1591,7 @@ function UpdateUI(){
         let yPos = mapData[PlayerData.position.y][PlayerData.position.x].ramp ? (mapData[PlayerData.position.y][PlayerData.position.x].height.pos + mapData[PlayerData.position.y][PlayerData.position.x].height.neg) / 2 : mapData[PlayerData.position.y][PlayerData.position.x].height;
         playerPos = new THREE.Vector3(PlayerData.position.x, yPos + 0.375, PlayerData.position.y);
         cameraPos = new THREE.Vector3(Player.position.x, Player.position.y + 0.5, Player.position.z + 1.75);
-        cameraRot = new THREE.Euler(0, 0, 0);
+        cameraRot = new THREE.Euler(0, 0, 0, "YXZ");
     }
     else if (UIState == "above"){
         filter = 0;
@@ -1599,7 +1599,7 @@ function UpdateUI(){
         let yPos = mapData[PlayerData.position.y][PlayerData.position.x].ramp ? Math.max(mapData[PlayerData.position.y][PlayerData.position.x].height.pos, mapData[PlayerData.position.y][PlayerData.position.x].height.neg) : mapData[PlayerData.position.y][PlayerData.position.x].height;
         playerPos = new THREE.Vector3(PlayerData.position.x, yPos + 0.02, PlayerData.position.y);
         cameraPos = new THREE.Vector3(Player.position.x, Player.position.y + 5, Player.position.z);
-        cameraRot = new THREE.Euler(-Math.PI / 2, 0, 0);
+        cameraRot = new THREE.Euler(-Math.PI / 2, 0, 0, "YXZ");
     }
     else if (UIState == "map"){
         filter = 0;
@@ -1607,7 +1607,7 @@ function UpdateUI(){
         let yPos = mapData[PlayerData.position.y][PlayerData.position.x].ramp ? Math.max(mapData[PlayerData.position.y][PlayerData.position.x].height.pos, mapData[PlayerData.position.y][PlayerData.position.x].height.neg) : mapData[PlayerData.position.y][PlayerData.position.x].height;
         playerPos = new THREE.Vector3(PlayerData.position.x, yPos + 0.02, PlayerData.position.y);
         cameraPos = new THREE.Vector3(mapSize.x / 2 - 0.5, 32, mapSize.y / 2 - 0.5);
-        cameraRot = new THREE.Euler(-Math.PI / 2, 0, 0);
+        cameraRot = new THREE.Euler(-Math.PI / 2, 0, 0, "YXZ");
     }
     else if (UIState == "doorn"){
         filter = 0;
@@ -1615,7 +1615,7 @@ function UpdateUI(){
         let yPos = getHeightTile(PlayerData.position.x, PlayerData.position.y);
         playerPos = new THREE.Vector3(PlayerData.position.x, yPos + 0.375, PlayerData.position.y);
         cameraPos = new THREE.Vector3(PlayerData.position.x, getHeightTile(PlayerData.position.x, PlayerData.position.y - 1) + 0.4, PlayerData.position.y - 1 + 1.5);
-        cameraRot = new THREE.Euler(0, 0, 0);
+        cameraRot = new THREE.Euler(0, 0, 0, "YXZ");
     }
     else if (UIState == "doors"){
         filter = 0;
@@ -1623,7 +1623,7 @@ function UpdateUI(){
         let yPos = getHeightTile(PlayerData.position.x, PlayerData.position.y);
         playerPos = new THREE.Vector3(PlayerData.position.x, yPos + 0.375, PlayerData.position.y);
         cameraPos = new THREE.Vector3(PlayerData.position.x, getHeightTile(PlayerData.position.x, PlayerData.position.y + 1) + 0.4, PlayerData.position.y + 1 - 1.5);
-        cameraRot = new THREE.Euler(0, Math.PI, 0);
+        cameraRot = new THREE.Euler(0, Math.PI, 0, "YXZ");
     }
     else if (UIState == "doore"){
         filter = 0;
@@ -1631,7 +1631,7 @@ function UpdateUI(){
         let yPos = getHeightTile(PlayerData.position.x, PlayerData.position.y);
         playerPos = new THREE.Vector3(PlayerData.position.x, yPos + 0.375, PlayerData.position.y);
         cameraPos = new THREE.Vector3(PlayerData.position.x + 1 - 1.5, getHeightTile(PlayerData.position.x + 1, PlayerData.position.y) + 0.4, PlayerData.position.y);
-        cameraRot = new THREE.Euler(0, -Math.PI / 2, 0);
+        cameraRot = new THREE.Euler(0, -Math.PI / 2, 0, "YXZ");
     }
     else if (UIState == "doorw"){
         filter = 0;
@@ -1639,7 +1639,7 @@ function UpdateUI(){
         let yPos = getHeightTile(PlayerData.position.x, PlayerData.position.y);
         playerPos = new THREE.Vector3(PlayerData.position.x, yPos + 0.375, PlayerData.position.y);
         cameraPos = new THREE.Vector3(PlayerData.position.x - 1 + 1.5, getHeightTile(PlayerData.position.x - 1, PlayerData.position.y) + 0.4, PlayerData.position.y);
-        cameraRot = new THREE.Euler(0, Math.PI / 2, 0);
+        cameraRot = new THREE.Euler(0, Math.PI / 2, 0, "YXZ");
     }
     else if (UIState == "podium"){
         filter = 1;
@@ -1654,14 +1654,14 @@ function UpdateUI(){
         playerRot = new THREE.Euler(0, 0, 0);
         playerPos = new THREE.Vector3(PlayerData.position.x, getHeightTile(PlayerData.position.x, PlayerData.position.y) + 0.375, PlayerData.position.y);
         cameraPos = new THREE.Vector3(tutorialStarPos.x, tutorialStarPos.y, tutorialStarPos.z);
-        cameraRot = new THREE.Euler(tutorialStarRot.x, tutorialStarRot.y, tutorialStarRot.z);
+        cameraRot = new THREE.Euler(tutorialStarRot.x, tutorialStarRot.y, tutorialStarRot.z, "YXZ");
     }
     else if (UIState == "tutorialshop"){
         filter = 0;
         playerRot = new THREE.Euler(0, 0, 0);
         playerPos = new THREE.Vector3(PlayerData.position.x, getHeightTile(PlayerData.position.x, PlayerData.position.y) + 0.375, PlayerData.position.y);
         cameraPos = new THREE.Vector3(tutorialShopPos.x, tutorialShopPos.y, tutorialShopPos.z);
-        cameraRot = new THREE.Euler(tutorialShopRot.x, tutorialShopRot.y, tutorialShopRot.z);
+        cameraRot = new THREE.Euler(tutorialShopRot.x, tutorialShopRot.y, tutorialShopRot.z, "YXZ");
     }
 
     if (lastUIState != UIState){
