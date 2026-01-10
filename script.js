@@ -1320,7 +1320,7 @@ function buildMap(){
     Camera.position.set(Math.cos(angle) * 10 + (mapSize.x / 2), 5, Math.sin(angle) * 10 + (mapSize.y / 2));
     Camera.lookAt(new THREE.Vector3(mapSize.x / 2, 2.5, mapSize.y / 2));
 
-    //InitializeSocket();
+    InitializeSocket();
 
     update();
 }
@@ -1521,8 +1521,8 @@ function update(){
     requestAnimationFrame(update);
 }
 
-var UIState = "orbit";
-var lastUIState = "orbit";
+var UIState = "menu";
+var lastUIState = "menu";
 var transitionValues = {
     filter: null,
     playerRot: null,
