@@ -5772,8 +5772,9 @@ function create_game_main_server(data){
         Socket.onclose = null;
         Socket.close();
         ServerStatus = "null";
-        ConnectToServer(data.server);
         updateAllRoomCodes(data.code);
+        //Needs half second delay otherwise on published server, it tries to connect before server is ready
+        setTimeout(() => ConnectToServer(data.server), 500);
     }
     else{
         UIPanels.connecting.style.display = "none";
@@ -5972,6 +5973,7 @@ function ConnectToServer(server){
 
     Socket.onerror = function(e){
         console.log("Socket Error");
+        console.log(e);
     };
 }
 
