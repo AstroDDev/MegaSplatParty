@@ -1776,7 +1776,7 @@ function buildMap(){
     }
     generateMapAnimationMasks();
     SetMapAnimationTransforms();
-    console.log("Vertices: " + (vertices.length / 3));
+    
     geometry.setIndex(indices);
     geometry.setAttribute("position", new THREE.BufferAttribute(new Float32Array(vertices), 3));
     geometry.setAttribute("uv", new THREE.BufferAttribute(new Float32Array(uvs), 2));
@@ -5461,7 +5461,8 @@ var IGN, Discord, Rank;
 function InitializeSocket(){
     //Changes the Socket connection based on if it's local hosted or not
     //Also checks if the url search parameter has a unique url for the socket
-    Socket = new WebSocket(window.location.hostname == "127.0.0.1" ? "ws://localhost:6969" : "wss://msp.astrodwarf.space/server");
+    //Socket = new WebSocket(window.location.hostname == "127.0.0.1" ? "ws://localhost:6969" : "wss://msp.astrodwarf.space/server");
+    Socket = new WebSocket("wss://msp-server.astrodwarf.space");
 
     Socket.onopen = function(e){
         document.getElementById("settings-room-code").style.display = "none";
@@ -5873,23 +5874,8 @@ const debugPortMap = { server0: 8080, server1: 8081, server2: 8082, server3: 808
 function ConnectToServer(server){
     console.log("Connecting to server: " + server);
 
-    Socket = new WebSocket(window.location.hostname == "127.0.0.1" ? "ws://localhost:" + debugPortMap[server] : "wss://msp.astrodwarf.space/" + server);
-
-    Socket.onopen = function(e){
-        startPingLoop();
-        socketHasConnected = true;
-        document.getElementById("settings-room-code").style.display = "inline-block";
-        Socket.send(JSON.stringify({ method: "init", token: TOKEN }));
-    };
-
-    Socket.onclose = function(e){
-        endPingLoop();
-
-        turnStep = "dc";
-        
-        ResetUIToMenu();
-        UIPanels.disconnected.style.display = "initial";
-    };
+    //Socket = new WebSocket(window.location.hostname == "127.0.0.1" ? "ws://localhost:" + debugPortMap[server] : "wss://msp.astrodwarf.space/" + server);
+    Socket = new WebSocket("wss://msp.astrodwarf.space/" + server);
 
     Socket.onmessage = function(e){
         if (e.data == "pong" || e.data == "ping") return;
@@ -5950,6 +5936,27 @@ function ConnectToServer(server){
                 RemovePlayer(data);
         }
     };
+
+    Socket.onopen = function(e){
+        startPingLoop();
+        socketHasConnected = true;
+        document.getElementById("settings-room-code").style.display = "inline-block";
+        Socket.send(JSON.stringify({ method: "init", token: TOKEN }));
+    };
+
+    Socket.onclose = function(e){
+        console.log("Socket Closed");
+        endPingLoop();
+
+        turnStep = "dc";
+        
+        ResetUIToMenu();
+        UIPanels.disconnected.style.display = "initial";
+    };
+
+    Socket.onerror = function(e){
+        console.log("Socket Error");
+    };
 }
 
 function player_add_server(data){
@@ -5961,6 +5968,12 @@ function player_add_server(data){
 
 var RoomOwners = [];
 var GameLength = 15;
+var initTimeout;
+function initServerTimeout(i){
+    if (i > TIMEOUT_LIMIT) disconnectError();
+    initTimeout = setTimeout(() => initServerTimeout(i+1), 500);
+    Socket.send(JSON.stringify({ method: "init", token: TOKEN }));
+}
 function init_server(data){
     MAP = data.map;
     checkedIn = data.checkedIn;
