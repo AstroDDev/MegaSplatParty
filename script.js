@@ -875,20 +875,23 @@ function buildMap(){
 
     let isReload = false;
     if (MapMesh != null){
+        MapMesh.clear();
         Scene.remove(MapMesh);
         isReload = true;
     }
     if (BlockList != null){
+        BlockList.clear();
         Scene.remove(BlockList);
         isReload = true;
     }
     if (KeyDoors != null){
-        KeyDoors.remove(KeyDoors);
+        Scene.remove(KeyDoors);
         isReload = true;
     }
     MapMesh = null;
     BlockList = new THREE.Group();
     KeyDoors = new THREE.Group();
+    MapLocks.clear();
 
     light.shadow.mapSize.width = 1024;
     light.shadow.mapSize.height = 1024;
@@ -4871,8 +4874,6 @@ document.getElementsByClassName("sign-out")[0].onclick = function(e){
 document.getElementsByClassName("leave-game")[0].onclick = function(e){
     Socket.send(JSON.stringify({ method: "leave_game", token: TOKEN }));
 
-    endPingLoop();
-
     ResetUIToMenu();
 
     UIPanels.connecting.style.display = "initial";
@@ -4957,10 +4958,10 @@ document.getElementById("cant-duel-leave-button").onclick = function(e){
 
 
 document.getElementById("star-steal-steal-button").onclick = function(e){
-    if (PlayerData.coins >= 30 && PlayerData.canSteal){
+    if (PlayerData.coins >= 20 && PlayerData.canSteal){
         PlayerData.isStealing = true;
         document.getElementById(mapData[PlayerData.position.y][PlayerData.position.x].popup).style.display = "none";
-        TriggerCoinChangeAnimation(-30);
+        TriggerCoinChangeAnimation(-20);
         PlayerData.canSteal = false;
     }
 };
@@ -5511,9 +5512,13 @@ function InitializeSocket(){
 
 var tempServer = "";
 var tempCode = "";
+var isAdmin = false;
 function test_token_main_server(data){
     if (data.success){
         let searchParams = new URLSearchParams(window.location.search);
+
+        isAdmin = Object.hasOwn(data, "admin");
+        document.getElementById("admin-options").style.display = isAdmin ? "initial" : "none";
 
         IGN = data.ign;
         Discord = data.discord;
@@ -5642,6 +5647,9 @@ function register_main_server(data){
 function login_main_server(data){
     if (data.success){
         let searchParams = new URLSearchParams(window.location.search);
+
+        isAdmin = Object.hasOwn(data, "admin");
+        document.getElementById("admin-options").style.display = isAdmin ? "initial" : "none";
 
         IGN = data.ign;
         Discord = data.discord;
@@ -5825,7 +5833,15 @@ document.getElementById("create-game-create-button").onclick = function(e){
         battleMinigamesEnabled: document.getElementById("create-game-do-battle-minigames").checked
     };
 
-    Socket.send(JSON.stringify({ method: "create_game", token: TOKEN, settings: settings }));
+    if (isAdmin && document.getElementById("create-game-is-public").checked){
+        Object.defineProperty(settings, "startTime", {writable: true, enumerable: true, configurable: true,
+            value: new Date(document.getElementById("create-game-start-time").value).valueOf() / 1000 });
+        Socket.send(JSON.stringify({ method: "create_public", token: TOKEN, settings: settings }));
+        setTimeout(() => window.location.reload(), 500);
+    }
+    else{
+        Socket.send(JSON.stringify({ method: "create_game", token: TOKEN, settings: settings }));
+    }
 
     UIPanels.createGame.style.display = "none";
     UIPanels.connecting.style.display = "initial";
@@ -5872,7 +5888,7 @@ for (let i = 0; i < roomCodeCopyElems.length; i++){
 }
 
 
-const debugPortMap = { server0: 8080, server1: 8081, server2: 8082, server3: 8083, server4: 8084, server5: 8085, server6: 8086, server7: 8087, server8: 8088, server9: 8089, server_public: 8090 };
+const debugPortMap = { server0: 6970, server1: 6971, server2: 6972, server3: 6973, server4: 6974, server5: 6975, server6: 6976, server7: 6977, server8: 6978, server9: 6979, server_public: 6980 };
 function ConnectToServer(server){
     console.log("Connecting to server: " + server);
 
@@ -5940,7 +5956,6 @@ function ConnectToServer(server){
     };
 
     Socket.onopen = function(e){
-        startPingLoop();
         socketHasConnected = true;
         document.getElementById("settings-room-code").style.display = "inline-block";
         Socket.send(JSON.stringify({ method: "init", token: TOKEN }));
@@ -5948,7 +5963,6 @@ function ConnectToServer(server){
 
     Socket.onclose = function(e){
         console.log("Socket Closed");
-        endPingLoop();
 
         turnStep = "dc";
         
@@ -6072,17 +6086,17 @@ function kickRegisteredPlayer(ign){
 var pingLoop;
 function startPingLoop(){
     pingLoop = setInterval(() => {
-        if (ServerStatus == "REGISTRATION" || ServerStatus == "CHECK_IN"){
-            Socket.send("ping");
-        }
-        else{
-            endPingLoop();
+        if (Socket != null && Socket.readyState == WebSocket.OPEN){
+            if (Socket.url == "wss://msp-server.astrodwarf.space" || ServerStatus == "REGISTRATION"){
+                Socket.send("ping");
+            }
         }
     }, 60000);
 }
 function endPingLoop(){
     if (pingLoop != null) clearInterval(pingLoop);
 }
+startPingLoop();
 
 function set_player_data_server(data){
     if (!data.success){
@@ -6563,6 +6577,7 @@ function TriggerResultsAnimation(data, skipAnim){
     Renderer.domElement.style.filter = "";
 
     Scene.remove(Player);
+    PlayerObjects.clear();
     Scene.remove(light);
     ambient.intensity = 0.1;
     Scene.backgroundIntensity = 0.01;

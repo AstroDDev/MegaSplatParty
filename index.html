@@ -904,7 +904,7 @@
                 <div id="cansteal" class="popup-inset" style="display: inline-block;">
                     <h1>Star Steal</h1><br>
                     <p style="color: white;"><b>Crossing this space allows you to attempt to steal a star from another player.<br>To steal a star from another player you must beat them in the next minigame.</b></p><br>
-                    <button id="star-steal-steal-button" style="font-size: 1.5em;">Steal <img class="coin-shop-image" src="resources/textures/squid_star.svg"> (30 <img class="coin-shop-image" src="resources/textures/squid_coin.svg">)</button>
+                    <button id="star-steal-steal-button" style="font-size: 1.5em;">Steal <img class="coin-shop-image" src="resources/textures/squid_star.svg"> (20 <img class="coin-shop-image" src="resources/textures/squid_coin.svg">)</button>
                     <button id="star-steal-leave-button" style="font-size: 1.5em;">Leave</button>
                 </div>
                 <div id="cantsteal" class="popup-inset" style="display: none;">
@@ -966,6 +966,10 @@
                     <span>Game Length: </span><input id="create-game-game-length" type="number" style="width: 40px; height: 20px; font-size: 1em;" min="3" max="100" step="1" value="15"><br>
                     <span>Generate Silver Stars: </span><input id="create-game-generate-silver-stars" type="checkbox"><br>
                     <span>Do Battle Minigames: </span><input id="create-game-do-battle-minigames" type="checkbox" checked><br>
+                    <div id="admin-options" style="display: none;">
+                        <span>Is Public: </span><input id="create-game-is-public" type="checkbox"><br>
+                        <span>Start Time: </span><input id="create-game-start-time" type="datetime-local" style="width: 180px; height: 20px; font-size: 1em;"><br>
+                    </div>
                     <br>
                     <button id="create-game-back-button">Back</button>
                     <button id="create-game-create-button">Create</button>

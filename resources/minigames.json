@@ -90,6 +90,7 @@
         "description": "This minigame is played in a <b>Private Salmon Run</b> Lobby. Set the <b>Hazard Level to 100%</b> and the map to <b>Bonerattle Arena.</b> Make sure all players select \"<b>?</b>\" as their weapon (This is the default option).<br><br>Players will compete over the course of a salmon run shift to collect the most <b>Golden Eggs.</b> Players will recieve 1 coin for every 3 <b>Golden Eggs</b> collected.<br><br>When submitting results, enter the <b>Golden Egg</b> totals on the end screen."
     },
     "salmonrunrevive": {
+        "hidden": true,
         "weight": 1,
         "battleable": true,
         "timeLimit": 13,
