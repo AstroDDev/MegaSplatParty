@@ -357,7 +357,7 @@ if (Object.hasOwn(COOKIES, "hideRoomCode")){
 
 var Scene = new THREE.Scene();
 const Camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
-const Renderer = new THREE.WebGLRenderer();
+const Renderer = new THREE.WebGLRenderer({powerPreference: "high-performance"});
 Renderer.shadowMap.enabled = true;
 Renderer.shadowMap.type = THREE.BasicShadowMap;
 Renderer.setSize(window.innerWidth, window.innerHeight);
@@ -1776,7 +1776,7 @@ function buildMap(){
     }
     generateMapAnimationMasks();
     SetMapAnimationTransforms();
-
+    console.log("Vertices: " + (vertices.length / 3));
     geometry.setIndex(indices);
     geometry.setAttribute("position", new THREE.BufferAttribute(new Float32Array(vertices), 3));
     geometry.setAttribute("uv", new THREE.BufferAttribute(new Float32Array(uvs), 2));
@@ -5225,7 +5225,7 @@ document.getElementById("edit-change-button").onclick = function(e){
         document.getElementById("edit-error-message").textContent = "Passwords do not match";
         return;
     }
-    if (!newIGN.includes("#") || newIGN.split("#")[1].length < 4){
+    if (newIGN.length > 0 && (!newIGN.includes("#") || newIGN.split("#")[1].length < 4)){
         document.getElementById("edit-error-message").textContent = "Splatoon Name must include id numbers (e.g. Username#1234)";
         return;
     }
@@ -7637,3 +7637,6 @@ const debugSet = document.getElementsByClassName("debug-set");
 for (let i = 0; i < debugSet.length; i++){
     debugSet[i].onclick = (e) => {debugSetState(debugSet[i].textContent);};
 }
+
+
+//TODO!!! Add a way for admins to create public matches (Add a hidden checkmark that shows up on create game form)
