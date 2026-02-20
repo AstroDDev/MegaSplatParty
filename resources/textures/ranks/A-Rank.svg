@@ -1,0 +1,176 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   width="147.93671mm"
+   height="147.93671mm"
+   viewBox="0 0 147.93671 147.93671"
+   version="1.1"
+   id="svg5"
+   inkscape:version="1.2.2 (732a01da63, 2022-12-09)"
+   sodipodi:docname="A-Rank.svg"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:xlink="http://www.w3.org/1999/xlink"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <sodipodi:namedview
+     id="namedview7"
+     pagecolor="#505050"
+     bordercolor="#eeeeee"
+     borderopacity="1"
+     inkscape:showpageshadow="0"
+     inkscape:pageopacity="0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#505050"
+     inkscape:document-units="mm"
+     showgrid="false"
+     inkscape:zoom="1.3266287"
+     inkscape:cx="282.29451"
+     inkscape:cy="294.73205"
+     inkscape:window-width="2560"
+     inkscape:window-height="1369"
+     inkscape:window-x="-8"
+     inkscape:window-y="205"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="layer1" />
+  <defs
+     id="defs2">
+    <linearGradient
+       inkscape:collect="always"
+       id="linearGradient51868">
+      <stop
+         style="stop-color:#400b00;stop-opacity:1;"
+         offset="0"
+         id="stop51856" />
+      <stop
+         style="stop-color:#7a4400;stop-opacity:1;"
+         offset="0.33153638"
+         id="stop51858" />
+      <stop
+         style="stop-color:#c58225;stop-opacity:1;"
+         offset="0.46630728"
+         id="stop51860" />
+      <stop
+         style="stop-color:#804a00;stop-opacity:1;"
+         offset="0.60242587"
+         id="stop51862" />
+      <stop
+         style="stop-color:#ffe1b4;stop-opacity:1;"
+         offset="0.69272238"
+         id="stop51864" />
+      <stop
+         style="stop-color:#db781b;stop-opacity:1;"
+         offset="0.84366578"
+         id="stop51866" />
+    </linearGradient>
+    <linearGradient
+       inkscape:collect="always"
+       id="linearGradient51090">
+      <stop
+         style="stop-color:#db944f;stop-opacity:1;"
+         offset="0"
+         id="stop51086" />
+      <stop
+         style="stop-color:#4d2e00;stop-opacity:1;"
+         offset="1"
+         id="stop51088" />
+    </linearGradient>
+    <linearGradient
+       inkscape:collect="always"
+       id="linearGradient8176">
+      <stop
+         style="stop-color:#ffffff;stop-opacity:1;"
+         offset="0"
+         id="stop8172" />
+      <stop
+         style="stop-color:#ffffff;stop-opacity:0;"
+         offset="1"
+         id="stop8174" />
+    </linearGradient>
+    <linearGradient
+       id="linearGradient5825"
+       inkscape:swatch="solid">
+      <stop
+         style="stop-color:#ffffff;stop-opacity:1;"
+         offset="0"
+         id="stop5823" />
+    </linearGradient>
+    <rect
+       x="192.21655"
+       y="359.55801"
+       width="216.33784"
+       height="251.01221"
+       id="rect2173" />
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient8176"
+       id="linearGradient8178"
+       x1="297.7334"
+       y1="367.15628"
+       x2="303.15808"
+       y2="367.15628"
+       gradientUnits="userSpaceOnUse" />
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient51868"
+       id="linearGradient37951"
+       x1="297.28592"
+       y1="370.36487"
+       x2="303.57956"
+       y2="362.96387"
+       gradientUnits="userSpaceOnUse" />
+    <radialGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient51090"
+       id="radialGradient51092"
+       cx="3.7689521"
+       cy="3.7689521"
+       fx="3.7689521"
+       fy="3.7689521"
+       r="351.52563"
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="matrix(0.91102231,-0.39905143,0.40122317,0.91598033,-1.1768383,1.8206719)" />
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient51868"
+       id="linearGradient51834"
+       x1="-207.47987"
+       y1="195.22784"
+       x2="229.23502"
+       y2="-230.34166"
+       gradientUnits="userSpaceOnUse" />
+  </defs>
+  <g
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     id="layer1"
+     transform="translate(-31.031646,-74.531646)">
+    <path
+       sodipodi:type="star"
+       style="fill:url(#radialGradient51092);fill-opacity:1;stroke:url(#linearGradient51834);stroke-width:25.148;stroke-dasharray:none;stroke-opacity:1"
+       id="path51084"
+       inkscape:flatsided="false"
+       sodipodi:sides="8"
+       sodipodi:cx="3.7689521"
+       sodipodi:cy="3.7689521"
+       sodipodi:r1="313.99783"
+       sodipodi:r2="156.99887"
+       sodipodi:arg1="0"
+       sodipodi:arg2="0.39269908"
+       inkscape:rounded="0"
+       inkscape:randomized="0"
+       d="M 317.76679,3.7689521 148.817,63.849819 225.79895,225.79895 63.849819,148.817 3.7689521,317.76679 -56.311914,148.817 -218.26105,225.79895 -141.27909,63.849819 -310.22888,3.7689521 -141.27909,-56.311914 -218.26105,-218.26105 -56.311915,-141.27909 3.7689521,-310.22888 63.849819,-141.27909 225.79895,-218.26105 148.817,-56.311915 Z"
+       transform="matrix(0.21042093,0,0,0.21042093,104.20693,147.70693)" />
+    <g
+       aria-label="A"
+       transform="matrix(8.9893347,0,0,8.9893347,-2595.5376,-3151.1962)"
+       id="text2171"
+       style="font-weight:bold;font-family:'Segoe Print';-inkscape-font-specification:'Segoe Print Bold';text-align:center;white-space:pre;shape-inside:url(#rect2173);display:inline;opacity:1;fill:#ffffff;stroke:url(#linearGradient37951);stroke-width:0.588661">
+      <path
+         d="m 301.29175,368.24659 c 0,0 -0.732,0.024 -1.608,0.024 -0.156,-1.932 -0.24,-4.176 -0.24,-4.176 0,0 0.96,0.06 1.812,0.12 0.06,1.908 0.036,4.032 0.036,4.032 z m 1.44,3.792 c 0.168,-3.72 0.408,-7.968 0.408,-7.968 -1.008,-1.02 -1.872,-1.896 -1.872,-1.896 -1.02,0.036 -1.992,0.024 -1.992,0.024 -0.852,0.78 -1.632,1.716 -1.632,1.716 0.36,4.44 0.624,8.124 0.624,8.124 0.816,0 1.668,-0.048 1.668,-0.048 -0.06,-1.104 -0.084,-2.352 -0.084,-2.352 0.576,-0.036 1.452,-0.072 1.452,-0.072 -0.036,1.188 -0.06,2.472 -0.06,2.472 0.804,-0.012 1.488,0 1.488,0 z"
+         style="font-family:Splatoon2;-inkscape-font-specification:'Splatoon2 Bold'"
+         id="path52689" />
+    </g>
+  </g>
+</svg>
