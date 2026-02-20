@@ -5646,7 +5646,7 @@ function login_main_server(data){
         IGN = data.ign;
         Discord = data.discord;
         Rank = data.rank;
-
+        
         CCHatIndex = data.character.hat;
         CCHairIndex = data.character.hair;
         CCSkinIndex = data.character.skin;
@@ -5689,6 +5689,8 @@ function login_main_server(data){
                 Socket.close();
                 ServerStatus = "null";
                 ConnectToServer(data.server);
+                updateAllRoomCodes(data.code);
+                document.getElementById("settings-room-code").style.display = "initial";
             }
         }
         else{
