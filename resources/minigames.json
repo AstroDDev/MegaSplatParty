@@ -92,7 +92,7 @@
     "salmonrunrevive": {
         "hidden": true,
         "weight": 1,
-        "battleable": true,
+        "battleable": false,
         "timeLimit": 13,
         "lobbySize": 4,
         "minLobbySize": 2,
@@ -281,7 +281,7 @@
     "clamblitz2": {
         "hidden": true,
         "weight": 1,
-        "battleable": true,
+        "battleable": false,
         "timeLimit": 13,
         "lobbySize": 4,
         "minLobbySize": 4,
