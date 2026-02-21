@@ -5199,7 +5199,7 @@ function updateAllCCElements(){
         CCElements[i + 1].src = AvatarDecorations.shirt[CCShirtIndex];
         CCElements[i + 2].src = AvatarDecorations.hair[CCHairIndex];
         CCElements[i + 3].src = AvatarDecorations.hat[CCHatIndex].url;
-        CCElements[i + 3].style.transform = "translate(calc(-50% + " + (AvatarDecorations.hat[CCHatIndex].offsets[CCHairIndex % AvatarDecorations.hat[CCHatIndex].offsets.length].x * 20) + "px), " + (AvatarDecorations.hat[CCHatIndex].offsets[CCHairIndex % AvatarDecorations.hat[CCHatIndex].offsets.length].y * 20) + "px)";
+        CCElements[i + 3].style.transform = "translate(calc(-50% + " + (AvatarDecorations.hat[CCHatIndex].offsets[CCHairIndex % AvatarDecorations.hat[CCHatIndex].offsets.length].x * 13) + "px), " + (AvatarDecorations.hat[CCHatIndex].offsets[CCHairIndex % AvatarDecorations.hat[CCHatIndex].offsets.length].y * 13) + "px)";
     }
 }
 updateAllCCElements();
