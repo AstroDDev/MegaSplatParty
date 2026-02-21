@@ -5236,7 +5236,7 @@ document.getElementById("edit-change-button").onclick = function(e){
     if (newPassword.length > 0) Object.defineProperty(editPlayerMessageBuffer, "password", {writable: true, enumerable: true, configurable: true, value: newPassword});
     if (CCHatIndex != PlayerCharacter.hat || CCHairIndex != PlayerCharacter.hair || CCSkinIndex != PlayerCharacter.skin || CCShirtIndex != PlayerCharacter.shirt) Object.defineProperty(editPlayerMessageBuffer, "character", {writable: true, enumerable: true, configurable: true, value: { hat: CCHatIndex, hair: CCHairIndex, skin: CCSkinIndex, shirt: CCShirtIndex } });
 
-    editPlayerSocket = new WebSocket(window.location.hostname == "127.0.0.1" ? "ws://localhost:6969" : "wss://msp.astrodwarf.space/server");
+    editPlayerSocket = new WebSocket(window.location.hostname == "127.0.0.1" ? "ws://localhost:6969" : "wss://msp-server.astrodwarf.space");
 
     UIPanels.connecting.style.display = "initial";
     document.getElementById("edit-profile").style.display = "none";
@@ -6089,9 +6089,7 @@ var pingLoop;
 function startPingLoop(){
     pingLoop = setInterval(() => {
         if (Socket != null && Socket.readyState == WebSocket.OPEN){
-            if (Socket.url == "wss://msp-server.astrodwarf.space" || ServerStatus == "REGISTRATION"){
-                Socket.send("ping");
-            }
+            Socket.send("ping");
         }
     }, 60000);
 }
