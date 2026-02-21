@@ -360,7 +360,7 @@ const Camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerH
 const Renderer = new THREE.WebGLRenderer({powerPreference: "high-performance"});
 Renderer.shadowMap.enabled = true;
 Renderer.shadowMap.type = THREE.BasicShadowMap;
-Renderer.setSize(window.innerWidth, window.innerHeight);
+Renderer.setSize(window.innerWidth * window.devicePixelRatio, window.innerHeight * window.devicePixelRatio);
 document.getElementById("world").appendChild(Renderer.domElement);
 
 window.onresize = function(e){ 
@@ -2206,11 +2206,13 @@ function UpdatePlayerPositions(){
     let length = Object.values(OpponentPlayers).length;
     for (const [key, value] of Object.entries(OpponentPlayers)){
         i++;
-        let targetPos = new THREE.Vector3(value.position.x, getHeightTile(value.position.x, value.position.y), value.position.y);
+        let targetPos;
         if (UIState == "above" || UIState == "map"){
+            targetPos = new THREE.Vector3(value.position.x, getMaxHeightTile(value.position.x, value.position.y), value.position.y);
             targetPos.y += lerp(0.005, 0.015, i / length);
         }
         else{
+            targetPos = new THREE.Vector3(value.position.x, getHeightTile(value.position.x, value.position.y), value.position.y);
             targetPos.y += 0.375;
             targetPos.z -= lerp(0.005, 0.2, i / length);
         } 
@@ -5236,7 +5238,8 @@ document.getElementById("edit-change-button").onclick = function(e){
     if (newPassword.length > 0) Object.defineProperty(editPlayerMessageBuffer, "password", {writable: true, enumerable: true, configurable: true, value: newPassword});
     if (CCHatIndex != PlayerCharacter.hat || CCHairIndex != PlayerCharacter.hair || CCSkinIndex != PlayerCharacter.skin || CCShirtIndex != PlayerCharacter.shirt) Object.defineProperty(editPlayerMessageBuffer, "character", {writable: true, enumerable: true, configurable: true, value: { hat: CCHatIndex, hair: CCHairIndex, skin: CCSkinIndex, shirt: CCShirtIndex } });
 
-    editPlayerSocket = new WebSocket(window.location.hostname == "127.0.0.1" ? "ws://localhost:6969" : "wss://msp-server.astrodwarf.space");
+    //editPlayerSocket = new WebSocket(window.location.hostname == "127.0.0.1" ? "ws://localhost:6969" : "wss://msp-server.astrodwarf.space");
+    editPlayerSocket = new WebSocket("wss://msp-server.astrodwarf.space");
 
     UIPanels.connecting.style.display = "initial";
     document.getElementById("edit-profile").style.display = "none";
