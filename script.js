@@ -13,7 +13,7 @@ function mulberry32(a) {
 }
 
 const TIMEOUT_LIMIT = 5;
-var MAP = "barnacle-and-dime";
+var MAP = "wahoo-world";
 
 var VOLUME = 1;
 var MUSIC_VOLUME = 1;
@@ -644,6 +644,7 @@ function loadMap(){
         ShopWarpTiles = res.shopWarpTiles;
         StarWarpLocation = res.starWarpTile;
         StartingTile = res.startingTile;
+        PlayerData.position = StartingTile;
         for (let i = 0; i < res.skybox.length; i++) res.skybox[i] = "resources/maps/" + MAP + "/" + res.skybox[i];
         SKYBOX_TEX = CubeTexLoader.load(res.skybox);
         SKYBOX_TEX.colorSpace = THREE.SRGBColorSpace;
@@ -936,18 +937,23 @@ function buildMap(){
                 lastSegment = lastSegment == 0 ? 1 : lastSegment;
 
                 if (dirX == -1){
-                    let atlas_coord = {x: (mapData[y][x].wallMaterial.w % ATLAS_SIZE.x) / ATLAS_SIZE.x + EPSILON, y: (Math.floor(mapData[y][x].wallMaterial.w / ATLAS_SIZE.x) / ATLAS_SIZE.y) + EPSILON};
+                    let isArray = Array.isArray(mapData[y][x].wallMaterial.w);
+                    let firstMatIndex = isArray ? mapData[y][x].wallMaterial.w[0] : mapData[y][x].wallMaterial.w;
+                    let first_atlas_coord = {x: (firstMatIndex % ATLAS_SIZE.x) / ATLAS_SIZE.x + EPSILON, y: (Math.floor(firstMatIndex / ATLAS_SIZE.x) / ATLAS_SIZE.y) + EPSILON};
 
                     vertices.push(x - 0.5, minHeight, y - 0.5);
                     vertices.push(x - 0.5, minHeight, y + 0.5);
                     vertices.push(x - 0.5, maxHeight, y + (mapData[y][x].height.pos == maxHeight ? 0.5 : -0.5));
-                    uvs.push(atlas_coord.x, atlas_coord.y);
-                    uvs.push(atlas_coord.x + ATLAS_UV_SIZE.x, atlas_coord.y);
-                    uvs.push(atlas_coord.x + (mapData[y][x].height.pos == maxHeight ? ATLAS_UV_SIZE.x : 0), atlas_coord.y + (ATLAS_UV_SIZE.y * Math.min(1, maxHeight - minHeight)));
+                    uvs.push(first_atlas_coord.x, first_atlas_coord.y);
+                    uvs.push(first_atlas_coord.x + ATLAS_UV_SIZE.x, first_atlas_coord.y);
+                    uvs.push(first_atlas_coord.x + (mapData[y][x].height.pos == maxHeight ? ATLAS_UV_SIZE.x : 0), first_atlas_coord.y + (ATLAS_UV_SIZE.y * Math.min(1, maxHeight - minHeight)));
                     indices.push(indexStart, indexStart + 1, indexStart + 2);
                     indexStart += 3;
 
                     for (let i = segments - 1; i >= 0; i--){
+                        let matIndex = isArray ? mapData[y][x].wallMaterial.w[Math.min(segments - i, mapData[y][x].wallMaterial.w.length - 1)] : mapData[y][x].wallMaterial.w;
+                        let atlas_coord = {x: (matIndex % ATLAS_SIZE.x) / ATLAS_SIZE.x + EPSILON, y: (Math.floor(matIndex / ATLAS_SIZE.x) / ATLAS_SIZE.y) + EPSILON};
+
                         vertices.push(x - 0.5, i + (i == segments-1 ? lastSegment : 1), y - 0.5);
                         vertices.push(x - 0.5, i, y - 0.5);
                         vertices.push(x - 0.5, i + (i == segments-1 ? lastSegment : 1), y + 0.5);
@@ -963,18 +969,23 @@ function buildMap(){
                     }
                 }
                 else if (dirX == 1){
-                    let atlas_coord = {x: (mapData[y][x].wallMaterial.e % ATLAS_SIZE.x) / ATLAS_SIZE.x + EPSILON, y: (Math.floor(mapData[y][x].wallMaterial.e / ATLAS_SIZE.x) / ATLAS_SIZE.y) + EPSILON};
+                    let isArray = Array.isArray(mapData[y][x].wallMaterial.e);
+                    let firstMatIndex = isArray ? mapData[y][x].wallMaterial.e[0] : mapData[y][x].wallMaterial.e;
+                    let first_atlas_coord = {x: (firstMatIndex % ATLAS_SIZE.x) / ATLAS_SIZE.x + EPSILON, y: (Math.floor(firstMatIndex / ATLAS_SIZE.x) / ATLAS_SIZE.y) + EPSILON};
 
                     vertices.push(x + 0.5, minHeight, y - 0.5);
                     vertices.push(x + 0.5, minHeight, y + 0.5);
                     vertices.push(x + 0.5, maxHeight, y + (mapData[y][x].height.pos == maxHeight ? 0.5 : -0.5));
-                    uvs.push(atlas_coord.x + ATLAS_UV_SIZE.x, atlas_coord.y);
-                    uvs.push(atlas_coord.x, atlas_coord.y);
-                    uvs.push(atlas_coord.x + (mapData[y][x].height.pos == maxHeight ? 0 : ATLAS_UV_SIZE.x), atlas_coord.y + (ATLAS_UV_SIZE.y * Math.min(1, maxHeight - minHeight)));
+                    uvs.push(first_atlas_coord.x + ATLAS_UV_SIZE.x, first_atlas_coord.y);
+                    uvs.push(first_atlas_coord.x, first_atlas_coord.y);
+                    uvs.push(first_atlas_coord.x + (mapData[y][x].height.pos == maxHeight ? 0 : ATLAS_UV_SIZE.x), first_atlas_coord.y + (ATLAS_UV_SIZE.y * Math.min(1, maxHeight - minHeight)));
                     indices.push(indexStart, indexStart + 2, indexStart + 1);
                     indexStart += 3;    
 
                     for (let i = segments - 1; i >= 0; i--){
+                        let matIndex = isArray ? mapData[y][x].wallMaterial.e[Math.min(segments - i, mapData[y][x].wallMaterial.e.length - 1)] : mapData[y][x].wallMaterial.e;
+                        let atlas_coord = {x: (matIndex % ATLAS_SIZE.x) / ATLAS_SIZE.x + EPSILON, y: (Math.floor(matIndex / ATLAS_SIZE.x) / ATLAS_SIZE.y) + EPSILON};
+
                         vertices.push(x + 0.5, i + (i == segments-1 ? lastSegment : 1), y - 0.5);
                         vertices.push(x + 0.5, i, y - 0.5);
                         vertices.push(x + 0.5, i + (i == segments-1 ? lastSegment : 1), y + 0.5);
@@ -990,18 +1001,23 @@ function buildMap(){
                     }
                 }
                 else if (dirY == -1){
-                    let atlas_coord = {x: (mapData[y][x].wallMaterial.n % ATLAS_SIZE.x) / ATLAS_SIZE.x + EPSILON, y: (Math.floor(mapData[y][x].wallMaterial.n / ATLAS_SIZE.x) / ATLAS_SIZE.y) + EPSILON};
+                    let isArray = Array.isArray(mapData[y][x].wallMaterial.n);
+                    let firstMatIndex = isArray ? mapData[y][x].wallMaterial.n[0] : mapData[y][x].wallMaterial.n;
+                    let first_atlas_coord = {x: (firstMatIndex % ATLAS_SIZE.x) / ATLAS_SIZE.x + EPSILON, y: (Math.floor(firstMatIndex / ATLAS_SIZE.x) / ATLAS_SIZE.y) + EPSILON};
                         
                     vertices.push(x - 0.5, minHeight, y - 0.5);
                     vertices.push(x + 0.5, minHeight, y - 0.5);
                     vertices.push(x + (mapData[y][x].height.pos == maxHeight ? 0.5 : -0.5), maxHeight, y - 0.5);
-                    uvs.push(atlas_coord.x + ATLAS_UV_SIZE.x, atlas_coord.y);
-                    uvs.push(atlas_coord.x, atlas_coord.y);
-                    uvs.push(atlas_coord.x + (mapData[y][x].height.pos == maxHeight ? 0 : ATLAS_UV_SIZE.x), atlas_coord.y + (ATLAS_UV_SIZE.y * Math.min(1, maxHeight - minHeight)));
+                    uvs.push(first_atlas_coord.x + ATLAS_UV_SIZE.x, first_atlas_coord.y);
+                    uvs.push(first_atlas_coord.x, first_atlas_coord.y);
+                    uvs.push(first_atlas_coord.x + (mapData[y][x].height.pos == maxHeight ? 0 : ATLAS_UV_SIZE.x), first_atlas_coord.y + (ATLAS_UV_SIZE.y * Math.min(1, maxHeight - minHeight)));
                     indices.push(indexStart, indexStart + 2, indexStart + 1);
                     indexStart += 3;
 
                     for (let i = segments - 1; i >= 0; i--){
+                        let matIndex = isArray ? mapData[y][x].wallMaterial.n[Math.min(segments - i, mapData[y][x].wallMaterial.n.length - 1)] : mapData[y][x].wallMaterial.n;
+                        let atlas_coord = {x: (matIndex % ATLAS_SIZE.x) / ATLAS_SIZE.x + EPSILON, y: (Math.floor(matIndex / ATLAS_SIZE.x) / ATLAS_SIZE.y) + EPSILON};
+
                         vertices.push(x - 0.5, i, y - 0.5);
                         vertices.push(x + 0.5, i, y - 0.5);
                         vertices.push(x - 0.5, i + (i == segments-1 ? lastSegment : 1), y - 0.5);
@@ -1017,18 +1033,23 @@ function buildMap(){
                     }
                 }
                 else if (dirY == 1){
-                    let atlas_coord = {x: (mapData[y][x].wallMaterial.s % ATLAS_SIZE.x) / ATLAS_SIZE.x + EPSILON, y: (Math.floor(mapData[y][x].wallMaterial.s / ATLAS_SIZE.x) / ATLAS_SIZE.y) + EPSILON};
+                    let isArray = Array.isArray(mapData[y][x].wallMaterial.s);
+                    let firstMatIndex = isArray ? mapData[y][x].wallMaterial.s[0] : mapData[y][x].wallMaterial.s;
+                    let first_atlas_coord = {x: (firstMatIndex % ATLAS_SIZE.x) / ATLAS_SIZE.x + EPSILON, y: (Math.floor(firstMatIndex / ATLAS_SIZE.x) / ATLAS_SIZE.y) + EPSILON};
 
                     vertices.push(x - 0.5, minHeight, y + 0.5);
                     vertices.push(x + 0.5, minHeight, y + 0.5);
                     vertices.push(x + (mapData[y][x].height.pos == maxHeight ? 0.5 : -0.5), maxHeight, y + 0.5);
-                    uvs.push(atlas_coord.x, atlas_coord.y);
-                    uvs.push(atlas_coord.x + ATLAS_UV_SIZE.x, atlas_coord.y);
-                    uvs.push(atlas_coord.x + (mapData[y][x].height.pos == maxHeight ? ATLAS_UV_SIZE.x : 0), atlas_coord.y + (ATLAS_UV_SIZE.y * Math.min(1, maxHeight - minHeight)));
+                    uvs.push(first_atlas_coord.x, first_atlas_coord.y);
+                    uvs.push(first_atlas_coord.x + ATLAS_UV_SIZE.x, first_atlas_coord.y);
+                    uvs.push(first_atlas_coord.x + (mapData[y][x].height.pos == maxHeight ? ATLAS_UV_SIZE.x : 0), first_atlas_coord.y + (ATLAS_UV_SIZE.y * Math.min(1, maxHeight - minHeight)));
                     indices.push(indexStart, indexStart + 1, indexStart + 2);
                     indexStart += 3;
 
                     for (let i = segments - 1; i >= 0; i--){
+                        let matIndex = isArray ? mapData[y][x].wallMaterial.s[Math.min(segments - i, mapData[y][x].wallMaterial.s.length - 1)] : mapData[y][x].wallMaterial.s;
+                        let atlas_coord = {x: (matIndex % ATLAS_SIZE.x) / ATLAS_SIZE.x + EPSILON, y: (Math.floor(matIndex / ATLAS_SIZE.x) / ATLAS_SIZE.y) + EPSILON};
+
                         vertices.push(x - 0.5, i, y + 0.5);
                         vertices.push(x + 0.5, i, y + 0.5);
                         vertices.push(x - 0.5, i + (i == segments-1 ? lastSegment : 1), y + 0.5);
@@ -1135,18 +1156,23 @@ function buildMap(){
                 lastSegment = lastSegment == 0 ? 1 : lastSegment;
 
                 if (dirX == -1){
-                    let atlas_coord = {x: (mapData[y][x].wallMaterial.w % ATLAS_SIZE.x) / ATLAS_SIZE.x + EPSILON, y: (Math.floor(mapData[y][x].wallMaterial.w / ATLAS_SIZE.x) / ATLAS_SIZE.y) + EPSILON};
+                    let isArray = Array.isArray(mapData[y][x].wallMaterial.w);
+                    let firstMatIndex = isArray ? mapData[y][x].wallMaterial.w[0] : mapData[y][x].wallMaterial.w;
+                    let first_atlas_coord = {x: (firstMatIndex % ATLAS_SIZE.x) / ATLAS_SIZE.x + EPSILON, y: (Math.floor(firstMatIndex / ATLAS_SIZE.x) / ATLAS_SIZE.y) + EPSILON};
 
                     entityGeometries[animID].vertices.push(x - 0.5 - anchor.x, minHeight, y - 0.5 - anchor.y);
                     entityGeometries[animID].vertices.push(x - 0.5 - anchor.x, minHeight, y + 0.5 - anchor.y);
                     entityGeometries[animID].vertices.push(x - 0.5 - anchor.x, maxHeight, y + (mapData[y][x].height.pos == maxHeight ? 0.5 : -0.5) - anchor.y);
-                    entityGeometries[animID].uvs.push(atlas_coord.x, atlas_coord.y);
-                    entityGeometries[animID].uvs.push(atlas_coord.x + ATLAS_UV_SIZE.x, atlas_coord.y);
-                    entityGeometries[animID].uvs.push(atlas_coord.x + (mapData[y][x].height.pos == maxHeight ? ATLAS_UV_SIZE.x : 0), atlas_coord.y + (ATLAS_UV_SIZE.y * Math.min(1, maxHeight - minHeight)));
+                    entityGeometries[animID].uvs.push(first_atlas_coord.x, first_atlas_coord.y);
+                    entityGeometries[animID].uvs.push(first_atlas_coord.x + ATLAS_UV_SIZE.x, first_atlas_coord.y);
+                    entityGeometries[animID].uvs.push(first_atlas_coord.x + (mapData[y][x].height.pos == maxHeight ? ATLAS_UV_SIZE.x : 0), first_atlas_coord.y + (ATLAS_UV_SIZE.y * Math.min(1, maxHeight - minHeight)));
                     entityGeometries[animID].indices.push(indexStart, indexStart + 1, indexStart + 2);
                     indexStart += 3;
 
                     for (let i = segments - 1; i >= -extraHeight; i--){
+                        let matIndex = isArray ? mapData[y][x].wallMaterial.w[Math.min(segments - i, mapData[y][x].wallMaterial.w.length - 1)] : mapData[y][x].wallMaterial.w;
+                        let atlas_coord = {x: (matIndex % ATLAS_SIZE.x) / ATLAS_SIZE.x + EPSILON, y: (Math.floor(matIndex / ATLAS_SIZE.x) / ATLAS_SIZE.y) + EPSILON};
+
                         entityGeometries[animID].vertices.push(x - 0.5 - anchor.x, i + (i == segments-1 ? lastSegment : 1), y - 0.5 - anchor.y);
                         entityGeometries[animID].vertices.push(x - 0.5 - anchor.x, i, y - 0.5 - anchor.y);
                         entityGeometries[animID].vertices.push(x - 0.5 - anchor.x, i + (i == segments-1 ? lastSegment : 1), y + 0.5 - anchor.y);
@@ -1161,18 +1187,23 @@ function buildMap(){
                     }
                 }
                 else if (dirX == 1){
-                    let atlas_coord = {x: (mapData[y][x].wallMaterial.e % ATLAS_SIZE.x) / ATLAS_SIZE.x + EPSILON, y: (Math.floor(mapData[y][x].wallMaterial.e / ATLAS_SIZE.x) / ATLAS_SIZE.y) + EPSILON};
+                    let isArray = Array.isArray(mapData[y][x].wallMaterial.e);
+                    let firstMatIndex = isArray ? mapData[y][x].wallMaterial.e[0] : mapData[y][x].wallMaterial.e;
+                    let first_atlas_coord = {x: (firstMatIndex % ATLAS_SIZE.x) / ATLAS_SIZE.x + EPSILON, y: (Math.floor(firstMatIndex / ATLAS_SIZE.x) / ATLAS_SIZE.y) + EPSILON};
 
                     entityGeometries[animID].vertices.push(x + 0.5 - anchor.x, minHeight, y - 0.5 - anchor.y);
                     entityGeometries[animID].vertices.push(x + 0.5 - anchor.x, minHeight, y + 0.5 - anchor.y);
                     entityGeometries[animID].vertices.push(x + 0.5 - anchor.x, maxHeight, y + (mapData[y][x].height.pos == maxHeight ? 0.5 : -0.5) - anchor.y);
-                    entityGeometries[animID].uvs.push(atlas_coord.x + ATLAS_UV_SIZE.x, atlas_coord.y);
-                    entityGeometries[animID].uvs.push(atlas_coord.x, atlas_coord.y);
-                    entityGeometries[animID].uvs.push(atlas_coord.x + (mapData[y][x].height.pos == maxHeight ? 0 : ATLAS_UV_SIZE.x), atlas_coord.y + (ATLAS_UV_SIZE.y * Math.min(1, maxHeight - minHeight)));
+                    entityGeometries[animID].uvs.push(first_atlas_coord.x + ATLAS_UV_SIZE.x, first_atlas_coord.y);
+                    entityGeometries[animID].uvs.push(first_atlas_coord.x, first_atlas_coord.y);
+                    entityGeometries[animID].uvs.push(first_atlas_coord.x + (mapData[y][x].height.pos == maxHeight ? 0 : ATLAS_UV_SIZE.x), first_atlas_coord.y + (ATLAS_UV_SIZE.y * Math.min(1, maxHeight - minHeight)));
                     entityGeometries[animID].indices.push(indexStart, indexStart + 2, indexStart + 1);
                     indexStart += 3;    
 
                     for (let i = segments - 1; i >= -extraHeight; i--){
+                        let matIndex = isArray ? mapData[y][x].wallMaterial.e[Math.min(segments - i, mapData[y][x].wallMaterial.e.length - 1)] : mapData[y][x].wallMaterial.e;
+                        let atlas_coord = {x: (matIndex % ATLAS_SIZE.x) / ATLAS_SIZE.x + EPSILON, y: (Math.floor(matIndex / ATLAS_SIZE.x) / ATLAS_SIZE.y) + EPSILON};
+
                         entityGeometries[animID].vertices.push(x + 0.5 - anchor.x, i + (i == segments-1 ? lastSegment : 1), y - 0.5 - anchor.y);
                         entityGeometries[animID].vertices.push(x + 0.5 - anchor.x, i, y - 0.5 - anchor.y);
                         entityGeometries[animID].vertices.push(x + 0.5 - anchor.x, i + (i == segments-1 ? lastSegment : 1), y + 0.5 - anchor.y);
@@ -1187,18 +1218,23 @@ function buildMap(){
                     }
                 }
                 else if (dirY == -1){
-                    let atlas_coord = {x: (mapData[y][x].wallMaterial.n % ATLAS_SIZE.x) / ATLAS_SIZE.x + EPSILON, y: (Math.floor(mapData[y][x].wallMaterial.n / ATLAS_SIZE.x) / ATLAS_SIZE.y) + EPSILON};
+                    let isArray = Array.isArray(mapData[y][x].wallMaterial.n);
+                    let firstMatIndex = isArray ? mapData[y][x].wallMaterial.n[0] : mapData[y][x].wallMaterial.n;
+                    let first_atlas_coord = {x: (firstMatIndex % ATLAS_SIZE.x) / ATLAS_SIZE.x + EPSILON, y: (Math.floor(firstMatIndex / ATLAS_SIZE.x) / ATLAS_SIZE.y) + EPSILON};
                         
                     entityGeometries[animID].vertices.push(x - 0.5 - anchor.x, minHeight, y - 0.5 - anchor.y);
                     entityGeometries[animID].vertices.push(x + 0.5 - anchor.x, minHeight, y - 0.5 - anchor.y);
                     entityGeometries[animID].vertices.push(x + (mapData[y][x].height.pos == maxHeight ? 0.5 : -0.5) - anchor.x, maxHeight, y - 0.5 - anchor.y);
-                    entityGeometries[animID].uvs.push(atlas_coord.x + ATLAS_UV_SIZE.x, atlas_coord.y);
-                    entityGeometries[animID].uvs.push(atlas_coord.x, atlas_coord.y);
-                    entityGeometries[animID].uvs.push(atlas_coord.x + (mapData[y][x].height.pos == maxHeight ? 0 : ATLAS_UV_SIZE.x), atlas_coord.y + (ATLAS_UV_SIZE.y * Math.min(1, maxHeight - minHeight)));
+                    entityGeometries[animID].uvs.push(first_atlas_coord.x + ATLAS_UV_SIZE.x, first_atlas_coord.y);
+                    entityGeometries[animID].uvs.push(first_atlas_coord.x, first_atlas_coord.y);
+                    entityGeometries[animID].uvs.push(first_atlas_coord.x + (mapData[y][x].height.pos == maxHeight ? 0 : ATLAS_UV_SIZE.x), first_atlas_coord.y + (ATLAS_UV_SIZE.y * Math.min(1, maxHeight - minHeight)));
                     entityGeometries[animID].indices.push(indexStart, indexStart + 2, indexStart + 1);
                     indexStart += 3;
 
                     for (let i = segments - 1; i >= -extraHeight; i--){
+                        let matIndex = isArray ? mapData[y][x].wallMaterial.n[Math.min(segments - i, mapData[y][x].wallMaterial.n.length - 1)] : mapData[y][x].wallMaterial.n;
+                        let atlas_coord = {x: (matIndex % ATLAS_SIZE.x) / ATLAS_SIZE.x + EPSILON, y: (Math.floor(matIndex / ATLAS_SIZE.x) / ATLAS_SIZE.y) + EPSILON};
+
                         entityGeometries[animID].vertices.push(x - 0.5 - anchor.x, i, y - 0.5 - anchor.y);
                         entityGeometries[animID].vertices.push(x + 0.5 - anchor.x, i, y - 0.5 - anchor.y);
                         entityGeometries[animID].vertices.push(x - 0.5 - anchor.x, i + (i == segments-1 ? lastSegment : 1), y - 0.5 - anchor.y);
@@ -1213,18 +1249,23 @@ function buildMap(){
                     }
                 }
                 else if (dirY == 1){
-                    let atlas_coord = {x: (mapData[y][x].wallMaterial.s % ATLAS_SIZE.x) / ATLAS_SIZE.x + EPSILON, y: (Math.floor(mapData[y][x].wallMaterial.s / ATLAS_SIZE.x) / ATLAS_SIZE.y) + EPSILON};
+                    let isArray = Array.isArray(mapData[y][x].wallMaterial.s);
+                    let firstMatIndex = isArray ? mapData[y][x].wallMaterial.s[0] : mapData[y][x].wallMaterial.s;
+                    let first_atlas_coord = {x: (firstMatIndex % ATLAS_SIZE.x) / ATLAS_SIZE.x + EPSILON, y: (Math.floor(firstMatIndex / ATLAS_SIZE.x) / ATLAS_SIZE.y) + EPSILON};
 
                     entityGeometries[animID].vertices.push(x - 0.5 - anchor.x, minHeight, y + 0.5 - anchor.y);
                     entityGeometries[animID].vertices.push(x + 0.5 - anchor.x, minHeight, y + 0.5 - anchor.y);
                     entityGeometries[animID].vertices.push(x + (mapData[y][x].height.pos == maxHeight ? 0.5 : -0.5) - anchor.x, maxHeight, y + 0.5 - anchor.y);
-                    entityGeometries[animID].uvs.push(atlas_coord.x, atlas_coord.y);
-                    entityGeometries[animID].uvs.push(atlas_coord.x + ATLAS_UV_SIZE.x, atlas_coord.y);
-                    entityGeometries[animID].uvs.push(atlas_coord.x + (mapData[y][x].height.pos == maxHeight ? ATLAS_UV_SIZE.x : 0), atlas_coord.y + (ATLAS_UV_SIZE.y * Math.min(1, maxHeight - minHeight)));
+                    entityGeometries[animID].uvs.push(first_atlas_coord.x, first_atlas_coord.y);
+                    entityGeometries[animID].uvs.push(first_atlas_coord.x + ATLAS_UV_SIZE.x, first_atlas_coord.y);
+                    entityGeometries[animID].uvs.push(first_atlas_coord.x + (mapData[y][x].height.pos == maxHeight ? ATLAS_UV_SIZE.x : 0), first_atlas_coord.y + (ATLAS_UV_SIZE.y * Math.min(1, maxHeight - minHeight)));
                     entityGeometries[animID].indices.push(indexStart, indexStart + 1, indexStart + 2);
                     indexStart += 3;
 
                     for (let i = segments - 1; i >= -extraHeight; i--){
+                        let matIndex = isArray ? mapData[y][x].wallMaterial.s[Math.min(segments - i, mapData[y][x].wallMaterial.s.length - 1)] : mapData[y][x].wallMaterial.s;
+                        let atlas_coord = {x: (matIndex % ATLAS_SIZE.x) / ATLAS_SIZE.x + EPSILON, y: (Math.floor(matIndex / ATLAS_SIZE.x) / ATLAS_SIZE.y) + EPSILON};
+
                         entityGeometries[animID].vertices.push(x - 0.5 - anchor.x, i, y + 0.5 - anchor.y);
                         entityGeometries[animID].vertices.push(x + 0.5 - anchor.x, i, y + 0.5 - anchor.y);
                         entityGeometries[animID].vertices.push(x - 0.5 - anchor.x, i + (i == segments-1 ? lastSegment : 1), y + 0.5 - anchor.y);
@@ -1491,226 +1532,238 @@ function buildMap(){
                 }
             }
             
-            //Block placements
-            if (x > 0 && !mapData[y][x].connections.w && !mapData[y][x].ramp && !mapData[y][x-1].ramp && !mapData[y][x-1].animation){
-                //Place a block there
-                if (mapData[y][x].height > mapData[y][x-1].height){
+            if (mapData[y][x].connections.n || mapData[y][x].connections.s || mapData[y][x].connections.e || mapData[y][x].connections.w){
+                //Block placements
+                if (x > 0 && !mapData[y][x].connections.w && !mapData[y][x].ramp && !mapData[y][x-1].animation){
+                    //Place a block there
+                    let height1 = getHeightTile(x, y);
+                    let height2 = getHeightTile(x-1, y);
+                    if (height1 > height2){
+                        let block = new THREE.Mesh(new THREE.BoxGeometry(1/8, 1/8, 1), BlockMat.clone());
+                        block.position.set(x - 0.5 + 1/16, mapData[y][x].height + 1/16, y);
+                        block.castShadow = true;
+                        block.receiveShadow = true;
+                        BlockList.add(block);
+                    }
+                    else if (height1 == height2){
+                        let block = new THREE.Mesh(new THREE.BoxGeometry(1/8, 1/8, 1), BlockMat.clone());
+                        block.position.set(x - 0.5, mapData[y][x].height + 1/16, y);
+                        block.castShadow = true;
+                        block.receiveShadow = true;
+                        BlockList.add(block);
+                    }
+                }
+                if (x < mapSize.x - 1 && !mapData[y][x].connections.e && !mapData[y][x].ramp && getHeightTile(x, y) > getHeightTile(x+1, y) && !mapData[y][x+1].animation){
+                    //Place a block there
                     let block = new THREE.Mesh(new THREE.BoxGeometry(1/8, 1/8, 1), BlockMat.clone());
-                    block.position.set(x - 0.5 + 1/16, mapData[y][x].height + 1/16, y);
+                    block.position.set(x + 0.5 - 1/16, mapData[y][x].height + 1/16, y);
                     block.castShadow = true;
                     block.receiveShadow = true;
                     BlockList.add(block);
                 }
-                else if (mapData[y][x].height == mapData[y][x-1].height){
-                    let block = new THREE.Mesh(new THREE.BoxGeometry(1/8, 1/8, 1), BlockMat.clone());
-                    block.position.set(x - 0.5, mapData[y][x].height + 1/16, y);
-                    block.castShadow = true;
-                    block.receiveShadow = true;
-                    BlockList.add(block);
+                if (y > 0 && !mapData[y][x].connections.n && !mapData[y][x].ramp && !mapData[y-1][x].animation){
+                    //Place a block there
+                    let height1 = getHeightTile(x, y);
+                    let height2 = getHeightTile(x, y-1);
+                    if (height1 > height2){
+                        let block = new THREE.Mesh(new THREE.BoxGeometry(1, 1/8, 1/8), BlockMat.clone());
+                        block.position.set(x, mapData[y][x].height + 1/16, y - 0.5 + 1/16);
+                        block.castShadow = true;
+                        block.receiveShadow = true;
+                        BlockList.add(block);
+                    }
+                    else if (height1 == height2){
+                        let block = new THREE.Mesh(new THREE.BoxGeometry(1, 1/8, 1/8), BlockMat.clone());
+                        block.position.set(x, mapData[y][x].height + 1/16, y - 0.5);
+                        block.castShadow = true;
+                        block.receiveShadow = true;
+                        BlockList.add(block);
+                    }
                 }
-            }
-            if (x < mapSize.x - 1 && !mapData[y][x].connections.e && !mapData[y][x].ramp && !mapData[y][x+1].ramp && mapData[y][x].height > mapData[y][x+1].height && !mapData[y][x+1].animation){
-                //Place a block there
-                let block = new THREE.Mesh(new THREE.BoxGeometry(1/8, 1/8, 1), BlockMat.clone());
-                block.position.set(x + 0.5 - 1/16, mapData[y][x].height + 1/16, y);
-                block.castShadow = true;
-                block.receiveShadow = true;
-                BlockList.add(block);
-            }
-            if (y > 0 && !mapData[y][x].connections.n && !mapData[y][x].ramp && !mapData[y-1][x].ramp && !mapData[y-1][x].animation){
-                //Place a block there
-                if (mapData[y][x].height > mapData[y-1][x].height){
+                if (y < mapSize.y - 1 && !mapData[y][x].connections.s && !mapData[y][x].ramp && getHeightTile(x, y) > getHeightTile(x, y+1) && !mapData[y+1][x].animation){
+                    //Place a block there
                     let block = new THREE.Mesh(new THREE.BoxGeometry(1, 1/8, 1/8), BlockMat.clone());
-                    block.position.set(x, mapData[y][x].height + 1/16, y - 0.5 + 1/16);
+                    block.position.set(x, mapData[y][x].height + 1/16, y + 0.5 - 1/16);
                     block.castShadow = true;
                     block.receiveShadow = true;
                     BlockList.add(block);
                 }
-                else if (mapData[y][x].height == mapData[y-1][x].height){
-                    let block = new THREE.Mesh(new THREE.BoxGeometry(1, 1/8, 1/8), BlockMat.clone());
-                    block.position.set(x, mapData[y][x].height + 1/16, y - 0.5);
-                    block.castShadow = true;
-                    block.receiveShadow = true;
-                    BlockList.add(block);
-                }
-            }
-            if (y < mapSize.y - 1 && !mapData[y][x].connections.s && !mapData[y][x].ramp && !mapData[y+1][x].ramp && mapData[y][x].height > mapData[y+1][x].height && !mapData[y+1][x].animation){
-                //Place a block there
-                let block = new THREE.Mesh(new THREE.BoxGeometry(1, 1/8, 1/8), BlockMat.clone());
-                block.position.set(x, mapData[y][x].height + 1/16, y + 0.5 - 1/16);
-                block.castShadow = true;
-                block.receiveShadow = true;
-                BlockList.add(block);
-            }
 
-            //Trim placements
-            if (x == 0 || mapData[y][x-1].height == 0){
-                //Place a block there
-                let block;
-                if (mapData[y][x].ramp){
-                    let extension = 0;
-                    let angle = Math.atan2(mapData[y][x].height.neg - mapData[y][x].height.pos, 1);
-                    if (y > 0 && mapData[y-1][x].height == Math.max(mapData[y][x].height.pos, mapData[y][x].height.neg)){
-                        let v = Math.sin(-angle/2);
-                        extension += Math.abs(v) / 16;
+                //Trim placements
+                if (x == 0 || mapData[y][x-1].height == 0){
+                    //Place a block there
+                    let block;
+                    if (mapData[y][x].ramp){
+                        let extension = 0;
+                        let angle = Math.atan2(mapData[y][x].height.neg - mapData[y][x].height.pos, 1);
+                        if (y > 0 && mapData[y-1][x].height == Math.max(mapData[y][x].height.pos, mapData[y][x].height.neg)){
+                            let v = Math.sin(-angle/2);
+                            extension += Math.abs(v) / 16;
+                        }
+                        if (y < mapSize.y - 1 && mapData[y+1][x].height == Math.max(mapData[y][x].height.pos, mapData[y][x].height.neg)){
+                            let v = Math.sin(-angle/2);
+                            extension += Math.abs(v) / 16;
+                        }
+                        block = new THREE.Mesh(new THREE.BoxGeometry(1/16, 1/16, Math.sqrt(Math.pow(mapData[y][x].height.pos - mapData[y][x].height.neg, 2) + 1) + extension), TrimMat.clone());
+                        block.position.set(x - 0.5 + 1/32, (mapData[y][x].height.pos + mapData[y][x].height.neg) / 2 + ((1/32 + (extension/2)) * Math.cos(angle)), y + ((1/32 - (extension/2)) * Math.sin(angle)));
+                        block.setRotationFromEuler(new THREE.Euler(angle, 0, 0));
                     }
-                    if (y < mapSize.y - 1 && mapData[y+1][x].height == Math.max(mapData[y][x].height.pos, mapData[y][x].height.neg)){
-                        let v = Math.sin(-angle/2);
-                        extension += Math.abs(v) / 16;
+                    else{
+                        let extension = 0;
+                        let offset = 0;
+                        if (y > 0 && mapData[y-1][x].ramp && mapData[y-1][x].height.neg < mapData[y][x].height){
+                            let v = Math.sin(-Math.atan2(mapData[y-1][x].height.neg - mapData[y-1][x].height.pos, 1) / 2);
+                            offset += v / 32;
+                            extension += Math.abs(v) / 16;
+                        }
+                        if (y < mapSize.y - 1 && mapData[y+1][x].ramp && mapData[y+1][x].height.pos < mapData[y][x].height){
+                            let v = Math.sin(-Math.atan2(mapData[y+1][x].height.neg - mapData[y+1][x].height.pos, 1) / 2);
+                            offset += v / 32;
+                            extension += Math.abs(v) / 16;
+                        }
+                        if (x > 0 && y > 0 && mapData[y-1][x-1].height == mapData[y][x].height){
+                            offset += 1/32;
+                            extension += 1/16;
+                        }
+                        if (x > 0 && y < mapSize.y - 1 && mapData[y+1][x-1].height == mapData[y][x].height){
+                            offset -= 1/32;
+                            extension += 1/16;
+                        }
+                        block = new THREE.Mesh(new THREE.BoxGeometry(1/16, 1/16, 1 + extension), TrimMat.clone());
+                        block.position.set(x - 0.5 + 1/32, mapData[y][x].height + 1/32, y - offset);
                     }
-                    block = new THREE.Mesh(new THREE.BoxGeometry(1/16, 1/16, Math.sqrt(Math.pow(mapData[y][x].height.pos - mapData[y][x].height.neg, 2) + 1) + extension), TrimMat.clone());
-                    block.position.set(x - 0.5 + 1/32, (mapData[y][x].height.pos + mapData[y][x].height.neg) / 2 + ((1/32 + (extension/2)) * Math.cos(angle)), y + ((1/32 - (extension/2)) * Math.sin(angle)));
-                    block.setRotationFromEuler(new THREE.Euler(angle, 0, 0));
+                    block.castShadow = true;
+                    block.receiveShadow = true;
+                    BlockList.add(block);
                 }
-                else{
-                    let extension = 0;
-                    let offset = 0;
-                    if (y > 0 && mapData[y-1][x].ramp && mapData[y-1][x].height.neg < mapData[y][x].height){
-                        let v = Math.sin(-Math.atan2(mapData[y-1][x].height.neg - mapData[y-1][x].height.pos, 1) / 2);
-                        offset += v / 32;
-                        extension += Math.abs(v) / 16;
+                if (x == mapSize.x - 1 || mapData[y][x+1].height == 0){
+                    //Place a block there
+                    let block;
+                    if (mapData[y][x].ramp){
+                        let extension = 0;
+                        let angle = Math.atan2(mapData[y][x].height.neg - mapData[y][x].height.pos, 1);
+                        if (y > 0 && mapData[y-1][x].height == Math.max(mapData[y][x].height.pos, mapData[y][x].height.neg)){
+                            let v = Math.sin(-angle/2);
+                            extension += Math.abs(v) / 16;
+                        }
+                        if (y < mapSize.y - 1 && mapData[y+1][x].height == Math.max(mapData[y][x].height.pos, mapData[y][x].height.neg)){
+                            let v = Math.sin(-angle/2);
+                            extension += Math.abs(v) / 16;
+                        }
+                        block = new THREE.Mesh(new THREE.BoxGeometry(1/16, 1/16, Math.sqrt(Math.pow(mapData[y][x].height.pos - mapData[y][x].height.neg, 2) + 1) + extension), TrimMat.clone());
+                        block.position.set(x + 0.5 - 1/32, (mapData[y][x].height.pos + mapData[y][x].height.neg) / 2 + ((1/32 + (extension/2)) * Math.cos(angle)), y + ((1/32 - (extension/2)) * Math.sin(angle)));
+                        block.setRotationFromEuler(new THREE.Euler(angle, 0, 0));
                     }
-                    if (y < mapSize.y - 1 && mapData[y+1][x].ramp && mapData[y+1][x].height.pos < mapData[y][x].height){
-                        let v = Math.sin(-Math.atan2(mapData[y+1][x].height.neg - mapData[y+1][x].height.pos, 1) / 2);
-                        offset += v / 32;
-                        extension += Math.abs(v) / 16;
-                    }
-                    if (x > 0 && y > 0 && mapData[y-1][x-1].height == mapData[y][x].height){
-                        offset += 1/32;
-                        extension += 1/16;
-                    }
-                    if (x > 0 && y < mapSize.y - 1 && mapData[y+1][x-1].height == mapData[y][x].height){
-                        offset -= 1/32;
-                        extension += 1/16;
-                    }
-                    block = new THREE.Mesh(new THREE.BoxGeometry(1/16, 1/16, 1 + extension), TrimMat.clone());
-                    block.position.set(x - 0.5 + 1/32, mapData[y][x].height + 1/32, y - offset);
+                    else{
+                        let extension = 0;
+                        let offset = 0;
+                        if (y > 0 && mapData[y-1][x].ramp && mapData[y-1][x].height.neg < mapData[y][x].height){
+                            let v = Math.sin(-Math.atan2(mapData[y-1][x].height.neg - mapData[y-1][x].height.pos, 1) / 2);
+                            offset += v / 32;
+                            extension += Math.abs(v) / 16;
+                        }
+                        if (y < mapSize.y - 1 && mapData[y+1][x].ramp && mapData[y+1][x].height.pos < mapData[y][x].height){
+                            let v = Math.sin(-Math.atan2(mapData[y+1][x].height.neg - mapData[y+1][x].height.pos, 1) / 2);
+                            offset += v / 32;
+                            extension += Math.abs(v) / 16;
+                        }
+                        if (x < mapSize.x - 1 && y > 0 && mapData[y-1][x+1].height == mapData[y][x].height){
+                            offset += 1/32;
+                            extension += 1/16;
+                        }
+                        if (x < mapSize.x - 1 && y < mapSize.y - 1 && mapData[y+1][x+1].height == mapData[y][x].height){
+                            offset -= 1/32;
+                            extension += 1/16;
+                        }
+                        block = new THREE.Mesh(new THREE.BoxGeometry(1/16, 1/16, 1 + extension), TrimMat.clone());
+                        block.position.set(x + 0.5 - 1/32, mapData[y][x].height + 1/32, y - offset);
+                    } 
+                    block.castShadow = true;
+                    block.receiveShadow = true;
+                    BlockList.add(block);
                 }
-                block.castShadow = true;
-                block.receiveShadow = true;
-                BlockList.add(block);
-            }
-            if (x == mapSize.x - 1 || mapData[y][x+1].height == 0){
-                //Place a block there
-                let block;
-                if (mapData[y][x].ramp){
-                    let extension = 0;
-                    let angle = Math.atan2(mapData[y][x].height.neg - mapData[y][x].height.pos, 1);
-                    if (y > 0 && mapData[y-1][x].height == Math.max(mapData[y][x].height.pos, mapData[y][x].height.neg)){
-                        let v = Math.sin(-angle/2);
-                        extension += Math.abs(v) / 16;
+                if (y == 0 || mapData[y-1][x].height == 0){
+                    //Place a block there
+                    let block;
+                    if (mapData[y][x].ramp){
+                        let extension = 0;
+                        let angle = Math.atan2(mapData[y][x].height.pos - mapData[y][x].height.neg, 1);
+                        if (x > 0 && mapData[y][x-1].height == Math.max(mapData[y][x].height.pos, mapData[y][x].height.neg)){
+                            let v = Math.sin(-angle/2);
+                            extension += Math.abs(v) / 16;
+                        }
+                        if (x < mapSize.x - 1 && mapData[y][x+1].height == Math.max(mapData[y][x].height.pos, mapData[y][x].height.neg)){
+                            let v = Math.sin(-angle/2);
+                            extension += Math.abs(v) / 16;
+                        }
+                        block = new THREE.Mesh(new THREE.BoxGeometry(Math.sqrt(Math.pow(mapData[y][x].height.pos - mapData[y][x].height.neg, 2) + 1) + extension, 1/16, 1/16), TrimMat.clone());
+                        block.position.set(
+                            x + ((1/32 - (extension/2)) * Math.sin(angle)),
+                            (mapData[y][x].height.pos + mapData[y][x].height.neg) / 2 + ((1/32 + (extension/2)) * Math.cos(angle)),
+                            y - 0.5 + 1/32);
+                        block.setRotationFromEuler(new THREE.Euler(0, 0, angle));
                     }
-                    if (y < mapSize.y - 1 && mapData[y+1][x].height == Math.max(mapData[y][x].height.pos, mapData[y][x].height.neg)){
-                        let v = Math.sin(-angle/2);
-                        extension += Math.abs(v) / 16;
-                    }
-                    block = new THREE.Mesh(new THREE.BoxGeometry(1/16, 1/16, Math.sqrt(Math.pow(mapData[y][x].height.pos - mapData[y][x].height.neg, 2) + 1) + extension), TrimMat.clone());
-                    block.position.set(x + 0.5 - 1/32, (mapData[y][x].height.pos + mapData[y][x].height.neg) / 2 + ((1/32 + (extension/2)) * Math.cos(angle)), y + ((1/32 - (extension/2)) * Math.sin(angle)));
-                    block.setRotationFromEuler(new THREE.Euler(angle, 0, 0));
+                    else{
+                        let extension = 0;
+                        let offset = 0;
+                        if (x > 0 && mapData[y][x-1].ramp && mapData[y][x-1].height.neg < mapData[y][x].height){
+                            let v = Math.sin(-Math.atan2(mapData[y][x-1].height.neg - mapData[y][x-1].height.pos, 1) / 2);
+                            offset += v / 32;
+                            extension += Math.abs(v) / 16;
+                        }
+                        if (x < mapSize.x - 1 && mapData[y][x+1].ramp && mapData[y][x+1].height.pos < mapData[y][x].height){
+                            let v = Math.sin(-Math.atan2(mapData[y][x+1].height.neg - mapData[y][x+1].height.pos, 1) / 2);
+                            offset += v / 32;
+                            extension += Math.abs(v) / 16;
+                        }
+                        block = new THREE.Mesh(new THREE.BoxGeometry(1 + extension, 1/16, 1/16), TrimMat.clone());
+                        block.position.set(x - offset, mapData[y][x].height + 1/32, y - 0.5 + 1/32);
+                    } 
+                    block.castShadow = true;
+                    block.receiveShadow = true;
+                    BlockList.add(block);
                 }
-                else{
-                    let extension = 0;
-                    let offset = 0;
-                    if (y > 0 && mapData[y-1][x].ramp && mapData[y-1][x].height.neg < mapData[y][x].height){
-                        let v = Math.sin(-Math.atan2(mapData[y-1][x].height.neg - mapData[y-1][x].height.pos, 1) / 2);
-                        offset += v / 32;
-                        extension += Math.abs(v) / 16;
+                if (y == mapSize.y - 1 || mapData[y+1][x].height == 0){
+                    //Place a block there
+                    let block;
+                    if (mapData[y][x].ramp){
+                        let extension = 0;
+                        let angle = Math.atan2(mapData[y][x].height.pos - mapData[y][x].height.neg, 1);
+                        if (x > 0 && mapData[y][x-1].height == Math.max(mapData[y][x].height.pos, mapData[y][x].height.neg)){
+                            let v = Math.sin(-angle/2);
+                            extension += Math.abs(v) / 16;
+                        }
+                        if (x < mapSize.x - 1 && mapData[y][x+1].height == Math.max(mapData[y][x].height.pos, mapData[y][x].height.neg)){
+                            let v = Math.sin(-angle/2);
+                            extension += Math.abs(v) / 16;
+                        }
+                        block = new THREE.Mesh(new THREE.BoxGeometry(Math.sqrt(Math.pow(mapData[y][x].height.pos - mapData[y][x].height.neg, 2) + 1) + extension, 1/16, 1/16), TrimMat.clone());
+                        block.position.set(
+                            x + ((1/32 - (extension/2)) * Math.sin(angle)),
+                            (mapData[y][x].height.pos + mapData[y][x].height.neg) / 2 + ((1/32 + (extension/2)) * Math.cos(angle)),
+                            y + 0.5 - 1/32);
+                        block.setRotationFromEuler(new THREE.Euler(0, 0, angle));
                     }
-                    if (y < mapSize.y - 1 && mapData[y+1][x].ramp && mapData[y+1][x].height.pos < mapData[y][x].height){
-                        let v = Math.sin(-Math.atan2(mapData[y+1][x].height.neg - mapData[y+1][x].height.pos, 1) / 2);
-                        offset += v / 32;
-                        extension += Math.abs(v) / 16;
-                    }
-                    if (x < mapSize.x - 1 && y > 0 && mapData[y-1][x+1].height == mapData[y][x].height){
-                        offset += 1/32;
-                        extension += 1/16;
-                    }
-                    if (x < mapSize.x - 1 && y < mapSize.y - 1 && mapData[y+1][x+1].height == mapData[y][x].height){
-                        offset -= 1/32;
-                        extension += 1/16;
-                    }
-                    block = new THREE.Mesh(new THREE.BoxGeometry(1/16, 1/16, 1 + extension), TrimMat.clone());
-                    block.position.set(x + 0.5 - 1/32, mapData[y][x].height + 1/32, y - offset);
-                } 
-                block.castShadow = true;
-                block.receiveShadow = true;
-                BlockList.add(block);
-            }
-            if (y == 0 || mapData[y-1][x].height == 0){
-                //Place a block there
-                let block;
-                if (mapData[y][x].ramp){
-                    let extension = 0;
-                    let angle = Math.atan2(mapData[y][x].height.neg - mapData[y][x].height.pos, 1);
-                    if (x > 0 && mapData[y][x-1].height == Math.max(mapData[y][x].height.pos, mapData[y][x].height.neg)){
-                        let v = Math.sin(-angle/2);
-                        extension += Math.abs(v) / 16;
-                    }
-                    if (x < mapSize.x - 1 && mapData[y][x+1].height == Math.max(mapData[y][x].height.pos, mapData[y][x].height.neg)){
-                        let v = Math.sin(-angle/2);
-                        extension += Math.abs(v) / 16;
-                    }
-                    block = new THREE.Mesh(new THREE.BoxGeometry(Math.sqrt(Math.pow(mapData[y][x].height.pos - mapData[y][x].height.neg, 2) + 1) + extension, 1/16, 1/16), TrimMat.clone());
-                    block.position.set((mapData[y][x].height.pos + mapData[y][x].height.neg) / 2 + ((1/32 + (extension/2)) * Math.cos(angle)), y + ((1/32 - (extension/2)) * Math.sin(angle)), y - 0.5 + 1/32);
-                    block.setRotationFromEuler(new THREE.Euler(0, 0, angle));
+                    else{
+                        let extension = 0;
+                        let offset = 0;
+                        if (x > 0 && mapData[y][x-1].ramp && mapData[y][x-1].height.neg < mapData[y][x].height){
+                            let v = Math.sin(-Math.atan2(mapData[y][x-1].height.neg - mapData[y][x-1].height.pos, 1) / 2);
+                            offset += v / 32;
+                            extension += Math.abs(v) / 16;
+                        }
+                        if (x < mapSize.x - 1 && mapData[y][x+1].ramp && mapData[y][x+1].height.pos < mapData[y][x].height){
+                            let v = Math.sin(-Math.atan2(mapData[y][x+1].height.neg - mapData[y][x+1].height.pos, 1) / 2);
+                            offset += v / 32;
+                            extension += Math.abs(v) / 16;
+                        }
+                        block = new THREE.Mesh(new THREE.BoxGeometry(1 + extension, 1/16, 1/16), TrimMat.clone());
+                        block.position.set(x - offset, mapData[y][x].height + 1/32, y + 0.5 - 1/32);
+                    } 
+                    block.castShadow = true;
+                    block.receiveShadow = true;
+                    BlockList.add(block);
                 }
-                else{
-                    let extension = 0;
-                    let offset = 0;
-                    if (x > 0 && mapData[y][x-1].ramp && mapData[y][x-1].height.neg < mapData[y][x].height){
-                        let v = Math.sin(-Math.atan2(mapData[y][x-1].height.neg - mapData[y][x-1].height.pos, 1) / 2);
-                        offset += v / 32;
-                        extension += Math.abs(v) / 16;
-                    }
-                    if (x < mapSize.x - 1 && mapData[y][x+1].ramp && mapData[y][x+1].height.pos < mapData[y][x].height){
-                        let v = Math.sin(-Math.atan2(mapData[y][x+1].height.neg - mapData[y][x+1].height.pos, 1) / 2);
-                        offset += v / 32;
-                        extension += Math.abs(v) / 16;
-                    }
-                    block = new THREE.Mesh(new THREE.BoxGeometry(1 + extension, 1/16, 1/16), TrimMat.clone());
-                    block.position.set(x - offset, mapData[y][x].height + 1/32, y - 0.5 + 1/32);
-                } 
-                block.castShadow = true;
-                block.receiveShadow = true;
-                BlockList.add(block);
-            }
-            if (y == mapSize.y - 1 || mapData[y+1][x].height == 0){
-                //Place a block there
-                let block;
-                if (mapData[y][x].ramp){
-                    let extension = 0;
-                    let angle = Math.atan2(mapData[y][x].height.neg - mapData[y][x].height.pos, 1);
-                    if (x > 0 && mapData[y][x-1].height == Math.max(mapData[y][x].height.pos, mapData[y][x].height.neg)){
-                        let v = Math.sin(-angle/2);
-                        extension += Math.abs(v) / 16;
-                    }
-                    if (x < mapSize.x - 1 && mapData[y][x+1].height == Math.max(mapData[y][x].height.pos, mapData[y][x].height.neg)){
-                        let v = Math.sin(-angle/2);
-                        extension += Math.abs(v) / 16;
-                    }
-                    block = new THREE.Mesh(new THREE.BoxGeometry(Math.sqrt(Math.pow(mapData[y][x].height.pos - mapData[y][x].height.neg, 2) + 1) + extension, 1/16, 1/16), TrimMat.clone());
-                    block.position.set((mapData[y][x].height.pos + mapData[y][x].height.neg) / 2 + ((1/32 + (extension/2)) * Math.cos(angle)), y + ((1/32 - (extension/2)) * Math.sin(angle)), y + 0.5 - 1/32);
-                    block.setRotationFromEuler(new THREE.Euler(0, 0, angle));
-                }
-                else{
-                    let extension = 0;
-                    let offset = 0;
-                    if (x > 0 && mapData[y][x-1].ramp && mapData[y][x-1].height.neg < mapData[y][x].height){
-                        let v = Math.sin(-Math.atan2(mapData[y][x-1].height.neg - mapData[y][x-1].height.pos, 1) / 2);
-                        offset += v / 32;
-                        extension += Math.abs(v) / 16;
-                    }
-                    if (x < mapSize.x - 1 && mapData[y][x+1].ramp && mapData[y][x+1].height.pos < mapData[y][x].height){
-                        let v = Math.sin(-Math.atan2(mapData[y][x+1].height.neg - mapData[y][x+1].height.pos, 1) / 2);
-                        offset += v / 32;
-                        extension += Math.abs(v) / 16;
-                    }
-                    block = new THREE.Mesh(new THREE.BoxGeometry(1 + extension, 1/16, 1/16), TrimMat.clone());
-                    block.position.set(x - offset, mapData[y][x].height + 1/32, y + 0.5 - 1/32);
-                } 
-                block.castShadow = true;
-                block.receiveShadow = true;
-                BlockList.add(block);
             }
 
             //Key door placements
@@ -1793,18 +1846,22 @@ function buildMap(){
     Scene.add(BlockList);
     Scene.add(KeyDoors);
 
-    Renderer.domElement.style.filter = "blur(10px) opacity(50%)";
-    let angle = Date.now() / 10000;
-    Camera.position.set(Math.cos(angle) * 10 + (mapSize.x / 2), 5, Math.sin(angle) * 10 + (mapSize.y / 2));
-    Camera.lookAt(new THREE.Vector3(mapSize.x / 2, 2.5, mapSize.y / 2));
+    if (UIState != "editor"){
+        Renderer.domElement.style.filter = "blur(10px) opacity(50%)";
+        let angle = Date.now() / 10000;
+        Camera.position.set(Math.cos(angle) * 10 + (mapSize.x / 2), 5, Math.sin(angle) * 10 + (mapSize.y / 2));
+        Camera.lookAt(new THREE.Vector3(mapSize.x / 2, 2.5, mapSize.y / 2));
+    }
 
-    if (!isReload){
+    /*if (!isReload){
         InitializeSocket();
         update();
     }
     else{
         getStatusTimeout(0);
-    }
+    }*/
+    //TODO!!! REMOVE THIS LATER
+    update();
 }
 
 loadMap();
@@ -1892,7 +1949,7 @@ for (var [key, value] of Object.entries(ItemData)){
 
 var keys = {};
 window.onkeydown = function(e){ 
-    keys[e.keyCode] = true; 
+    keys[e.key] = true; 
 
     if (turnStep == "move" && spacesMoved < PlayerData.roll){
         if (e.key == "w" || e.key == "ArrowUp"){
@@ -1918,13 +1975,13 @@ window.onkeydown = function(e){
         buildMap();
     }*/
     
-    /*if (e.keyCode == 27){
+    if (e.keyCode == 27 && UIState == "editor"){
         //ESC
         navigator.clipboard.writeText(JSON.stringify(mapData, null, "\t"));
         console.log("COPY!!!!");
-    }*/
+    }
 }
-window.onkeyup = function(e){ keys[e.keyCode] = false; }
+window.onkeyup = function(e){ keys[e.key] = false; }
 
 var StartingTile = { x: 15, y: 30 };
 var ShopWarpTiles = [];
@@ -2006,12 +2063,50 @@ function update(){
 
     UpdatePlayerPositions();
 
+    if (UIState == "editor") TestOrbitControls();
+
     Renderer.render(Scene, Camera);
     requestAnimationFrame(update);
 }
 
-var UIState = "menu";
-var lastUIState = "menu";
+var TestOrbitRot = new THREE.Euler(0, 0, 0, "YXZ");
+function TestOrbitControls(){
+    Renderer.domElement.style.filter = "";
+    if (!keys["Tab"]) return;
+    if (keys["ArrowLeft"]){
+        TestOrbitRot.y += DeltaTime * 3;
+    }
+    if (keys["ArrowRight"]){
+        TestOrbitRot.y -= DeltaTime * 3;
+    }
+    if (keys["ArrowUp"]){
+        TestOrbitRot.x += DeltaTime * 3;
+    }
+    if (keys["ArrowDown"]){
+        TestOrbitRot.x -= DeltaTime * 3;
+    }
+
+    let xChange = 0;
+    let yChange = 0;
+    let hChange = 0;
+
+    if (keys["a"]) xChange -= 10;
+    if (keys["d"]) xChange += 10;
+    if (keys["w"]) yChange -= 10;
+    if (keys["s"]) yChange += 10;
+    if (keys["Shift"]) hChange -= 5;
+    if (keys[" "]) hChange += 5;
+
+    Camera.setRotationFromEuler(TestOrbitRot);
+    Camera.position.set(
+        Camera.position.x + (Math.cos(TestOrbitRot.y) * DeltaTime * xChange * 1) + (Math.sin(TestOrbitRot.y) * DeltaTime * yChange),
+        Camera.position.y + hChange * DeltaTime,
+        Camera.position.z - (Math.sin(TestOrbitRot.y) * DeltaTime * xChange * 1) + (Math.cos(TestOrbitRot.y) * DeltaTime * yChange)
+    );
+}
+
+var UIState = "editor";
+var lastUIState = "";
 var transitionValues = {
     filter: null,
     playerRot: null,
@@ -2043,8 +2138,13 @@ function UpdateUI(){
     var cameraRot;
     var cameraPos;
 
-    if (UIState == "override"){
-        lastUIState = "override";
+    if (UIState == "override" || UIState == "editor"){
+        if (lastUIState != "editor"){
+            Scene.add(mapSelectorBox);
+            turnStep = "map";
+            document.getElementsByClassName("debug-box")[0].style.display = "initial";
+        }
+        lastUIState = UIState;
         return;
     }
 
@@ -2859,10 +2959,11 @@ function DoTurn(){
     }
     else if (turnStep == "map"){
         raycaster.setFromCamera(pointer, Camera);
-        var intersections = raycaster.intersectObject(MapMesh, false);
+        var intersections = raycaster.intersectObjects(Scene.children, true);
         if (intersections.length > 0){
             //DO STUFF HERE!!!
             let intersectPos = new THREE.Vector2(Math.round(intersections[0].point.x), Math.round(intersections[0].point.z));
+            if (intersectPos.x < 0 || intersectPos.x >= mapSize.x || intersectPos.y < 0 || intersectPos.y >= mapSize.y) return;
             DistanceAwayMap(intersectPos.x, intersectPos.y);
             mapSelectorBox.scale.set(1, 1, 1);
             if (!mapData[intersectPos.y][intersectPos.x].ramp){
@@ -3089,12 +3190,13 @@ var targetDebugPos;
 window.onmousedown = function(e){
     UpdateMusicPlaylist();
 
-    if (turnStep == "map"){
+    if (UIState == "editor" && keys["Tab"]){
         raycaster.setFromCamera(pointer, Camera);
-        var intersections = raycaster.intersectObject(MapMesh, false);
+        var intersections = raycaster.intersectObjects(Scene.children, false);
 
         if (intersections.length > 0){
             let intersectPos = new THREE.Vector2(Math.round(intersections[0].point.x), Math.round(intersections[0].point.z));
+            if (intersectPos.x < 0 || intersectPos.x >= mapSize.x || intersectPos.y < 0 || intersectPos.y >= mapSize.y) return;
             //let newMat = Number.parseInt(prompt("Enter New Material", mapData[intersectPos.y][intersectPos.x].material));
             //let spawnable = window.confirm("Spawnable? " + mapData[intersectPos.y][intersectPos.x].silverStarSpawnable);
 
@@ -3922,7 +4024,8 @@ function RandomMapSpace(){
     var result;
     while(true){
         result = { x: Math.floor(Math.random() * mapSize.x), y: Math.floor(Math.random() * mapSize.y) };
-        if (mapData[result.y][result.x].height !== 0){
+        let tile = getMapTile(result.x, result.y);
+        if (tile.height !== 0 && !(!tile.connections.n && !tile.connections.s && !tile.connections.e && !tile.connections.w)){
             for (let i = 0; i < ServerSilverStars.length; i++){
                 if (ServerSilverStars[i].x == result.x && ServerSilverStars[i].y == result.y){
                     continue;
