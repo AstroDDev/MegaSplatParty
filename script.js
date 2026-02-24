@@ -2078,31 +2078,33 @@ var isMinigameChatScrolledToBottom = true;
 var DeltaTime = 0;
 var mapLoaded = false;
 function update(){
-    if (!mapLoaded) return;
+    if (mapLoaded){
 
-    var thisFrameTime = Date.now();
-    DeltaTime = (thisFrameTime - lastFrameTime) / 1000;
-    lastFrameTime = thisFrameTime;
-    document.getElementsByClassName("debug")[0].textContent = "FPS: " + Math.round(1 / DeltaTime);
+        var thisFrameTime = Date.now();
+        DeltaTime = (thisFrameTime - lastFrameTime) / 1000;
+        lastFrameTime = thisFrameTime;
+        document.getElementsByClassName("debug")[0].textContent = "FPS: " + Math.round(1 / DeltaTime);
 
-    if (MinigameChatElement.parentElement.style.display == "initial"){
-        isMinigameChatScrolledToBottom = MinigameChatElement.scrollHeight - MinigameChatElement.clientHeight <= MinigameChatElement.scrollTop + 1;
-        if (isMinigameChatScrolledToBottom && MinigameChatElement.parentElement.style.display == "initial") minigameChatNotification.style.display = "none";
+        if (MinigameChatElement.parentElement.style.display == "initial"){
+            isMinigameChatScrolledToBottom = MinigameChatElement.scrollHeight - MinigameChatElement.clientHeight <= MinigameChatElement.scrollTop + 1;
+            if (isMinigameChatScrolledToBottom && MinigameChatElement.parentElement.style.display == "initial") minigameChatNotification.style.display = "none";
+        }
+
+        DoTurn();
+
+        UpdateUI();
+
+        AnimateSilverStars();
+
+        updateDoorOpenings();
+
+        UpdatePlayerPositions();
+
+        if (UIState == "editor") TestOrbitControls();
+
+        Renderer.render(Scene, Camera);
     }
 
-    DoTurn();
-
-    UpdateUI();
-
-    AnimateSilverStars();
-
-    updateDoorOpenings();
-
-    UpdatePlayerPositions();
-
-    if (UIState == "editor") TestOrbitControls();
-
-    Renderer.render(Scene, Camera);
     requestAnimationFrame(update);
 }
 
