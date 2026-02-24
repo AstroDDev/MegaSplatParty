@@ -5518,7 +5518,7 @@ function AddPlayer(data){
             OpponentPlayers[data.ign].object.add(outerTextObject);
             outerTextObject.position.add(new THREE.Vector3(xMid, 0.375, 0));
 
-            OpponentPlayers[data.ign].object.position.set(data.position.x, getHeightTile(data.position.x, data.position.y) + 0.375, data.position.y - 0.1);
+            if (mapLoaded) OpponentPlayers[data.ign].object.position.set(data.position.x, getHeightTile(data.position.x, data.position.y) + 0.375, data.position.y - 0.1);
             UpdateLeaderboards();
         }
     }
