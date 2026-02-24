@@ -179,6 +179,15 @@
 						"y": 0.0,
 						"z": 0.0
 					}
+				},
+				{
+					"duration": 1.0,
+					"rotation": 0.0,
+					"translation": {
+						"x": 0.0,
+						"y": 0.0,
+						"z": 0.0
+					}
 				}
 			]
 		}
@@ -2792,7 +2801,7 @@
 			},
 			"connections": {
 				"n": true,
-				"e": true,
+				"e": false,
 				"s": true,
 				"w": false
 			},
@@ -2858,7 +2867,28 @@
 			},
 			"popup": "lucky-space",
 			"walkOver": false,
-			"silverStarSpawnable": true
+			"silverStarSpawnable": true,
+			"animation": {
+				"id": "carousel_entrance",
+				"states": [
+					{
+						"connections": {
+							"n": true,
+							"e": true,
+							"s": false,
+							"w": false
+						}
+					},
+					{
+						"connections": {
+							"n": true,
+							"e": true,
+							"s": true,
+							"w": false
+						}
+					}
+				]
+			}
 		},
 		{
 			"ramp": true,
@@ -2930,7 +2960,28 @@
 			},
 			"popup": "lucky-space",
 			"walkOver": false,
-			"silverStarSpawnable": true
+			"silverStarSpawnable": true,
+			"animation": {
+				"id": "carousel_entrance",
+				"states": [
+					{
+						"connections": {
+							"n": true,
+							"e": false,
+							"s": true,
+							"w": true
+						}
+					},
+					{
+						"connections": {
+							"n": true,
+							"e": false,
+							"s": false,
+							"w": true
+						}
+					}
+				]
+			}
 		},
 		{
 			"ramp": false,
@@ -3093,7 +3144,7 @@
 			},
 			"connections": {
 				"n": true,
-				"e": true,
+				"e": false,
 				"s": true,
 				"w": false
 			},
@@ -3170,8 +3221,8 @@
 				"states": [
 					{
 						"connections": {
-							"n": true,
-							"e": true,
+							"n": false,
+							"e": false,
 							"s": true,
 							"w": true
 						}
@@ -3179,8 +3230,8 @@
 					{
 						"connections": {
 							"n": true,
-							"e": true,
-							"s": true,
+							"e": false,
+							"s": false,
 							"w": true
 						}
 					},
@@ -3188,16 +3239,16 @@
 						"connections": {
 							"n": true,
 							"e": true,
-							"s": true,
-							"w": true
+							"s": false,
+							"w": false
 						}
 					},
 					{
 						"connections": {
-							"n": true,
+							"n": false,
 							"e": true,
 							"s": true,
-							"w": true
+							"w": false
 						}
 					}
 				]
@@ -3609,7 +3660,10 @@
 					250,
 					251
 				],
-				"e": 0,
+				"e": [
+					250,
+					251
+				],
 				"s": 0,
 				"w": [
 					250,
@@ -3658,13 +3712,21 @@
 						"connections": {
 							"n": true,
 							"e": true,
-							"s": true,
+							"s": false,
 							"w": true
 						}
 					},
 					{
 						"connections": {
-							"n": true,
+							"n": false,
+							"e": true,
+							"s": true,
+							"w": false
+						}
+					},
+					{
+						"connections": {
+							"n": false,
 							"e": true,
 							"s": true,
 							"w": true
@@ -3673,16 +3735,8 @@
 					{
 						"connections": {
 							"n": true,
-							"e": true,
-							"s": true,
-							"w": true
-						}
-					},
-					{
-						"connections": {
-							"n": true,
-							"e": true,
-							"s": true,
+							"e": false,
+							"s": false,
 							"w": true
 						}
 					}
@@ -3706,17 +3760,41 @@
 				],
 				"e": 0,
 				"s": 0,
-				"w": 0
+				"w": [
+					252,
+					236
+				]
 			},
 			"coins": 3,
 			"walkOver": false,
-			"silverStarSpawnable": true
+			"silverStarSpawnable": true,
+			"animation": {
+				"id": "carousel_entrance",
+				"states": [
+					{
+						"connections": {
+							"n": false,
+							"e": true,
+							"s": true,
+							"w": true
+						}
+					},
+					{
+						"connections": {
+							"n": false,
+							"e": true,
+							"s": true,
+							"w": false
+						}
+					}
+				]
+			}
 		},
 		{
 			"ramp": false,
 			"height": 1.5,
 			"connections": {
-				"n": true,
+				"n": false,
 				"e": true,
 				"s": true,
 				"w": true
@@ -3759,7 +3837,28 @@
 			},
 			"coins": 3,
 			"walkOver": false,
-			"silverStarSpawnable": true
+			"silverStarSpawnable": true,
+			"animation": {
+				"id": "carousel_entrance",
+				"states": [
+					{
+						"connections": {
+							"n": false,
+							"e": false,
+							"s": true,
+							"w": true
+						}
+					},
+					{
+						"connections": {
+							"n": true,
+							"e": false,
+							"s": true,
+							"w": true
+						}
+					}
+				]
+			}
 		},
 		{
 			"ramp": false,
@@ -4088,7 +4187,7 @@
 				"n": true,
 				"e": true,
 				"s": true,
-				"w": true
+				"w": false
 			},
 			"material": 140,
 			"wallMaterial": {
@@ -4129,7 +4228,7 @@
 			"height": 1.5,
 			"connections": {
 				"n": true,
-				"e": true,
+				"e": false,
 				"s": true,
 				"w": true
 			},
@@ -4491,7 +4590,28 @@
 			},
 			"coins": 3,
 			"walkOver": false,
-			"silverStarSpawnable": true
+			"silverStarSpawnable": true,
+			"animation": {
+				"id": "carousel_entrance",
+				"states": [
+					{
+						"connections": {
+							"n": true,
+							"e": true,
+							"s": false,
+							"w": false
+						}
+					},
+					{
+						"connections": {
+							"n": true,
+							"e": true,
+							"s": true,
+							"w": false
+						}
+					}
+				]
+			}
 		},
 		{
 			"ramp": false,
@@ -4499,7 +4619,7 @@
 			"connections": {
 				"n": true,
 				"e": true,
-				"s": true,
+				"s": false,
 				"w": true
 			},
 			"material": 125,
@@ -4528,7 +4648,10 @@
 			"material": 126,
 			"wallMaterial": {
 				"n": 0,
-				"e": 0,
+				"e": [
+					252,
+					236
+				],
 				"s": [
 					254,
 					238
@@ -4537,7 +4660,28 @@
 			},
 			"coins": 3,
 			"walkOver": false,
-			"silverStarSpawnable": true
+			"silverStarSpawnable": true,
+			"animation": {
+				"id": "carousel_entrance",
+				"states": [
+					{
+						"connections": {
+							"n": true,
+							"e": true,
+							"s": false,
+							"w": true
+						}
+					},
+					{
+						"connections": {
+							"n": true,
+							"e": false,
+							"s": false,
+							"w": true
+						}
+					}
+				]
+			}
 		},
 		{
 			"ramp": false,
@@ -4575,7 +4719,7 @@
 				"states": [
 					{
 						"connections": {
-							"n": true,
+							"n": false,
 							"e": true,
 							"s": true,
 							"w": true
@@ -4584,8 +4728,8 @@
 					{
 						"connections": {
 							"n": true,
-							"e": true,
-							"s": true,
+							"e": false,
+							"s": false,
 							"w": true
 						}
 					},
@@ -4593,16 +4737,16 @@
 						"connections": {
 							"n": true,
 							"e": true,
-							"s": true,
+							"s": false,
 							"w": true
 						}
 					},
 					{
 						"connections": {
-							"n": true,
+							"n": false,
 							"e": true,
 							"s": true,
-							"w": true
+							"w": false
 						}
 					}
 				]
@@ -4852,7 +4996,7 @@
 					{
 						"connections": {
 							"n": true,
-							"e": true,
+							"e": false,
 							"s": true,
 							"w": true
 						}
@@ -5069,6 +5213,22 @@
 						"connections": {
 							"n": true,
 							"e": true,
+							"s": false,
+							"w": false
+						}
+					},
+					{
+						"connections": {
+							"n": false,
+							"e": true,
+							"s": true,
+							"w": false
+						}
+					},
+					{
+						"connections": {
+							"n": false,
+							"e": false,
 							"s": true,
 							"w": true
 						}
@@ -5076,24 +5236,8 @@
 					{
 						"connections": {
 							"n": true,
-							"e": true,
-							"s": true,
-							"w": true
-						}
-					},
-					{
-						"connections": {
-							"n": true,
-							"e": true,
-							"s": true,
-							"w": true
-						}
-					},
-					{
-						"connections": {
-							"n": true,
-							"e": true,
-							"s": true,
+							"e": false,
+							"s": false,
 							"w": true
 						}
 					}
@@ -5330,7 +5474,28 @@
 			},
 			"coins": -3,
 			"walkOver": false,
-			"silverStarSpawnable": true
+			"silverStarSpawnable": true,
+			"animation": {
+				"id": "carousel_entrance",
+				"states": [
+					{
+						"connections": {
+							"n": true,
+							"e": true,
+							"s": true,
+							"w": false
+						}
+					},
+					{
+						"connections": {
+							"n": false,
+							"e": true,
+							"s": true,
+							"w": false
+						}
+					}
+				]
+			}
 		},
 		{
 			"ramp": true,
@@ -5402,7 +5567,28 @@
 			},
 			"coins": -3,
 			"walkOver": false,
-			"silverStarSpawnable": true
+			"silverStarSpawnable": true,
+			"animation": {
+				"id": "carousel_entrance",
+				"states": [
+					{
+						"connections": {
+							"n": false,
+							"e": false,
+							"s": true,
+							"w": true
+						}
+					},
+					{
+						"connections": {
+							"n": true,
+							"e": false,
+							"s": true,
+							"w": true
+						}
+					}
+				]
+			}
 		},
 		{
 			"ramp": false,
@@ -6713,7 +6899,7 @@
 			"connections": {
 				"n": true,
 				"e": true,
-				"s": true,
+				"s": false,
 				"w": true
 			},
 			"material": 39,
@@ -6733,7 +6919,7 @@
 			"connections": {
 				"n": true,
 				"e": true,
-				"s": true,
+				"s": false,
 				"w": true
 			},
 			"material": 38,
@@ -6753,7 +6939,7 @@
 			"connections": {
 				"n": true,
 				"e": true,
-				"s": true,
+				"s": false,
 				"w": true
 			},
 			"material": 41,

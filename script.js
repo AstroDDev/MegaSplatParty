@@ -1085,7 +1085,9 @@ function buildMap(){
                         indices.push(indexStart, indexStart + 1, indexStart + 3);
                         indices.push(indexStart, indexStart + 3, indexStart + 2);
                         indexStart += 4;
-                        if (x != 0 && ((!mapData[y][x-1].ramp && mapData[y][x-1].height >= i) || (mapData[y][x-1].ramp && Math.min(mapData[y][x-1].height.pos, mapData[y][x-1].height.neg) >= i))) break;
+                        if (x != 0 &&
+                            ((!mapData[y][x-1].ramp && mapData[y][x-1].height >= i) || (mapData[y][x-1].ramp && Math.min(mapData[y][x-1].height.pos, mapData[y][x-1].height.neg) >= i)) &&
+                            !mapData[y][x-1].animation) break;
                     }
                 }
                 else if (dirX == 1){
@@ -1104,7 +1106,9 @@ function buildMap(){
                         indices.push(indexStart, indexStart + 3, indexStart + 1);
                         indices.push(indexStart, indexStart + 2, indexStart + 3);
                         indexStart += 4;
-                        if (x != mapSize.x - 1 && ((!mapData[y][x+1].ramp && mapData[y][x+1].height >= i) || (mapData[y][x+1].ramp && Math.min(mapData[y][x+1].height.pos, mapData[y][x+1].height.neg) >= i))) break;
+                        if (x != mapSize.x - 1 &&
+                            ((!mapData[y][x+1].ramp && mapData[y][x+1].height >= i) || (mapData[y][x+1].ramp && Math.min(mapData[y][x+1].height.pos, mapData[y][x+1].height.neg) >= i)) &&
+                            !mapData[y][x+1].animation) break;
                     }
                 }
                 else if (dirY == -1){
@@ -1123,7 +1127,9 @@ function buildMap(){
                         indices.push(indexStart, indexStart + 3, indexStart + 1);
                         indices.push(indexStart, indexStart + 2, indexStart + 3);
                         indexStart += 4;
-                        if (y != 0 && ((!mapData[y-1][x].ramp && mapData[y-1][x].height >= i) || (mapData[y-1][x].ramp && Math.min(mapData[y-1][x].height.pos, mapData[y-1][x].height.neg) >= i))) break;
+                        if (y != 0 &&
+                            ((!mapData[y-1][x].ramp && mapData[y-1][x].height >= i) || (mapData[y-1][x].ramp && Math.min(mapData[y-1][x].height.pos, mapData[y-1][x].height.neg) >= i)) &&
+                            !mapData[y-1][x].animation) break;
                     }
                 }
                 else if (dirY == 1){
@@ -1142,7 +1148,9 @@ function buildMap(){
                         indices.push(indexStart, indexStart + 1, indexStart + 3);
                         indices.push(indexStart, indexStart + 3, indexStart + 2);
                         indexStart += 4;
-                        if (y != mapSize.y - 1 && ((!mapData[y+1][x].ramp && mapData[y+1][x].height >= i) || (mapData[y+1][x].ramp && Math.min(mapData[y+1][x].height.pos, mapData[y+1][x].height.neg) >= i))) break;
+                        if (y != mapSize.y - 1 &&
+                            ((!mapData[y+1][x].ramp && mapData[y+1][x].height >= i) || (mapData[y+1][x].ramp && Math.min(mapData[y+1][x].height.pos, mapData[y+1][x].height.neg) >= i)) &&
+                            !mapData[y+1][x].animation) break;
                     }
                 }
             }
@@ -1553,7 +1561,7 @@ function buildMap(){
                         BlockList.add(block);
                     }
                 }
-                if (x < mapSize.x - 1 && !mapData[y][x].connections.e && !mapData[y][x].ramp && getHeightTile(x, y) > getHeightTile(x+1, y) && !mapData[y][x+1].animation){
+                if (x < mapSize.x - 1 && !mapData[y][x].connections.e && !mapData[y][x].ramp  && !mapData[y][x+1].animation && getHeightTile(x, y) > getHeightTile(x+1, y)){
                     //Place a block there
                     let block = new THREE.Mesh(new THREE.BoxGeometry(1/8, 1/8, 1), BlockMat.clone());
                     block.position.set(x + 0.5 - 1/16, mapData[y][x].height + 1/16, y);
@@ -1580,7 +1588,7 @@ function buildMap(){
                         BlockList.add(block);
                     }
                 }
-                if (y < mapSize.y - 1 && !mapData[y][x].connections.s && !mapData[y][x].ramp && getHeightTile(x, y) > getHeightTile(x, y+1) && !mapData[y+1][x].animation){
+                if (y < mapSize.y - 1 && !mapData[y][x].connections.s && !mapData[y][x].ramp && !mapData[y+1][x].animation && getHeightTile(x, y) > getHeightTile(x, y+1)){
                     //Place a block there
                     let block = new THREE.Mesh(new THREE.BoxGeometry(1, 1/8, 1/8), BlockMat.clone());
                     block.position.set(x, mapData[y][x].height + 1/16, y + 0.5 - 1/16);
@@ -1853,15 +1861,18 @@ function buildMap(){
         Camera.lookAt(new THREE.Vector3(mapSize.x / 2, 2.5, mapSize.y / 2));
     }
 
-    /*if (!isReload){
-        InitializeSocket();
-        update();
+    if (UIState == "editor"){
+        if (lastUIState != "editor") update();
     }
     else{
-        getStatusTimeout(0);
-    }*/
-    //TODO!!! REMOVE THIS LATER
-    update();
+        if (!isReload){
+            InitializeSocket();
+            update();
+        }
+        else{
+            getStatusTimeout(0);
+        }
+    }
 }
 
 loadMap();
@@ -1975,6 +1986,10 @@ window.onkeydown = function(e){
         buildMap();
     }*/
     
+    if (e.key == "t"){
+        console.log(getMapTile(PlayerData.position.x, PlayerData.position.y));
+    }
+
     if (e.keyCode == 27 && UIState == "editor"){
         //ESC
         navigator.clipboard.writeText(JSON.stringify(mapData, null, "\t"));
@@ -2105,8 +2120,8 @@ function TestOrbitControls(){
     );
 }
 
-var UIState = "editor";
-var lastUIState = "";
+var UIState = "menu";
+var lastUIState = "menu";
 var transitionValues = {
     filter: null,
     playerRot: null,
@@ -2139,10 +2154,11 @@ function UpdateUI(){
     var cameraPos;
 
     if (UIState == "override" || UIState == "editor"){
-        if (lastUIState != "editor"){
+        if (lastUIState != "editor" && UIState == "editor"){
             Scene.add(mapSelectorBox);
             turnStep = "map";
             document.getElementsByClassName("debug-box")[0].style.display = "initial";
+            document.getElementsByClassName("popups")[0].style.display = "none";
         }
         lastUIState = UIState;
         return;
@@ -2694,13 +2710,13 @@ function getAnimTurnIndex(id, turn){
 
 function getHeightTile(x, y){
     let tile = getMapTile(x, y);
-    let baseHeight = mapData[y][x].ramp ? (mapData[y][x].height.pos + mapData[y][x].height.neg) / 2 : mapData[y][x].height;
+    let baseHeight = tile.ramp ? (tile.height.pos + tile.height.neg) / 2 : tile.height;
     return baseHeight + (tile.animation ? MapAnimations[tile.animation.id].states[getAnimTurnIndex(tile.animation.id)].translation.y : 0);
 }
 
 function getMaxHeightTile(x, y){
     let tile = getMapTile(x, y);
-    let baseHeight = mapData[y][x].ramp ? Math.max(mapData[y][x].height.pos, mapData[y][x].height.neg) : mapData[y][x].height;
+    let baseHeight = tile.ramp ? Math.max(tile.height.pos, tile.height.neg) : tile.height;
     return baseHeight + (tile.animation ? MapAnimations[tile.animation.id].states[getAnimTurnIndex(tile.animation.id)].translation.y : 0);
 }
 
@@ -2803,7 +2819,7 @@ function DoTurn(){
                     document.getElementsByClassName("board-inputs")[0].style.display = "none";
 
                     //Do Roll
-                    currentRoll = Math.floor(Math.random() * 10) + 1;
+                    currentRoll = Math.floor(Math.random() * 10) + 100;//1; TODO!!! SWAP BACK
                     rollHistory.push(currentRoll);
                     PlayerData.roll += currentRoll + addToRoll;
                     addToRoll = 0;
@@ -3149,22 +3165,27 @@ function DistanceAwayMap(tx, ty){
         checkList = [];
         for (var j = 0; j < activeCheckList.length; j++){
             let check = activeCheckList[j];
+            let thisTile = getMapTile(check.x, check.y);
             if (check.x == tx && check.y == ty){
                 found = true;
                 break;
             }
             else if (!checkedTiles[check.y][check.x]){
                 checkedTiles[check.y][check.x] = true;
-                if (check.x > 0 && mapData[check.y][check.x].connections.w && mapData[check.y][check.x - 1].height !== 0){
+                let lowXTile = check.x > 0 ? getMapTile(check.x - 1, check.y) : null;
+                let highXTile = check.x < mapSize.x - 1 ? getMapTile(check.x + 1, check.y) : null;
+                let lowYTile = check.y > 0 ? getMapTile(check.x, check.y - 1) : null;
+                let highYTile = check.y < mapSize.y - 1 ? getMapTile(check.x, check.y + 1) : null;
+                if (lowXTile && (thisTile.animation ? thisTile.animation.states[getAnimTurnIndex(thisTile.animation.id)].connections.w : thisTile.connections.w) && lowXTile.height !== 0){
                     checkList.push({x: check.x - 1, y: check.y});
                 }
-                if (check.x < mapSize.x - 1 && mapData[check.y][check.x].connections.e && mapData[check.y][check.x + 1].height !== 0){
+                if (highXTile && (thisTile.animation ? thisTile.animation.states[getAnimTurnIndex(thisTile.animation.id)].connections.e : thisTile.connections.e) && highXTile.height !== 0){
                     checkList.push({x: check.x + 1, y: check.y});
                 }
-                if (check.y > 0 && mapData[check.y][check.x].connections.n && mapData[check.y - 1][check.x].height !== 0){
+                if (lowYTile && (thisTile.animation ? thisTile.animation.states[getAnimTurnIndex(thisTile.animation.id)].connections.n : thisTile.connections.n) && lowYTile.height !== 0){
                     checkList.push({x: check.x, y: check.y - 1});
                 }
-                if (check.y < mapSize.y - 1 && mapData[check.y][check.x].connections.s && mapData[check.y + 1][check.x].height !== 0){
+                if (highYTile && (thisTile.animation ? thisTile.animation.states[getAnimTurnIndex(thisTile.animation.id)].connections.s : thisTile.connections.s) && highYTile.height !== 0){
                     checkList.push({x: check.x, y: check.y + 1});
                 }
             }
@@ -5568,8 +5589,8 @@ var IGN, Discord, Rank;
 function InitializeSocket(){
     //Changes the Socket connection based on if it's local hosted or not
     //Also checks if the url search parameter has a unique url for the socket
-    //Socket = new WebSocket(window.location.hostname == "127.0.0.1" ? "ws://localhost:6969" : "wss://msp.astrodwarf.space/server");
-    Socket = new WebSocket("wss://msp-server.astrodwarf.space");
+    Socket = new WebSocket(window.location.hostname == "127.0.0.1" ? "ws://localhost:6969" : "wss://msp-server.astrodwarf.space");
+    //Socket = new WebSocket("wss://msp-server.astrodwarf.space");
 
     Socket.onopen = function(e){
         document.getElementById("settings-room-code").style.display = "none";
@@ -5999,8 +6020,8 @@ const debugPortMap = { server0: 6970, server1: 6971, server2: 6972, server3: 697
 function ConnectToServer(server){
     console.log("Connecting to server: " + server);
 
-    //Socket = new WebSocket(window.location.hostname == "127.0.0.1" ? "ws://localhost:" + debugPortMap[server] : "wss://msp.astrodwarf.space/" + server);
-    Socket = new WebSocket("wss://msp.astrodwarf.space/" + server);
+    Socket = new WebSocket(window.location.hostname == "127.0.0.1" ? "ws://localhost:" + debugPortMap[server] : "wss://msp.astrodwarf.space/" + server);
+    //Socket = new WebSocket("wss://msp.astrodwarf.space/" + server);
 
     Socket.onmessage = function(e){
         if (e.data == "pong" || e.data == "ping") return;
@@ -7773,6 +7794,3 @@ const debugSet = document.getElementsByClassName("debug-set");
 for (let i = 0; i < debugSet.length; i++){
     debugSet[i].onclick = (e) => {debugSetState(debugSet[i].textContent);};
 }
-
-
-//TODO!!! Add a way for admins to create public matches (Add a hidden checkmark that shows up on create game form)
