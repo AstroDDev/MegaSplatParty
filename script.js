@@ -2834,7 +2834,7 @@ var customDiceRoll = 0;
 var luckyOptions = document.getElementsByClassName("lucky-option");
 var luckyTimer = 0;
 var luckyClickTimer = -1;
-const luckyItemOptions = ["doubledice", "tripledice", "tacticooler", "customdice", "shophopbox", "pipe", "key"];
+const luckyItemOptions = ["doubledice", "tripledice", "tacticooler", "customdice", "shophopbox", "pipe", "key", "duelingglove"];
 var luckyRouletteItems = [];
 function DoTurn(){
     if (turnStep == "menu"){
@@ -5717,7 +5717,9 @@ function GenerateDuelingGlovePage(data){
     }
 }
 
+var duelTargetBuffer = null;
 function duelTargetPlayer(ign){
+    duelTargetBuffer = ign;
     document.getElementById("duel-select-list-page").style.display = "none";
     document.getElementById("duel-select-wait-page").style.display = "block";
     Socket.send(JSON.stringify({ method: "duel_glove", token: TOKEN, ign: ign }));
@@ -6258,6 +6260,7 @@ function duel_glove_server(data){
         document.getElementById("duel-select").style.display = "none";
         turnStep = "menu";
         document.getElementsByClassName("player-inputs")[0].style.display = "flex";
+        PlayerData.isStealing = duelTargetBuffer;
     }
     else{
         document.getElementById("duel-select-list-page").style.display = "none";
