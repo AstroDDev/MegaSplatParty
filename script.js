@@ -1882,6 +1882,8 @@ function buildMap(){
             getStatusTimeout(0);
         }
     }
+
+    mapLoaded = true;
 }
 
 loadMap();
@@ -2074,7 +2076,10 @@ const UIPanels = {
 const MinigameChatElement = document.getElementById("new-minigame-chat");
 var isMinigameChatScrolledToBottom = true;
 var DeltaTime = 0;
+var mapLoaded = false;
 function update(){
+    if (!mapLoaded) return;
+
     var thisFrameTime = Date.now();
     DeltaTime = (thisFrameTime - lastFrameTime) / 1000;
     lastFrameTime = thisFrameTime;
@@ -6289,6 +6294,7 @@ function initServerTimeout(i){
 }
 function init_server(data){
     MAP = data.map;
+    mapLoaded = false;
     checkedIn = data.checkedIn;
     GameLength = data.gameLength;
     document.getElementsByClassName("leave-game")[0].disabled = false;
