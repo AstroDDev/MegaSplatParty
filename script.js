@@ -1958,6 +1958,14 @@ var ItemData = {
         price: 3,
         usable: false,
         image: TexLoader.load("resources/textures/key.png")
+    },
+    duelingglove: {
+        name: "Dueling Glove",
+        description: "Choose someone to duel for a star",
+        url: "resources/textures/duelingglove.png",
+        price: 3,
+        usable: true,
+        image: TexLoader.load("resources/textures/duelingglove.png")
     }
 };
 
@@ -3620,6 +3628,13 @@ function UseItem(index){
                     loc = ShopWarpTiles[Math.floor(Math.random() * ShopWarpTiles.length)];
                     TriggerShopHopBoxAnimation(loc);
                     Socket.send(JSON.stringify({ method: "set_player_data", token: TOKEN, usedItem: item, position: loc, items: PlayerData.items }));
+                    break;
+                case "duelingglove":
+                    document.getElementById("duel-select").style.display = "initial";
+                    document.getElementById("duel-select-list-page").style.display = "none";
+                    document.getElementById("duel-select-wait-page").style.display = "block";
+                    document.getElementById("duel-select-sub-text").textContent = "Choose a player to steal a star from";
+                    Socket.send(JSON.stringify({ method: "get_target_list" }));
                     break;
                 default:
                     console.error("Cannot Recognize item: " + item);
@@ -5608,8 +5623,87 @@ function UpdateLeaderboards(){
     }
 }
 
+document.getElementsByClassName("duel-cancel")[0].onclick = function(e){
+    PlayerData.items.push("duelingglove");
+    document.getElementById("duel-select").style.display = "none";
+    turnStep = "menu";
+    document.getElementsByClassName("player-inputs")[0].style.display = "flex";
+    document.getElementById("items-button").disabled = false;
+};
 
+var duelingList = document.getElementsByClassName("duel-list")[0];
+function GenerateDuelingGlovePage(data){
+    document.getElementById("duel-select-list-page").style.display = "block";
+    document.getElementById("duel-select-wait-page").style.display = "none";
 
+    let list = [];
+
+    for (const [key, value] of Object.entries(OpponentPlayers)){
+        if (data.data[key]){
+            list.push({
+                ign: key,
+                coins: value.coins,
+                stars: value.stars,
+                character: value.character,
+                rank: value.rank
+            });
+        }
+    }
+
+    let rankings = getRankingsList({ data: list });
+
+    while (duelingList.children.length > rankings.length) duelingList.removeChild(duelingList.children[0]);
+    while (duelingList.children.length < rankings.length){
+        let listElement = document.createElement("div");
+        listElement.classList.add("target-list-element");
+        listElement.onclick = () => duelTargetPlayer(listElement.getAttribute("ign"));
+        duelingList.appendChild(listElement);
+
+        listElement.appendChild(document.createElement("span"));
+        listElement.children[0].classList.add("results-list-placement");
+        listElement.appendChild(document.createElement("img"));
+        listElement.children[1].classList.add("results-list-avatar");
+        listElement.appendChild(document.createElement("img"));
+        listElement.children[2].classList.add("results-list-rank");
+        listElement.appendChild(document.createElement("span"));
+        listElement.children[3].classList.add("results-list-username");
+
+        listElement.appendChild(document.createElement("span"));
+        listElement.children[4].classList.add("results-list-info-coins");
+        listElement.appendChild(document.createElement("span"));
+        listElement.children[5].classList.add("results-list-info-stars");
+
+        listElement.children[5].appendChild(document.createElement("span"));
+        listElement.children[5].children[0].classList.add("results-list-stars");
+        listElement.children[5].appendChild(document.createElement("img"));
+        listElement.children[5].children[1].classList.add("results-list-text-img");
+        listElement.children[5].children[1].setAttribute("src", "resources/textures/squid_star.svg");
+        listElement.children[4].appendChild(document.createElement("span"));
+        listElement.children[4].children[0].classList.add("results-list-coins");
+        listElement.children[4].appendChild(document.createElement("img"));
+        listElement.children[4].children[1].classList.add("results-list-text-img");
+        listElement.children[4].children[1].setAttribute("src", "resources/textures/squid_coin.svg");
+    }
+
+    for (var i = 0; i < rankings.length; i++){
+        duelingList.children[i].setAttribute("ign", rankings[i].ign);
+        duelingList.children[i].classList.remove("results-list-item-a", "results-list-item-b", "results-list-item-1", "results-list-item-2", "results-list-item-3");
+        duelingList.children[i].classList.add("results-list-item-" + (i%2==0?"a":"b"));
+        duelingList.children[i].children[0].textContent = (rankings[i].placement + 1) + ". ";
+        duelingList.children[i].children[1].setAttribute("src", GeneratePlayerURL(rankings[i].character));
+        duelingList.children[i].children[2].setAttribute("src", "resources/textures/ranks/" + getRank(rankings[i].rank) + "-Rank.svg");
+        duelingList.children[i].children[2].title = rankings[i].rank < 0 ? getRank(rankings[i].rank) : rankings[i].rank + "XP";
+        duelingList.children[i].children[3].textContent = rankings[i].ign.split("#")[0];
+        duelingList.children[i].children[5].children[0].textContent = rankings[i].stars + " ";
+        duelingList.children[i].children[4].children[0].textContent = rankings[i].coins + " ";
+    }
+}
+
+function duelTargetPlayer(ign){
+    document.getElementById("duel-select-list-page").style.display = "none";
+    document.getElementById("duel-select-wait-page").style.display = "block";
+    Socket.send(JSON.stringify({ method: "duel_glove", token: TOKEN, ign: ign }));
+}
 
 //NETWORKING!!!
 var Socket;
@@ -6110,6 +6204,13 @@ function ConnectToServer(server){
                 break;
             case "player_remove":
                 RemovePlayer(data);
+                break;
+            case "get_target_list":
+                get_target_list_server(data);
+                break;
+            case "duel_glove":
+                duel_glove_server(data);
+                break;
         }
     };
 
@@ -6132,6 +6233,32 @@ function ConnectToServer(server){
         console.log("Socket Error");
         console.log(e);
     };
+}
+
+function duel_glove_server(data){
+    if (data.success){
+        document.getElementById("duel-select").style.display = "none";
+        turnStep = "menu";
+        document.getElementsByClassName("player-inputs")[0].style.display = "flex";
+    }
+    else{
+        document.getElementById("duel-select-list-page").style.display = "none";
+        document.getElementById("duel-select-wait-page").style.display = "block";
+        document.getElementById("duel-select-sub-text").textContent = "Cannot duel selected player";
+        Socket.send({ method: "get_target_list" });
+    }
+}
+
+function get_target_list_server(data){
+    if (document.getElementById("duel-select").style.display == "initial"){
+        //Dueling Glove Item
+        GenerateDuelingGlovePage(data);
+    }
+    else {
+        //Star Steal
+        //TODO!!! Steal steal select your target
+        //IDK, maybe just refund coins if someone ends up getting dueled but is trying to steal
+    }
 }
 
 function player_add_server(data){

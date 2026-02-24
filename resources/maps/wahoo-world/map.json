@@ -114,9 +114,11 @@
 	],
 	"atlas": "atlas.png",
 	"shops": {
-		"shop-1": [],
-		"shop-2": [],
-		"shop-3": []
+		"shop-1": ["tacticooler", "doubledice", "tripledice"],
+		"shop-2": ["tacticooler", "duelingglove", "tripledice"],
+		"shop-3": ["pipe", "doubledice", "goldpipe"],
+		"shop-4": ["shophopbox", "key", "goldpipe"],
+		"shop-5": ["pipe", "key", "doubledice"]
 	},
 	"animations": {
 		"carousel": {
@@ -2680,7 +2682,7 @@
 					"s": 0,
 					"w": 0
 				},
-				"popup": "shop-1",
+				"popup": "shop-5",
 				"walkOver": true,
 				"silverStarSpawnable": true
 			},
@@ -2839,7 +2841,7 @@
 						234
 					]
 				},
-				"popup": "shop-1",
+				"popup": "shop-4",
 				"walkOver": true,
 				"silverStarSpawnable": true
 			},

@@ -1227,6 +1227,10 @@ button{
     filter: drop-shadow(0 0 0.1rem rgba(0, 0, 0, 0.5));
 }
 
+.target-list-element:active{
+    opacity: 0.8;
+}
+
 .results-rank-gain{
     display: inline-block;
     margin-top: 10px;
@@ -2270,6 +2274,25 @@ button{
     top: 0;
     width: 100%;
     height: 100%;
+}
+
+.duel-list{
+    position: relative;
+    width: 360px;
+    max-height: 400px;
+    margin-top: 20px;
+    overflow-y: scroll;
+    scrollbar-color: white none;
+    scrollbar-width: none;
+    border-radius: 10px;
+}
+
+.duel-option{
+    width: 100%;
+    height: 24px;
+    padding: 0;
+    margin: 0;
+    border: none;
 }
 
 
