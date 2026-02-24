@@ -2345,9 +2345,9 @@ function UpdatePlayerPositions(){
             targetPos.y += lerp(0.005, 0.015, i / length);
         }
         else{
-            targetPos = new THREE.Vector3(value.position.x, getHeightTile(value.position.x, value.position.y), value.position.y);
-            targetPos.y += 0.375;
+            targetPos = new THREE.Vector3(value.position.x, 0, value.position.y);
             targetPos.z -= lerp(0.005, 0.2, i / length);
+            targetPos.y = getVariableHeightTile(targetPos.x, targetPos.z) + 0.375;
         } 
 
         let dist = Math.sqrt(Math.pow(targetPos.x - value.object.position.x, 2) + Math.pow(targetPos.z - value.object.position.z, 2));
@@ -2681,6 +2681,7 @@ function StepMapAnimation(){
         transitionValues.playerPos = Player.position;
         transitionValues.playerRot = Player.rotation;
         PlayerData.position = { x: Math.round(Player.position.x), y: Math.round(Player.position.z) };
+        Scene.add(PlayerObjects);
     }
 }
 
@@ -2734,6 +2735,16 @@ function getHeightTile(x, y){
 function getMaxHeightTile(x, y){
     let tile = getMapTile(x, y);
     let baseHeight = tile.ramp ? Math.max(tile.height.pos, tile.height.neg) : tile.height;
+    return baseHeight + (tile.animation ? MapAnimations[tile.animation.id].states[getAnimTurnIndex(tile.animation.id)].translation.y : 0);
+}
+
+function getVariableHeightTile(x, y){
+    let tileX = Math.round(x);
+    let tileY = Math.round(x);
+    let tx = x - tileX + 0.5;
+    let ty = y - tileY + 0.5;
+    let tile = getMapTile(tileX, tileY);
+    let baseHeight = tile.ramp ? (tile.height.dir == "v" ? lerp(tile.height.neg, tile.height.pos, ty) : lerp(tile.height.neg, tile.height.pos, tx)) : tile.height;
     return baseHeight + (tile.animation ? MapAnimations[tile.animation.id].states[getAnimTurnIndex(tile.animation.id)].translation.y : 0);
 }
 
