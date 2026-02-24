@@ -1960,10 +1960,10 @@ var ItemData = {
         image: TexLoader.load("resources/textures/key.png")
     },
     duelingglove: {
-        name: "Dueling Glove",
-        description: "Choose someone to duel for a star",
+        name: "KO Glove",
+        description: "Choose someone to play a minigame to steal a star from",
         url: "resources/textures/duelingglove.png",
-        price: 3,
+        price: 20,
         usable: true,
         image: TexLoader.load("resources/textures/duelingglove.png")
     }
