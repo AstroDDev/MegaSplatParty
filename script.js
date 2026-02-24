@@ -360,11 +360,13 @@ const Camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerH
 const Renderer = new THREE.WebGLRenderer({powerPreference: "high-performance"});
 Renderer.shadowMap.enabled = true;
 Renderer.shadowMap.type = THREE.BasicShadowMap;
-Renderer.setSize(window.innerWidth * window.devicePixelRatio, window.innerHeight * window.devicePixelRatio);
+Renderer.setSize(window.innerWidth, window.innerHeight);
+Renderer.setPixelRatio(window.devicePixelRatio);
 document.getElementById("world").appendChild(Renderer.domElement);
 
 window.onresize = function(e){ 
     Renderer.setSize(window.innerWidth, window.innerHeight);
+    Renderer.setPixelRatio(window.devicePixelRatio);
     Camera.aspect = window.innerWidth / window.innerHeight;
     Camera.updateProjectionMatrix();
 }
@@ -530,9 +532,6 @@ ModelLoader.load("resources/models/pipe.fbx", (object) => {
     GreenPipe.rotation.set(0, Math.PI / 2, 0);
     GoldPipe.scale.set(0.00375, 0.00375, 0.00375);
     GoldPipe.rotation.set(0, Math.PI / 2, 0);
-
-    Scene.add(GreenPipe);
-    Scene.add(GoldPipe);
 });
 
 
@@ -587,7 +586,7 @@ var Dice = [
     new THREE.Mesh(new THREE.BoxGeometry(0.5, 0.5, 0.5), new THREE.MeshStandardMaterial({color: 0xFFFFFF})),
 ];
 for (var i = 0; i < Dice.length; i++){
-    Scene.add(Dice[i]);
+    //Scene.add(Dice[i]);
     Dice[i].scale.set(0.85, 0.85, 0.85);
     Dice[i].castShadow = true;
     Dice[i].receiveShadow = true;
@@ -632,9 +631,13 @@ fontLoader.load("resources/fonts/Jersey 10/Jersey 10_Regular.json", function(fon
     CoinText.add(new THREE.Mesh(new THREE.BoxGeometry(0, 0, 0), new THREE.MeshBasicMaterial({ color: 0xffffff })));
 });
 
+var UsernameFont;
+fontLoader.load("resources/fonts/Digits/Digits_Regular.json", function(font){
+    UsernameFont = font;
+});
 
-var MapAnimations = {};
-function loadMap(){
+var MapAnimations = null;
+function loadMap(playerList){
     fetch("resources/maps/" + MAP + "/map.json").then(res => res.json()).then(async res => {
         mapData = res.data;
         tutorialStarPos = res.tutorialStar.pos;
@@ -671,9 +674,10 @@ function loadMap(){
                     if (!Object.hasOwn(MapAnimations[key].states[i], "translation")) Object.defineProperty(MapAnimations[key].states[i], "translation", { value: { x: 0, y: 0, z: 0 } });
                 }
             }
+            if (Object.keys(MapAnimations).length == 0) MapAnimations = null;
         }
         else{
-            MapAnimations = {};
+            MapAnimations = null;
         }
 
         for (const [key, value] of Object.entries(EntityTiles)){
@@ -793,6 +797,11 @@ function loadMap(){
             }
         }
 
+        if (playerList){
+            ClearPlayers();
+            for (let i = 0; i < playerList.length; i++) AddPlayer(playerList[i]);
+        }
+
         buildMap();
     });
 }
@@ -863,7 +872,7 @@ var MapLocks = new THREE.Group();
 var EntityTiles = {};
 function buildMap(){
     //Make sure everything is loaded first
-    if (SilverStar == null || Star == null || KeyGateModel == null || GreenPipe == null || GoldPipe == null ||
+    if (SilverStar == null || Star == null || KeyGateModel == null || GreenPipe == null || GoldPipe == null || DiceFont == null || UsernameFont == null ||
         AvatarDecorationsLoaded < AvatarDecorations.hair.length + AvatarDecorations.hat.length + AvatarDecorations.skin.length + AvatarDecorations.shirt.length
     ){
         console.log("Waiting for resources to load...");
@@ -2694,7 +2703,7 @@ function getMergedMapAnimMask(turn){
 }
 
 function getMapTile(x, y, turn){
-    if (mapData[y][x].animation || mapData[y][x].height == 0){
+    if (MapAnimations != null && (mapData[y][x].animation || mapData[y][x].height == 0)){
         let mask = getMergedMapAnimMask(turn !== undefined ? turn : ServerTurn);
         if (mask[y][x]){
             return mapData[mask[y][x].y][mask[y][x].x];
@@ -2769,6 +2778,7 @@ document.getElementById("roll-button").onclick = function(e){
     if (turnStep == "menu"){
         turnStep = "roll";
         UIState = "roll";
+        Scene.add(Dice[rollsRemaining - 1]);
         document.getElementsByClassName("player-inputs")[0].style.display = "none";
         document.getElementsByClassName("roll-inputs")[0].style.display = "initial";
         PlayerData.roll = 0;
@@ -2819,7 +2829,7 @@ function DoTurn(){
                     document.getElementsByClassName("board-inputs")[0].style.display = "none";
 
                     //Do Roll
-                    currentRoll = Math.floor(Math.random() * 10) + 100;//1; TODO!!! SWAP BACK
+                    currentRoll = Math.floor(Math.random() * 10) + 1;
                     rollHistory.push(currentRoll);
                     PlayerData.roll += currentRoll + addToRoll;
                     addToRoll = 0;
@@ -2901,6 +2911,7 @@ function DoTurn(){
                         }
                         else{
                             Dice[rollsRemaining].position.set(targetPlayerPos.x + (rollsRemaining == 1 ? -0.5 : 0.5), targetPlayerPos.y + 0.85, targetPlayerPos.z - 0.25);
+                            Scene.add(Dice[rollsRemaining - 1]);
                             turnAnimTimer = 0;
                         }
                     }
@@ -2919,16 +2930,22 @@ function DoTurn(){
                     }
                 }
                 else{
-                    for (var i = 0; i < Dice.length; i++){
-                        Dice[i].scale.set(0, 0, 0);
+                    if (rollBonus){
+                        lastAnimTimer += DeltaTime;
                     }
-                    turnAnimTimer = 0;
-                    UIState = "above";
-                    turnStep = "move";
-                    document.getElementsByClassName("board-inputs")[0].style.display = "initial";
-                    document.getElementsByClassName("roll-inputs")[0].style.display = "none";
-                    document.getElementsByClassName("roll-back-button")[0].style.display = "initial";
-                    document.getElementsByClassName("roll-display")[0].style.transform = "scale(100%)";
+                    else{
+                        for (var i = 0; i < Dice.length; i++){
+                            Dice[i].scale.set(0, 0, 0);
+                            Scene.remove(Dice[i]);
+                        }
+                        turnAnimTimer = 0;
+                        UIState = "above";
+                        turnStep = "move";
+                        document.getElementsByClassName("board-inputs")[0].style.display = "initial";
+                        document.getElementsByClassName("roll-inputs")[0].style.display = "none";
+                        document.getElementsByClassName("roll-back-button")[0].style.display = "initial";
+                        document.getElementsByClassName("roll-display")[0].style.transform = "scale(100%)";
+                    }
                 }
             }
         }
@@ -3444,6 +3461,7 @@ document.getElementsByClassName("roll-back-button")[0].onclick = (e) => {
     if (turnStep == "roll"){
         turnStep = "menu";
         UIState = "player";
+        Scene.remove(Dice[rollsRemaining - 1]);
         document.getElementsByClassName("player-inputs")[0].style.display = "flex";
         document.getElementsByClassName("roll-inputs")[0].style.display = "none";
         for (var i = 0; i < Dice.length; i++){
@@ -4063,6 +4081,7 @@ function TriggerPipeWarpAnimation(location, endOfTurn){
     turnStep = endOfTurn ? "pipe-warp-anim-end-turn" : "pipe-warp-anim";
     animTimer = 6;
     pipeWarpLocation = location;
+    Scene.add(GreenPipe);
 }
 function PipeWarpAnimation(){
     const animLength = 6;
@@ -4118,6 +4137,7 @@ function PipeWarpAnimation(){
     else{
         GreenPipe.rotation.set(0, Math.PI / 2, 0);
         GreenPipe.position.set(0, 0, 0);
+        Scene.remove(GreenPipe);
         UIState = "player";
         SetBlockTranparency();
         PlayerData.position = { x: pipeWarpLocation.x, y: pipeWarpLocation.y };
@@ -4151,6 +4171,7 @@ function TriggerGoldPipeWarpAnimation(){
     turnStep = "gold-pipe-warp-anim";
     animTimer = 6;
     pipeWarpLocation = StarWarpLocation;
+    Scene.add(GoldPipe);
     Socket.send(JSON.stringify({ method: "set_player_data", token: TOKEN, position: StarWarpLocation, items: PlayerData.items }));
 }
 function GoldPipeWarpAnimation(){
@@ -4206,6 +4227,7 @@ function GoldPipeWarpAnimation(){
     else{
         GoldPipe.rotation.set(0, Math.PI / 2, 0);
         GoldPipe.position.set(0, 0, 0);
+        Scene.remove(GoldPipe);
         UIState = "player";
         PlayerData.position = { x: pipeWarpLocation.x, y: pipeWarpLocation.y };
         
@@ -5425,6 +5447,14 @@ function UpdatePlayer(data){
     }
 }
 
+function ClearPlayers(){
+    PlayerObjects.clear();
+    for (const key of Object.keys(OpponentPlayers)){
+        delete OpponentPlayers[key];
+    }
+    OpponentPlayers = {};
+}
+
 function AddPlayer(data){
     if (data.ign == IGN) return;
     if (Object.hasOwn(OpponentPlayers, data.ign)){
@@ -5444,13 +5474,13 @@ function AddPlayer(data){
             OpponentPlayers[data.ign].object.castShadow = true;
             OpponentPlayers[data.ign].object.receiveShadow = false;
 
-            let innerText = new TextGeometry(data.ign.split("#")[0], { font: DiceFont, size: 0.1, depth: 0.01, curveSegments: 1 });
+            let innerText = new TextGeometry(data.ign.split("#")[0], { font: UsernameFont, size: 0.1, depth: 0.01, curveSegments: 1 });
             innerText.computeBoundingBox();
             let xMid = -0.5 * (innerText.boundingBox.max.x - innerText.boundingBox.min.x);
             let innerTextObject = new THREE.Mesh(innerText, new THREE.MeshBasicMaterial({color: 0xFFFFFF}));
             OpponentPlayers[data.ign].object.add(innerTextObject);
             innerTextObject.position.add(new THREE.Vector3(xMid, 0.375, 0));
-            let outerText = new TextGeometry(data.ign.split("#")[0], { font: DiceFont, size: 0.1, depth: 0, curveSegments: 1, bevelEnabled: true, bevelThickness: 0, bevelSize: 0.02, bevelOffset: 0, bevelSegments: 1 });
+            let outerText = new TextGeometry(data.ign.split("#")[0], { font: UsernameFont, size: 0.1, depth: 0, curveSegments: 1, bevelEnabled: true, bevelThickness: 0, bevelSize: 0.02, bevelOffset: 0, bevelSegments: 1 });
             let outerTextObject = new THREE.Mesh(outerText, new THREE.MeshBasicMaterial({color: 0x000000}));
             OpponentPlayers[data.ign].object.add(outerTextObject);
             outerTextObject.position.add(new THREE.Vector3(xMid, 0.375, 0));
@@ -6128,8 +6158,7 @@ function init_server(data){
     RoomOwners = data.owners;
     document.getElementsByClassName("player-name")[0].textContent = IGN.split("#")[0];
     document.getElementsByClassName("player-rank")[0].src = "./resources/textures/ranks/" + getRank(Rank) + "-Rank.svg";
-    loadMap();
-    for (let i = 0; i < data.players.length; i++) AddPlayer(data.players[i]);
+    loadMap(data.players);
 }
 
 function leave_game_server(data){
@@ -6147,6 +6176,10 @@ function leave_game_server(data){
         Socket.close();
         ServerStatus = "null";
         InitializeSocket();
+        spacesMoved = 0;
+        currentRoll = 0;
+        rollsRemaining = 1;
+        PlayerData.roll = 0;
     }
     else{
         throw new Error(data.error);
