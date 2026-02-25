@@ -1472,6 +1472,18 @@ function buildMap(){
         }
     }
 
+    EntityTiles = {};
+    if (MapAnimations){
+        for (const [key, value] of Object.entries(MapAnimations)){
+            Object.defineProperty(EntityTiles, key, { writable: true, enumerable: true, configurable: true, value: {
+                mesh: null,
+                masks: null,
+                maskIndices: null
+            }});
+        }
+        generateMapAnimationMasks();
+    }
+
     for (let y = 0; y < mapData.length; y++){
         for (let x = 0; x < mapData[y].length; x++){
             if (mapData[y][x].height == 0) continue;
@@ -1549,9 +1561,9 @@ function buildMap(){
                 }
             }
             
-            if (mapData[y][x].connections.n || mapData[y][x].connections.s || mapData[y][x].connections.e || mapData[y][x].connections.w){
+            if ((mapData[y][x].connections.n || mapData[y][x].connections.s || mapData[y][x].connections.e || mapData[y][x].connections.w) && !mapData[y][x].animation){
                 //Block placements
-                if (x > 0 && !mapData[y][x].connections.w && !mapData[y][x].ramp && !mapData[y][x-1].animation){
+                if (x > 0 && !mapData[y][x].connections.w && !mapData[y][x].ramp){
                     //Place a block there
                     let height1 = getHeightTile(x, y);
                     let height2 = getHeightTile(x-1, y);
@@ -1570,7 +1582,7 @@ function buildMap(){
                         BlockList.add(block);
                     }
                 }
-                if (x < mapSize.x - 1 && !mapData[y][x].connections.e && !mapData[y][x].ramp  && !mapData[y][x+1].animation && getHeightTile(x, y) > getHeightTile(x+1, y)){
+                if (x < mapSize.x - 1 && !mapData[y][x].connections.e && !mapData[y][x].ramp && getHeightTile(x, y) > getHeightTile(x+1, y)){
                     //Place a block there
                     let block = new THREE.Mesh(new THREE.BoxGeometry(1/8, 1/8, 1), BlockMat.clone());
                     block.position.set(x + 0.5 - 1/16, mapData[y][x].height + 1/16, y);
@@ -1578,7 +1590,7 @@ function buildMap(){
                     block.receiveShadow = true;
                     BlockList.add(block);
                 }
-                if (y > 0 && !mapData[y][x].connections.n && !mapData[y][x].ramp && !mapData[y-1][x].animation){
+                if (y > 0 && !mapData[y][x].connections.n && !mapData[y][x].ramp){
                     //Place a block there
                     let height1 = getHeightTile(x, y);
                     let height2 = getHeightTile(x, y-1);
@@ -1597,7 +1609,7 @@ function buildMap(){
                         BlockList.add(block);
                     }
                 }
-                if (y < mapSize.y - 1 && !mapData[y][x].connections.s && !mapData[y][x].ramp && !mapData[y+1][x].animation && getHeightTile(x, y) > getHeightTile(x, y+1)){
+                if (y < mapSize.y - 1 && !mapData[y][x].connections.s && !mapData[y][x].ramp && getHeightTile(x, y) > getHeightTile(x, y+1)){
                     //Place a block there
                     let block = new THREE.Mesh(new THREE.BoxGeometry(1, 1/8, 1/8), BlockMat.clone());
                     block.position.set(x, mapData[y][x].height + 1/16, y + 0.5 - 1/16);
@@ -1828,7 +1840,6 @@ function buildMap(){
         }
     }
 
-    EntityTiles = {};
     for (const [key, value] of Object.entries(entityGeometries)){
         let entityGeometry = new THREE.BufferGeometry();
         entityGeometry.setIndex(value.indices);
@@ -1841,11 +1852,7 @@ function buildMap(){
         Scene.add(entityMesh);
         entityMesh.position.set(MapAnimations[key].anchor.x, 0, MapAnimations[key].anchor.y);
 
-        Object.defineProperty(EntityTiles, key, { writable: true, enumerable: true, configurable: true, value: {
-            mesh: entityMesh,
-            masks: null,
-            maskIndices: null
-        }});
+        EntityTiles[key].mesh = entityMesh;
     }
     generateMapAnimationMasks();
     SetMapAnimationTransforms();
@@ -2694,6 +2701,7 @@ function StepMapAnimation(){
 
 var mergedTurnAnimMasks = {};
 function getMergedMapAnimMask(turn){
+    if (!turn) turn = ServerTurn;
     if (Object.hasOwn(mergedTurnAnimMasks, turn)){
         return mergedTurnAnimMasks[turn];
     }
@@ -2735,6 +2743,10 @@ function getAnimTurnIndex(id, turn){
 
 function getHeightTile(x, y){
     let tile = getMapTile(x, y);
+    return extractHeightTile(tile);
+}
+
+function extractHeightTile(tile){
     let baseHeight = tile.ramp ? (tile.height.pos + tile.height.neg) / 2 : tile.height;
     return baseHeight + (tile.animation ? MapAnimations[tile.animation.id].states[getAnimTurnIndex(tile.animation.id)].translation.y : 0);
 }
@@ -2772,8 +2784,33 @@ function canMoveToTile(x, y, dirX, dirY){
     let newY = y + dirY;
     if (newX < 0 || newX >= mapSize.x || newY < 0 || newY >= mapSize.y) return false;
     let newTile = getMapTile(newX, newY);
+    let newTileHeight = extractHeightTile(newTile);
     if (newTile.height == 0) return false;
     let oldTile = getMapTile(x, y);
+
+    function connectionCheck(dir){
+        let connection = oldTile.connections[dir];
+        if (Array.isArray(connection)){
+            for (let i = 0; i < connection.length; i++){
+                if (connection[i].height){
+                    if (newTileHeight == connection[i].height) return true;
+                }
+                else{
+                    if (newTile.animation){
+                        let animationMask = getMergedMapAnimMask();
+                        if (animationMask[newY][newX] && animationMask[newY][newX].x == connection.x && animationMask[newY][newX].y == connection.y){
+                            return true;
+                        }
+                    }
+                    else{
+                        if (newX == connection[i].x && newY == connection[i].y) return true;
+                    }
+                }
+            }
+            return false;
+        }
+        return connection == true || (connection == "lock" && doorUnlocked(x, y, dir));
+    }
 
     if (oldTile.animation){
         let stateIndex = getAnimTurnIndex(oldTile.animation.id);
@@ -2785,14 +2822,15 @@ function canMoveToTile(x, y, dirX, dirY){
         }
     }
 
-    return (dirX == -1 && oldTile.connections.w == true) ||
-        (dirX == 1 && oldTile.connections.e == true) ||
-        (dirY == -1 && oldTile.connections.n == true) ||
-        (dirY == 1 && oldTile.connections.s == true) ||
-        (dirX == -1 && oldTile.connections.w == "lock" && doorUnlocked(x, y, "w")) ||
-        (dirX == 1 && oldTile.connections.e == "lock" && doorUnlocked(x, y, "e")) ||
-        (dirY == -1 && oldTile.connections.n == "lock" && doorUnlocked(x, y, "n")) ||
-        (dirY == 1 && oldTile.connections.s == "lock" && doorUnlocked(x, y, "s"));
+    return (dirX == -1 && connectionCheck("w")) || 
+        (dirX == 1 && connectionCheck("e")) ||
+        (dirY == -1 && connectionCheck("n")) ||
+        (dirY == 1 && connectionCheck("s"));
+
+    /*return (dirX == -1 && (oldTile.connections.w == true || (oldTile.connections.w == "lock" && doorUnlocked(x, y, "w")))) ||
+        (dirX == 1 && (oldTile.connections.e == true || (oldTile.connections.e == "lock" && doorUnlocked(x, y, "e")))) ||
+        (dirY == -1 && (oldTile.connections.n == true || (oldTile.connections.n == "lock" && doorUnlocked(x, y, "n")))) ||
+        (dirY == 1 && (oldTile.connections.s == true || (oldTile.connections.s == "lock" && doorUnlocked(x, y, "s"))));*/
 }
 
 
@@ -2855,7 +2893,7 @@ function DoTurn(){
                     document.getElementsByClassName("board-inputs")[0].style.display = "none";
 
                     //Do Roll
-                    currentRoll = Math.floor(Math.random() * 10) + 1;
+                    currentRoll = Math.floor(Math.random() * 10) + 100;//TODO!!! SET BACK TO +1
                     rollHistory.push(currentRoll);
                     PlayerData.roll += currentRoll + addToRoll;
                     addToRoll = 0;
@@ -3266,6 +3304,7 @@ window.onmousedown = function(e){
 
             document.getElementById("debug-text-input").value = JSON.stringify(mapData[intersectPos.y][intersectPos.x], null, "\t");
             targetDebugPos = intersectPos;
+            console.log(intersectPos);
 
             //let data = JSON.parse(prompt("MapData", JSON.stringify(mapData[intersectPos.y][intersectPos.x])));
             //mapData[intersectPos.y][intersectPos.x] = data;
