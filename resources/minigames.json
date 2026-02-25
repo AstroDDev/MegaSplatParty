@@ -559,6 +559,18 @@
         "title": "Over Fishing",
         "description": "This minigame is played in a <b>Private Salmon Run</b> Lobby. Set the <b>Hazard Level to 100%</b> and the map to <b>Bonerattle Arena.</b> Make sure all players select \"<b>?</b>\" as their weapon (This is the default option).<br><br>Players will compete over the course of a salmon run shift to collect the most <b>Golden Eggs.</b> Players will recieve 1 coin for every 3 <b>Golden Eggs</b> collected.<br><br>When submitting results, enter the <b>Golden Egg</b> totals on the end screen."
     },
+    "targetmedalextra": {
+        "hidden": true,
+        "lobbySize": 4,
+        "minLobbySize": 2,
+        "type": "coop",
+        "teams": 0,
+        "rewards": [10, 0],
+        "evenSize": false,
+        "title": "Secret Objective",
+        "random": [ "#1 Overall Splatter", "#1 Score Booster", "#1 Turf Inker", "#1 Popular Target", "#1 Home-Base Inker", "#1 Enemy-Base Inker", "#1 Super Jump Spot", "#1 Enemy Splatter", "#1 Splat Assister", "#1 Base Defender", "#1 Ground Traveler", "#1 Damage Taker", "#1 Ink Consumer", "First Splat!", "#1 Reefslider User", "#2 Clam Carrier", "#2 Turf Inker", "#2 Popular Target", "#2 Home-Base Inker", "#2 Enemy-Base Inker", "#2 Super Jump Spot", "#2 Enemy Splatter", "#2 Splat Assister" ],
+        "description": "This minigame is played together in a public <b>Turf War</b> lobby.<br><br>Your goal is to achieve the <b>{random}</b> medal during a match of turf war. Each player has a different random medal given to them they must achieve.<br><br>When submitting results, enter <b>Win</b> if the player achieved their target medal in their battle history, otherwise enter <b>Lose</b>."
+    },
 
 
 
@@ -618,6 +630,17 @@
         "evenSize": false,
         "title": "Tame the Terrible Toddler",
         "description": "This minigame is played solo at the <b>Offline Tableturf Battle Table</b>. Select <b>Lv.3 Baby Jelly</b> as your opponent.<br><br>Your goal is to beat <b>Baby Jelly</b> in tableturf. This terrible toddler tends to throw tantrums, thus to triumph, trounce this toddlers tomfoolery through thorough Tableturf thrashing. Yes I used a thesaurus to make every word start with the letter T.<br><br>When submitting results, enter <b>Win</b> if you won against Baby Jelly and otherwise enter <b>Lose</b> if Baby Jelly won."
+    },
+    "targetmedalsolo": {
+        "hidden": true,
+        "lobbySize": 1,
+        "minLobbySize": 1,
+        "type": "coop",
+        "teams": 0,
+        "rewards": [10, 0],
+        "title": "Secret Objective Solo",
+        "random": [ "#1 Overall Splatter", "#1 Score Booster", "#1 Turf Inker", "#1 Popular Target", "#1 Home-Base Inker", "#1 Enemy-Base Inker", "#1 Super Jump Spot", "#1 Enemy Splatter", "#1 Splat Assister", "#1 Base Defender", "#1 Ground Traveler", "#1 Damage Taker", "#1 Ink Consumer", "First Splat!", "#1 Reefslider User", "#2 Clam Carrier", "#2 Turf Inker", "#2 Popular Target", "#2 Home-Base Inker", "#2 Enemy-Base Inker", "#2 Super Jump Spot", "#2 Enemy Splatter", "#2 Splat Assister" ],
+        "description": "This minigame is played solo in a public <b>Turf War</b> lobby.<br><br>Your goal is to achieve the <b>{random}</b> medal during a match of turf war.<br><br>When submitting results, enter <b>Win</b> if you achieved your target medal in your battle history, otherwise enter <b>Lose</b>."
     },
 
 
