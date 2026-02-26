@@ -1902,6 +1902,7 @@ var ItemData = {
         url: "resources/textures/doubledice.png",
         price: 6,
         usable: true,
+        discardable: true,
         image: TexLoader.load("resources/textures/doubledice.png")
     },
     tripledice: {
@@ -1910,6 +1911,7 @@ var ItemData = {
         url: "resources/textures/tripledice.png",
         price: 12,
         usable: true,
+        discardable: true,
         image: TexLoader.load("resources/textures/tripledice.png")
     },
     pipe: {
@@ -1918,6 +1920,7 @@ var ItemData = {
         url: "resources/textures/pipe.png",
         price: 6,
         usable: true,
+        discardable: true,
         image: TexLoader.load("resources/textures/pipe.png")
     },
     goldpipe: {
@@ -1926,6 +1929,7 @@ var ItemData = {
         url: "resources/textures/goldpipe.png",
         price: 20,
         usable: true,
+        discardable: true,
         image: TexLoader.load("resources/textures/goldpipe.png")
     },
     customdice: {
@@ -1934,6 +1938,7 @@ var ItemData = {
         url: "resources/textures/customdice.png",
         price: 5,
         usable: true,
+        discardable: true,
         image: TexLoader.load("resources/textures/customdice.png")
     },
     tacticooler: {
@@ -1942,6 +1947,7 @@ var ItemData = {
         url: "resources/textures/tacticooler.png",
         price: 3,
         usable: true,
+        discardable: true,
         image: TexLoader.load("resources/textures/tacticooler.png")
     },
     shophopbox: {
@@ -1950,6 +1956,7 @@ var ItemData = {
         url: "resources/textures/shophopbox.png",
         price: 6,
         usable: true,
+        discardable: true,
         image: TexLoader.load("resources/textures/shophopbox.png")
     },
     inkjet: {
@@ -1958,6 +1965,7 @@ var ItemData = {
         url: "resources/textures/inkjet.png",
         price: 3,
         usable: true,
+        discardable: true,
         image: TexLoader.load("resources/textures/inkjet.png")
     },
     key: {
@@ -1966,6 +1974,7 @@ var ItemData = {
         url: "resources/textures/key.png",
         price: 3,
         usable: false,
+        discardable: true,
         image: TexLoader.load("resources/textures/key.png")
     },
     duelingglove: {
@@ -1974,7 +1983,17 @@ var ItemData = {
         url: "resources/textures/duelingglove.png",
         price: 20,
         usable: true,
+        discardable: true,
         image: TexLoader.load("resources/textures/duelingglove.png")
+    },
+    loadstone: {
+        name: "Loadstone",
+        description: "A rock that can't be discarded until used",
+        url: "resources/textures/loadstone.png",
+        price: 2,
+        usable: true,
+        discardable: false,
+        image: TexLoader.load("resources/textures/loadstone.png")
     }
 };
 
@@ -2002,15 +2021,6 @@ window.onkeydown = function(e){
             TestMoveSpace(1, 0);
         }
     }
-
-    //Map Build Stuff
-    /*if (e.keyCode == 13){
-        //Enter
-        let input = prompt("Material", mapData[PlayerData.position.y][PlayerData.position.x].material);
-        mapData[PlayerData.position.y][PlayerData.position.x].material = Number.parseInt(input);
-        Scene.remove(MapMesh);
-        buildMap();
-    }*/
     
     if (e.key == "t"){
         console.log(getMapTile(PlayerData.position.x, PlayerData.position.y));
@@ -2874,6 +2884,7 @@ var luckyTimer = 0;
 var luckyClickTimer = -1;
 const luckyItemOptions = ["doubledice", "tripledice", "tacticooler", "customdice", "shophopbox", "pipe", "key", "duelingglove"];
 var luckyRouletteItems = [];
+var cohoOptions = document.getElementsByClassName("coho-option");
 function DoTurn(){
     if (turnStep == "menu"){
 
@@ -2893,7 +2904,7 @@ function DoTurn(){
                     document.getElementsByClassName("board-inputs")[0].style.display = "none";
 
                     //Do Roll
-                    currentRoll = Math.floor(Math.random() * 10) + 100;//TODO!!! SET BACK TO +1
+                    currentRoll = Math.floor(Math.random() * 10) + 1;
                     rollHistory.push(currentRoll);
                     PlayerData.roll += currentRoll + addToRoll;
                     addToRoll = 0;
@@ -3063,28 +3074,30 @@ function DoTurn(){
             if (intersectPos.x < 0 || intersectPos.x >= mapSize.x || intersectPos.y < 0 || intersectPos.y >= mapSize.y) return;
             DistanceAwayMap(intersectPos.x, intersectPos.y);
             mapSelectorBox.scale.set(1, 1, 1);
-            if (!mapData[intersectPos.y][intersectPos.x].ramp){
-                mapSelectorBox.position.set(intersectPos.x, mapData[intersectPos.y][intersectPos.x].height + 0.05, intersectPos.y);
+            
+            let hitTile = getMapTile(intersectPos.x, intersectPos.y);
+            if (!hitTile.ramp){
+                mapSelectorBox.position.set(intersectPos.x, extractHeightTile(hitTile) + 0.05, intersectPos.y);
                 mapSelectorBox.rotation.set(-Math.PI / 2, 0, 0);
                 mapSelectorBox.scale.set(1, 1, 1);
             }
-            else if (mapData[intersectPos.y][intersectPos.x].height.dir == "v"){
-                let angle = -Math.atan2(mapData[intersectPos.y][intersectPos.x].height.pos - mapData[intersectPos.y][intersectPos.x].height.neg, 1);
-                mapSelectorBox.position.set(intersectPos.x, (mapData[intersectPos.y][intersectPos.x].height.pos + mapData[intersectPos.y][intersectPos.x].height.neg) / 2 + 0.05, intersectPos.y);
+            else if (hitTile.height.dir == "v"){
+                let angle = -Math.atan2(hitTile.height.pos - hitTile.height.neg, 1);
+                mapSelectorBox.position.set(intersectPos.x, extractHeightTile(hitTile) + 0.05, intersectPos.y);
                 mapSelectorBox.rotation.set(angle - (Math.PI / 2), 0, 0);
-                mapSelectorBox.scale.set(1, Math.sqrt(Math.pow(mapData[intersectPos.y][intersectPos.x].height.pos - mapData[intersectPos.y][intersectPos.x].height.neg, 2) + 1), 1);
+                mapSelectorBox.scale.set(1, Math.sqrt(Math.pow(hitTile.height.pos - hitTile.height.neg, 2) + 1), 1);
             }
             else{
-                let angle = -Math.atan2(mapData[intersectPos.y][intersectPos.x].height.pos - mapData[intersectPos.y][intersectPos.x].height.neg, 1);
-                mapSelectorBox.position.set(intersectPos.x, (mapData[intersectPos.y][intersectPos.x].height.pos + mapData[intersectPos.y][intersectPos.x].height.neg) / 2 + 0.05, intersectPos.y);
+                let angle = -Math.atan2(hitTile.height.pos - hitTile.height.neg, 1);
+                mapSelectorBox.position.set(intersectPos.x, extractHeightTile(hitTile) + 0.05, intersectPos.y);
                 mapSelectorBox.rotation.set(-Math.PI / 2, angle, 0);
-                mapSelectorBox.scale.set(Math.sqrt(Math.pow(mapData[intersectPos.y][intersectPos.x].height.pos - mapData[intersectPos.y][intersectPos.x].height.neg, 2) + 1), 1, 1);
+                mapSelectorBox.scale.set(Math.sqrt(Math.pow(hitTile.height.pos - hitTile.height.neg, 2) + 1), 1, 1);
             }
 
-            if (Object.hasOwn(mapData[intersectPos.y][intersectPos.x], "popup") && mapData[intersectPos.y][intersectPos.x].popup != "lucky-space"){
-                if (mapData[intersectPos.y][intersectPos.x].popup != openShopPreview){
+            if (Object.hasOwn(hitTile, "popup") && hitTile.walkOver){
+                if (hitTile.popup != openShopPreview){
                     if (openShopPreview != "") document.getElementById(openShopPreview + "-preview").style.display = "none";
-                    openShopPreview = mapData[intersectPos.y][intersectPos.x].popup;
+                    openShopPreview = hitTile.popup;
                     document.getElementById(openShopPreview + "-preview").style.display = "initial";
 
                     document.getElementsByClassName("leaderboard-button")[0].style.display = "none";
@@ -3149,7 +3162,8 @@ function DoTurn(){
         TutorialGiveAnimation();
     }
     else if (turnStep == "popup"){
-        if (mapData[PlayerData.position.y][PlayerData.position.x].popup == "lucky-space"){
+        let popup = getMapTile(PlayerData.position.x, PlayerData.position.y).popup;
+        if (popup == "lucky-space"){
             luckyTimer += luckyClickTimer == -1 ? DeltaTime : DeltaTime * lerp(0, 0.85, Math.max(Math.min(luckyClickTimer - 1, 2), 0) / 2);
             let selectedIndex = Math.floor(luckyTimer * 15) % luckyOptions.length;
             for (var i = 0; i < luckyOptions.length; i++){
@@ -3169,6 +3183,26 @@ function DoTurn(){
                 else{
                     //Item
                     TriggerGiveItemAnimation(luckyRouletteItems[selectedIndex / 2], false);
+                }
+            }
+        }
+        else if (popup == "cohozuna-space"){
+            if (cohoRoulette.style.display != "none"){
+                luckyTimer += luckyClickTimer == -1 ? DeltaTime : DeltaTime * lerp(0, 0.85, Math.max(Math.min(luckyClickTimer - 1, 2), 0) / 2);
+                let selectedIndex = Math.floor(luckyTimer * 15) % cohoOptions.length;
+                for (var i = 0; i < cohoOptions.length; i++){
+                    cohoOptions[i].classList.remove("coho-selected");
+                    if (selectedIndex == i){
+                        cohoOptions[i].classList.add("coho-selected");
+                    }
+                }
+                luckyClickTimer = luckyClickTimer == -1 ? -1 : Math.max(0, luckyClickTimer - DeltaTime);
+                if (luckyClickTimer == 0){
+                    let cohoIndex = Number.parseInt(cohoOptions[selectedIndex].getAttribute("index"));
+                    document.getElementById("cohozuna-roulette").style.display = "none";
+                    document.getElementById("cohozuna-punishment").style.display = "initial";
+                    document.getElementById("cohozuna-punishement-text").innerHTML = cohozunaPunishments[cohoIndex].punishmentText;
+                    cohoNextFunction = cohozunaPunishments[cohoIndex].trigger;
                 }
             }
         }
@@ -3193,7 +3227,269 @@ document.getElementById("triple-ditto-roll-okay").onclick = function(e){
 document.getElementsByClassName("lucky-stop-button")[0].onclick = function(e){
     document.getElementsByClassName("lucky-stop-button")[0].disabled = true;
     luckyClickTimer = lerp(2, 4, Math.random());
+};
+
+document.getElementsByClassName("coho-stop-button")[0].onclick = function(e){
+    document.getElementsByClassName("coho-stop-button")[0].disabled = true;
+    luckyClickTimer = lerp(2, 4, Math.random());
+};
+
+const cohoRoulette = document.getElementById("cohozuna-roulette");
+const cohozunaPunishments = [
+    {
+        losingWeight: 1.5,
+        winningWeight: 0.5,
+        wheelText: "Lose <b>10</b> <img class='coin-lucky-img' src='resources/textures/squid_coin.svg'>",
+        punishmentText: "Looks like it's a shakedown for lunch money!<br>Give me 10 Coins!",
+        cannotText: "What? You don't have any Coins!<br>Get out of here!",
+        trigger: function(){
+            document.getElementById("cohozuna-punishment").style.display = "none";
+            if (PlayerData.coins == 0){
+                document.getElementById("cohozuna-cannot").style.display = "intial";
+                document.getElementById("cohozuna-cannot-text").innerHTML = this.cannotText;
+            }
+            else{
+                document.getElementById("coho-anim-container").innerHTML = '<span id="coho-text-anim" class="coho-lose-anim">-' +
+                Math.min(PlayerData.coins, 10) +
+                '<img src="resources/textures/coin_low_res.png" style="padding-left: 0.25vmin; width: 8vmin; height: 8vmin; image-rendering: pixelated;"></span>';
+                PlayerData.coins = Math.max(PlayerData.coins - 10, 0);
+                UpdatePlayerUI();
+                UpdateLeaderboards();
+                Socket.send(JSON.stringify({ method: "update_player", token: TOKEN, coins: PlayerData.coins }));
+                setTimeout(() => {
+                    document.getElementById("cohozuna-goodbye").style.display = "initial";
+                }, 3000);
+            }
+        }
+    },
+    {
+        losingWeight: 0.5,
+        winningWeight: 1.5,
+        wheelText: "Lose <b>20</b> <img class='coin-lucky-img' src='resources/textures/squid_coin.svg'>",
+        punishmentText: "Time for your deposit at the Coho Bank!<br>Fork over 20 Coins!",
+        cannotText: "What? You don't have any Coins!<br>Get out of here!",
+        trigger: function(){
+            document.getElementById("cohozuna-punishment").style.display = "none";
+            if (PlayerData.coins == 0){
+                document.getElementById("cohozuna-cannot").style.display = "intial";
+                document.getElementById("cohozuna-cannot-text").innerHTML = this.cannotText;
+            }
+            else{
+                document.getElementById("coho-anim-container").innerHTML = '<span id="coho-text-anim" class="coho-lose-anim">-' +
+                Math.min(PlayerData.coins, 20) +
+                '<img src="resources/textures/coin_low_res.png" style="padding-left: 0.25vmin; width: 8vmin; height: 8vmin; image-rendering: pixelated;"></span>';
+                PlayerData.coins = Math.max(PlayerData.coins - 20, 0);
+                UpdatePlayerUI();
+                UpdateLeaderboards();
+                Socket.send(JSON.stringify({ method: "update_player", token: TOKEN, coins: PlayerData.coins }));
+                setTimeout(() => {
+                    document.getElementById("cohozuna-goodbye").style.display = "initial";
+                }, 3000);
+            }
+        }
+    },
+    {
+        losingWeight: 1,
+        winningWeight: 1,
+        wheelText: "Lose <b>Half</b> <img class='coin-lucky-img' src='resources/textures/squid_coin.svg'>",
+        punishmentText: "Alright, pay up the 50% Coho tax!<br>Give me your Coins!",
+        cannotText: "What? You don't have any Coins!<br>Get out of here!",
+        trigger: function(){
+            document.getElementById("cohozuna-punishment").style.display = "none";
+            if (PlayerData.coins == 0){
+                document.getElementById("cohozuna-cannot").style.display = "intial";
+                document.getElementById("cohozuna-cannot-text").innerHTML = this.cannotText;
+            }
+            else{
+                let loss = Math.ceil(PlayerData.coins / 2);
+                document.getElementById("coho-anim-container").innerHTML = '<span id="coho-text-anim" class="coho-lose-anim">-' +
+                loss +
+                '<img src="resources/textures/coin_low_res.png" style="padding-left: 0.25vmin; width: 8vmin; height: 8vmin; image-rendering: pixelated;"></span>';
+                PlayerData.coins -= loss;
+                UpdatePlayerUI();
+                UpdateLeaderboards();
+                Socket.send(JSON.stringify({ method: "update_player", token: TOKEN, coins: PlayerData.coins }));
+                setTimeout(() => {
+                    document.getElementById("cohozuna-goodbye").style.display = "initial";
+                }, 3000);
+            }
+        }
+    },
+    {
+        losingWeight: 0,
+        winningWeight: 1,
+        wheelText: "Lose a <img class='coin-lucky-img' src='resources/textures/squid_star.svg'>",
+        punishmentText: "Must suck to be you.<br>Hand over your Star!",
+        cannotText: "What? You don't have a Star!<br>Get out of here!",
+        trigger: function(){
+            document.getElementById("cohozuna-punishment").style.display = "none";
+            if (PlayerData.stars == 0){
+                document.getElementById("cohozuna-cannot").style.display = "intial";
+                document.getElementById("cohozuna-cannot-text").innerHTML = this.cannotText;
+            }
+            else{
+                document.getElementById("coho-anim-container").innerHTML = '<img id="coho-item-anim" class="coho-lose-anim" src="resources/textures/squid_star.svg">';
+                PlayerData.stars -= 1;
+                UpdatePlayerUI();
+                UpdateLeaderboards();
+                Socket.send(JSON.stringify({ method: "update_player", token: TOKEN, stars: PlayerData.stars }));
+                setTimeout(() => {
+                    document.getElementById("cohozuna-goodbye").style.display = "initial";
+                }, 3000);
+            }
+        }
+    },
+    {
+        losingWeight: 1,
+        winningWeight: 1,
+        wheelText: "Fill up on <b>Lodestones</b>",
+        punishmentText: "I've got a present for you!<br>Make sure you take it with you!",
+        cannotText: "What? You're full on Items!<br>Get out of here!",
+        trigger: function(){
+            document.getElementById("cohozuna-punishment").style.display = "none";
+            if (PlayerData.items.length == 3){
+                document.getElementById("cohozuna-cannot").style.display = "intial";
+                document.getElementById("cohozuna-cannot-text").innerHTML = this.cannotText;
+            }
+            else{
+                let html = "";
+                let i = 0;
+                while (PlayerData.items.length < 3){
+                    i++;
+                    PlayerData.items.push("loadstone");
+                    html += '<img id="coho-item-anim" class="coho-get-anim coho-get-anim-'+i+'" src="resources/textures/loadstone.png">';
+                }
+                document.getElementById("coho-anim-container").innerHTML = html;
+                UpdatePlayerUI();
+                UpdateItemUI();
+
+                setTimeout(() => {
+                    document.getElementById("cohozuna-goodbye").style.display = "initial";
+                }, 3000);
+            }
+        }
+    },
+    {
+        losingWeight: 1.5,
+        winningWeight: 0.5,
+        wheelText: "Lose an <b>Item</b>",
+        punishmentText: "A birthday present for me?<br>Hand over an Item!",
+        cannotText: "What! You don't have any Items?<br>Get out of here!",
+        trigger: function(){
+            document.getElementById("cohozuna-punishment").style.display = "none";
+            if (PlayerData.items.length == 0){
+                document.getElementById("cohozuna-cannot").style.display = "intial";
+                document.getElementById("cohozuna-cannot-text").innerHTML = this.cannotText;
+            }
+            else{
+                let removeItem = PlayerData.items.splice(Math.floor(Math.random() * PlayerData.items.length), 1);
+                document.getElementById("coho-anim-container").innerHTML = '<img id="coho-item-anim" class="coho-lose-anim" src="' + ItemData[removeItem].url + '">';
+                UpdatePlayerUI();
+                UpdateItemUI();
+
+                setTimeout(() => {
+                    document.getElementById("cohozuna-goodbye").style.display = "initial";
+                }, 3000);
+            }
+        }
+    },
+    {
+        losingWeight: 0.5,
+        winningWeight: 1.5,
+        wheelText: "Lose All <b>Items</b>",
+        punishmentText: "Turn inside out your pockets and give me everything!<br>Dump your Items on the ground!",
+        cannotText: "What! You don't have any Items?<br>Get out of here!",
+        trigger: function(){
+            document.getElementById("cohozuna-punishment").style.display = "none";
+            if (PlayerData.items.length == 0){
+                document.getElementById("cohozuna-cannot").style.display = "intial";
+                document.getElementById("cohozuna-cannot-text").innerHTML = this.cannotText;
+            }
+            else{
+                let html = '';
+                for (let i = 0; i < PlayerData.items.length; i++){
+                    html += '<img id="coho-item-anim" class="coho-lose-anim coho-lose-anim'+(i+1)+'" src="' + ItemData[PlayerData.items[i]].url + '">'
+                }
+                PlayerData.items = [];
+                document.getElementById("coho-anim-container").innerHTML = html;
+                UpdatePlayerUI();
+                UpdateItemUI();
+
+                setTimeout(() => {
+                    document.getElementById("cohozuna-goodbye").style.display = "initial";
+                }, 3000);
+            }
+        }
+    },
+    {
+        losingWeight: 1,
+        winningWeight: 0,
+        wheelText: "Gain <b>100</b> <img class='coin-lucky-img' src='resources/textures/squid_star.svg'>",
+        punishmentText: "100 Stars?<br>Uh, uh... Look over THERE!",
+        cannotText: "",
+        trigger: function(){
+            document.getElementById("cohozuna-punishment").style.display = "none";
+            CloseCohozuna();
+        }
+    },
+    {
+        losingWeight: 1,
+        winningWeight: 0,
+        wheelText: "Gain <b>1000</b> <img class='coin-lucky-img' src='resources/textures/squid_coin.svg'>",
+        punishmentText: "1000 Coins?<br>Uh, uh... Look over THERE!",
+        cannotText: "",
+        trigger: function(){
+            document.getElementById("cohozuna-punishment").style.display = "none";
+            CloseCohozuna();
+        }
+    },
+];
+
+function CohoGenerateWheel(){
+    let placementNRM = yourPlacement / (Object.keys(OpponentPlayers).length + 1);
+    let totalWeight = 0;
+
+    for (let i = 0; i < cohozunaPunishments.length; i++){
+        totalWeight += lerp(cohozunaPunishments[i].winningWeight, cohozunaPunishments[i].losingWeight, placementNRM);
+    }
+
+    let usedIndicies = [];
+
+    while (usedIndicies.length < cohoOptions.length){
+        let random = Math.random() * totalWeight;
+        let checkedWeight = 0;
+        for (let i = 0; i < cohozunaPunishments.length; i++){
+            checkedWeight += lerp(cohozunaPunishments[i].winningWeight, cohozunaPunishments[i].losingWeight, placementNRM);
+            if (checkedWeight >= random && !usedIndicies.includes(i)){
+                usedIndicies.push(i);
+                break;
+            }
+        }
+    }
+
+    for (let i = 0; i < usedIndicies.length; i++){
+        cohoOptions[i].innerHTML = cohozunaPunishments[usedIndicies[i]].wheelText;
+        cohoOptions[i].setAttribute("index", usedIndicies[i]);
+    }
 }
+
+function CloseCohozuna(){
+    document.getElementById("cohozuna-space").style.animation = "cohozuna-close linear 2s";
+    let cohoTextBoxes = document.getElementsByClassName("cohozuna-text-boxes")[0];
+    for (let i = 0; i < cohoTextBoxes.children.length; i++){
+        cohoTextBoxes.children[i].style.display = "none";
+    }
+    setTimeout(() => {
+        EndTurn();
+    }, 2000);
+}
+
+var cohoNextFunction = () => {};
+const cohoNextButtons = document.getElementsByClassName("cohozuna-next");
+for (let i = 0; i < cohoNextButtons.length; i++) cohoNextButtons[i].onclick = () => cohoNextFunction();
+
+const cohoLeaveButtons = document.getElementsByClassName("coho-leave-button");
+for (let i = 0; i < cohoLeaveButtons.length; i++) cohoLeaveButtons[i].onclick = CloseCohozuna;
 
 function UpdateCustomDiceFace(){
     Dice[0].children[5].geometry.dispose();
@@ -3305,19 +3601,6 @@ window.onmousedown = function(e){
             document.getElementById("debug-text-input").value = JSON.stringify(mapData[intersectPos.y][intersectPos.x], null, "\t");
             targetDebugPos = intersectPos;
             console.log(intersectPos);
-
-            //let data = JSON.parse(prompt("MapData", JSON.stringify(mapData[intersectPos.y][intersectPos.x])));
-            //mapData[intersectPos.y][intersectPos.x] = data;
-            //mapData[intersectPos.y][intersectPos.x].silverStarSpawnable = spawnable;
-            //console.log(spawnable);
-            //if (mapData[intersectPos.y][intersectPos.x].material != newMat){
-            //    mapData[intersectPos.y][intersectPos.x].material = newMat;
-
-                //Then update face appearance
-                //Scene.remove(MapMesh);
-                //buildMap();
-            //}
-            
         }
     }
 }
@@ -3447,18 +3730,10 @@ function TestMoveSpace(xOffset, yOffset){
     if (turnStep == "move"){
         let x = PlayerData.position.x + xOffset;
         let y = PlayerData.position.y + yOffset;
+        let tile = getMapTile(PlayerData.position.x, PlayerData.position.y);
         
         if (x < 0 || y < 0 || x > mapSize.x - 1 || y > mapSize.y - 1) return;
-        if (mapData[y][x].height == 0) return;
 
-        /*if ((xOffset == -1 && mapData[PlayerData.position.y][PlayerData.position.x].connections.w == true) ||
-        (xOffset == 1 && mapData[PlayerData.position.y][PlayerData.position.x].connections.e == true) ||
-        (yOffset == -1 && mapData[PlayerData.position.y][PlayerData.position.x].connections.n == true) ||
-        (yOffset == 1 && mapData[PlayerData.position.y][PlayerData.position.x].connections.s == true) ||
-        (xOffset == -1 && mapData[PlayerData.position.y][PlayerData.position.x].connections.w == "lock" && doorUnlocked(PlayerData.position.x, PlayerData.position.y, "w")) || 
-        (xOffset == 1 && mapData[PlayerData.position.y][PlayerData.position.x].connections.e == "lock" && doorUnlocked(PlayerData.position.x, PlayerData.position.y, "e")) ||
-        (yOffset == -1 && mapData[PlayerData.position.y][PlayerData.position.x].connections.n == "lock" && doorUnlocked(PlayerData.position.x, PlayerData.position.y, "n")) ||
-        (yOffset == 1 && mapData[PlayerData.position.y][PlayerData.position.x].connections.s == "lock" && doorUnlocked(PlayerData.position.x, PlayerData.position.y, "s"))){*/
         if (canMoveToTile(PlayerData.position.x, PlayerData.position.y, xOffset, yOffset)){
             let newItemArray = [];
             for (let i = 0; i < PlayerData.items.length; i++) newItemArray.push(PlayerData.items[i]);
@@ -3470,6 +3745,7 @@ function TestMoveSpace(xOffset, yOffset){
                 unlockedDoors: newUnlockedDoorsArray, canDuel: PlayerData.canDuel, canSteal: PlayerData.canSteal, isStealing: PlayerData.isStealing
             });
             PlayerData.position = { x: x, y: y };
+            let newTile = getMapTile(PlayerData.position.x, PlayerData.position.y);
             spacesMoved++;
             SetMoveUI();
             
@@ -3484,7 +3760,7 @@ function TestMoveSpace(xOffset, yOffset){
                 }
             }
 
-            if (Object.hasOwn(mapData[PlayerData.position.y][PlayerData.position.x], "popup") && mapData[PlayerData.position.y][PlayerData.position.x].walkOver){
+            if (Object.hasOwn(newTile, "popup") && newTile.walkOver){
                 //Trigger Popup
                 OpenPopup();
             }
@@ -3492,15 +3768,15 @@ function TestMoveSpace(xOffset, yOffset){
             Socket.send(JSON.stringify({ method: "update_player", token: TOKEN, position: PlayerData.position }));
         }
         else if (PlayerData.items.includes("key") && 
-        ((xOffset == -1 && mapData[PlayerData.position.y][PlayerData.position.x].connections.w == "lock") || 
-        (xOffset == 1 && mapData[PlayerData.position.y][PlayerData.position.x].connections.e == "lock") ||
-        (yOffset == -1 && mapData[PlayerData.position.y][PlayerData.position.x].connections.n == "lock") ||
-        (yOffset == 1 && mapData[PlayerData.position.y][PlayerData.position.x].connections.s == "lock"))){
+        ((xOffset == -1 && tile.connections.w == "lock") || 
+        (xOffset == 1 && tile.connections.e == "lock") ||
+        (yOffset == -1 && tile.connections.n == "lock") ||
+        (yOffset == 1 && tile.connections.s == "lock"))){
             UIState = xOffset == 0 ? (yOffset == 1 ? "doors" : "doorn") : (xOffset == 1 ? "doore" : "doorw");
             turnStep = "key";
             document.getElementById("key-door").style.display = "initial";
             targetLockedDoor = { x: PlayerData.position.x, y: PlayerData.position.y, 
-                dir: (mapData[PlayerData.position.y][PlayerData.position.x].connections.w == "lock" ? "w" : (mapData[PlayerData.position.y][PlayerData.position.x].connections.e == "lock" ? "e" : (mapData[PlayerData.position.y][PlayerData.position.x].connections.n == "lock" ? "n" : "s"))), 
+                dir: (tile.connections.w == "lock" ? "w" : (tile.connections.e == "lock" ? "e" : (tile.connections.n == "lock" ? "n" : "s"))), 
                 t: 0 };
             SetMoveUI();
         }
@@ -3574,8 +3850,9 @@ function ItemBackButton(e){
         document.getElementsByClassName("item-menu")[0].style.display = "none";
     }
     else if (turnStep == "popup"){
+        let tile = getMapTile(PlayerData.position.x, PlayerData.position.y);
         document.getElementsByClassName("item-menu")[0].style.display = "none";
-        document.getElementById(mapData[PlayerData.position.y][PlayerData.position.x].popup).style.display = "initial";
+        document.getElementById(tile.popup).style.display = "initial";
     }
 }
 document.getElementsByClassName("item-back-button")[0].onclick = ItemBackButton;
@@ -3772,12 +4049,13 @@ function ReplaceItem(index){
 
 document.getElementsByClassName("move-end-turn-button")[0].onclick = (e) => {
     if (turnStep == "move"){
+        let tile = getMapTile(PlayerData.position.x, PlayerData.position.y);
         document.getElementsByClassName("board-inputs")[0].style.display = "none";
-        if (Object.hasOwn(mapData[PlayerData.position.y][PlayerData.position.x], "popup") && !mapData[PlayerData.position.y][PlayerData.position.x].walkOver){
+        if (Object.hasOwn(tile, "popup") && !tile.walkOver){
             EndTurnPopup();
         }
-        else if (Object.hasOwn(mapData[PlayerData.position.y][PlayerData.position.x], "coins")){
-            TriggerCoinSpaceAnimation(mapData[PlayerData.position.y][PlayerData.position.x].coins);
+        else if (Object.hasOwn(tile, "coins")){
+            TriggerCoinSpaceAnimation(tile.coins);
         }
         else{
             EndTurn();
@@ -3794,17 +4072,18 @@ function LeaveShop(){
 
 function EndTurn(){
     document.getElementById("roll-button-item-preview").style.display = "none";
+    let tile = getMapTile(PlayerData.position.x, PlayerData.position.y);
     if (PlayerSilverStarObjs.length >= 5) {
         TriggerSilverStarsToStarAnimation();
     }
     else if (Object.keys(MapAnimations).length > 0 && turnStep != "map-anim-end-turn") {
-        if (turnStep == "popup") document.getElementById(mapData[PlayerData.position.y][PlayerData.position.x].popup).style.display = "none";
+        if (turnStep == "popup") document.getElementById(tile.popup).style.display = "none";
         document.getElementsByClassName("move-end-turn-button")[0].style.display = "none";
         document.getElementsByClassName("move-undo-button")[0].style.display = "none";
         TriggerStepMapAnimation();
     }
     else if (PlayerData.roll == spacesMoved) {
-        if (turnStep == "popup") document.getElementById(mapData[PlayerData.position.y][PlayerData.position.x].popup).style.display = "none";
+        if (turnStep == "popup") document.getElementById(tile.popup).style.display = "none";
         UIState = "menu";
         turnStep = "wait";
         PlayerData.turnsCompleted = ServerTurn;
@@ -3819,29 +4098,31 @@ function EndTurn(){
 }
 
 function OpenPopup(){
+    let tile = getMapTile(PlayerData.position.x, PlayerData.position.y);
+
     document.getElementsByClassName("board-inputs")[0].style.display = "none";
-    document.getElementById(mapData[PlayerData.position.y][PlayerData.position.x].popup).style.display = "initial";
+    document.getElementById(tile.popup).style.display = "initial";
     document.getElementsByClassName("roll-display")[0].style.transform = "scale(0%)";
     turnStep = "popup";
     UIState = "player";
     document.getElementsByClassName("move-end-turn-button")[0].style.display = "none";
     document.getElementsByClassName("move-undo-button")[0].style.display = "none";
 
-    if (mapData[PlayerData.position.y][PlayerData.position.x].popup == "star-1"){
+    if (tile.popup == "star-1"){
         document.getElementsByClassName("purchase-star-button")[0].textContent = PlayerData.coins >= 20 ? "Yes" : "Not enough coins";
         document.getElementsByClassName("purchase-star-button")[0].disabled = PlayerData.coins < 20;
     }
-    else if (mapData[PlayerData.position.y][PlayerData.position.x].popup == "star-1"){
+    else if (tile.popup == "star-1"){
         document.getElementsByClassName("purchase-1-star-button")[0].disabled = PlayerData.coins < 20;
         document.getElementsByClassName("purchase-2-star-button")[0].disabled = PlayerData.coins < 40;
     }
-    else if (mapData[PlayerData.position.y][PlayerData.position.x].popup == "shop-1" || mapData[PlayerData.position.y][PlayerData.position.x].popup == "shop-2" || mapData[PlayerData.position.y][PlayerData.position.x].popup == "shop-3"){
+    else if (tile.popup.split("-")[0] == "shop"){
         //Enable/Disable Buttons
         for (var i = 0; i < shopItems.length; i++){
             shopItems[i].disabled = ItemData[shopItems[i].getAttribute("item")].price > PlayerData.coins;
         }
     }
-    else if (mapData[PlayerData.position.y][PlayerData.position.x].popup == "duel"){
+    else if (tile.popup == "duel"){
         duelButtons[0].disabled = PlayerData.coins < 10;
         duelButtons[1].disabled = PlayerData.coins <= 0;
         duelButtons[2].disabled = PlayerData.stars < 1;
@@ -3849,7 +4130,7 @@ function OpenPopup(){
         document.getElementById("canduel").style.display = PlayerData.canDuel ? "inline-block" : "none";
         document.getElementById("cantduel").style.display = PlayerData.canDuel ? "none" : "inline-block";
     }
-    else if (mapData[PlayerData.position.y][PlayerData.position.x].popup == "star-steal"){
+    else if (tile.popup == "star-steal"){
         document.getElementById("star-steal-steal-button").disabled = PlayerData.coins < 30;
 
         document.getElementById("cansteal").style.display = PlayerData.canSteal ? "inline-block" : "none";
@@ -3857,8 +4138,9 @@ function OpenPopup(){
     }
 }
 function ClosePopup(){
-    document.getElementById(mapData[PlayerData.position.y][PlayerData.position.x].popup).style.display = "none";
-    if (mapData[PlayerData.position.y][PlayerData.position.x].walkOver){
+    let tile = getMapTile(PlayerData.position.x, PlayerData.position.y);
+    document.getElementById(tile.popup).style.display = "none";
+    if (tile.walkOver){
         turnStep = "move";
         UIState = "above";
         document.getElementsByClassName("roll-display")[0].style.transform = "scale(100%)";
@@ -3870,13 +4152,14 @@ function ClosePopup(){
 
 function EndTurnPopup(){
     if (turnStep == "move" && PlayerData.roll == spacesMoved){
-        document.getElementById(mapData[PlayerData.position.y][PlayerData.position.x].popup).style.display = "initial";
+        let tile = getMapTile(PlayerData.position.x, PlayerData.position.y);
+        document.getElementById(tile.popup).style.display = "initial";
         turnStep = "popup";
         UIState = "player";
         document.getElementsByClassName("move-end-turn-button")[0].style.display = "none";
         document.getElementsByClassName("move-undo-button")[0].style.display = "none";
 
-        if (mapData[PlayerData.position.y][PlayerData.position.x].popup == "lucky-space"){
+        if (tile.popup == "lucky-space"){
             document.getElementsByClassName("lucky-stop-button")[0].disabled = false;
             luckyTimer = 0;
             luckyClickTimer = -1;
@@ -3893,21 +4176,71 @@ function EndTurnPopup(){
                 luckyOptions[i * 2].textContent = ItemData[luckyRouletteItems[i]].name;
             }
         }
+        else if (tile.popup == "cohozuna-space"){
+            document.getElementsByClassName("coho-stop-button")[0].disabled = false;
+            document.getElementById("cohozuna-space").style.animation = "";
+            luckyTimer = 0;
+            luckyClickTimer = -1;
+            CohoGenerateWheel();
+            document.getElementById("cohozuna-player").src = GeneratePlayerURL(PlayerCharacter);
+            document.getElementById("cohozuna-greeting-text").innerHTML = cohoGreetings[Math.floor(Math.random() * cohoGreetings.length)];
+
+            if (Math.random() >= lerp(1, CohoGenerosityOdds, yourPlacement / (Object.keys(OpponentPlayers).length + 1) * 2 - 1)){
+                setTimeout(() => {
+                    document.getElementById("cohozuna-greeting").style.display = "initial";
+                    cohoNextFunction = () => {
+                        document.getElementById("cohozuna-greeting").style.display = "none";
+                        document.getElementById("cohozuna-charity").style.display = "initial";
+                        cohoNextFunction = () => {
+                            document.getElementById("cohozuna-charity").style.display = "none";
+
+                            document.getElementById("coho-anim-container").innerHTML = '<span id="coho-text-anim" class="coho-get-anim" style="display: initial;">+10<img src="resources/textures/coin_low_res.png" style="padding-left: 0.25vmin; width: 8vmin; height: 8vmin; image-rendering: pixelated;"></span>';
+                            PlayerData.coins += 10;
+                            UpdatePlayerUI();
+                            UpdateLeaderboards();
+                            Socket.send(JSON.stringify({ method: "update_player", token: TOKEN, coins: PlayerData.coins }));
+
+                            setTimeout(() => {
+                                document.getElementById("cohozuna-charity-goodbye").style.display = "initial";
+                            }, 3000);
+                        };
+                    };
+                }, 4000);
+            }
+            else{
+                setTimeout(() => {
+                    document.getElementById("cohozuna-greeting").style.display = "initial";
+                    cohoNextFunction = () => {
+                        document.getElementById("cohozuna-greeting").style.display = "none";
+                        document.getElementById("cohozuna-roulette").style.display = "initial";
+                    };
+                }, 4000);
+            }
+        }
     }
 }
+
+const CohoGenerosityOdds = 0.5;
+var cohoGreetings = [
+    "Today's your lucky day!<br>You're today's lucky contestant on ol' Coho's gameshow:<br><i>\"Give Me All Your Money!\"</i>",
+    "How nice of you to drop by to donate to the<br><i>Coho needs a 17th yacht fund!</i>",
+    "I'm feeling generous today,<br>I'll only beat you <i>half</i> to death instead of all the way!",
+    "You know, sometimes it gets lonley here, all alone...<br>But then a sucker like you shows up<br>And all of a sudden my day's great!"
+];
 
 var shopItemBuffer = "";
 function PurchaseItem(item){
     if (turnStep == "popup" && PlayerData.coins >= ItemData[item].price){
+        let tile = getMapTile(PlayerData.position.x, PlayerData.position.y);
         if (PlayerData.items.length == 3){
             shopItemBuffer = item;
             document.getElementsByClassName("item-menu")[0].style.display = "initial";
-            document.getElementById(mapData[PlayerData.position.y][PlayerData.position.x].popup).style.display = "none";
+            document.getElementById(tile.popup).style.display = "none";
             UpdateItemUI();
         }
         else{
             PlayerData.coins -= ItemData[item].price;
-            document.getElementById(mapData[PlayerData.position.y][PlayerData.position.x].popup).style.display = "none";
+            document.getElementById(tile.popup).style.display = "none";
             //EndTurn();
             //UpdateItemUI();
             UpdatePlayerUI();
@@ -3922,7 +4255,8 @@ function PurchaseStar(){
     if (turnStep == "popup" && PlayerData.coins >= 20){
         PlayerData.coins -= 20;
         PlayerData.stars++;
-        document.getElementById(mapData[PlayerData.position.y][PlayerData.position.x].popup).style.display = "none";
+        let tile = getMapTile(PlayerData.position.x, PlayerData.position.y);
+        document.getElementById(tile.popup).style.display = "none";
         TriggerStarGetAnimation(true, 1);
         PlayerData.canDuel = true;
         PlayerData.canSteal = true;
@@ -3934,7 +4268,8 @@ function Purchase2Stars(){
     if (turnStep == "popup" && PlayerData.coins >= 40){
         PlayerData.coins -= 40;
         PlayerData.stars += 2;
-        document.getElementById(mapData[PlayerData.position.y][PlayerData.position.x].popup).style.display = "none";
+        let tile = getMapTile(PlayerData.position.x, PlayerData.position.y);
+        document.getElementById(tile.popup).style.display = "none";
         TriggerStarGetAnimation(true, 2);
         PlayerData.canDuel = true;
         Socket.send(JSON.stringify({ method: "update_player", token: TOKEN, coins: PlayerData.coins, stars: PlayerData.stars }));
@@ -4462,7 +4797,8 @@ function TriggerGiveItemAnimation(item, isShop){
     ItemRingParticle.position.set(targetPos.x, targetPos.y, targetPos.z + 0.15);
     Scene.add(ItemRingParticle);
 
-    document.getElementById(mapData[PlayerData.position.y][PlayerData.position.x].popup).style.display = "none";
+    let tile = getMapTile(PlayerData.position.x, PlayerData.position.y);
+    document.getElementById(tile.popup).style.display = "none";
     UpdatePlayerUI();
 }
 function GiveItemAnimation(){
@@ -4644,8 +4980,11 @@ function LoseCoinsAnimation(){
 
         UIState = "player";
         turnStep = coinsAnimTurnStepBuffer;
+
+        let tile = getMapTile(PlayerData.position.x, PlayerData.position.y);
+
         if (coinsAnimTurnStepBuffer == "popup"){
-            if (mapData[PlayerData.position.y][PlayerData.position.x].popup == "duel" || mapData[PlayerData.position.y][PlayerData.position.x].popup == "star-steal"){
+            if (tile.popup == "duel" || tile.popup == "star-steal"){
                 UIState = "above";
                 ClosePopup();
             }
@@ -5145,7 +5484,8 @@ duelButtons[0].onclick = function(e){
     if (PlayerData.coins >= 10 && PlayerData.canDuel){
         duelBet = { type: "coins", amount: 10 };
         UpdatePlayerUI();
-        document.getElementById(mapData[PlayerData.position.y][PlayerData.position.x].popup).style.display = "none";
+        let tile = getMapTile(PlayerData.position.x, PlayerData.position.y);
+        document.getElementById(tile.popup).style.display = "none";
         TriggerCoinChangeAnimation(-10);
         PlayerData.canDuel = false;
     }
@@ -5154,7 +5494,8 @@ duelButtons[1].onclick = function(e){
     if (PlayerData.coins > 0 && PlayerData.canDuel){
         duelBet = { type: "coins", amount: PlayerData.coins };
         UpdatePlayerUI();
-        document.getElementById(mapData[PlayerData.position.y][PlayerData.position.x].popup).style.display = "none";
+        let tile = getMapTile(PlayerData.position.x, PlayerData.position.y);
+        document.getElementById(tile.popup).style.display = "none";
         TriggerCoinChangeAnimation(-duelBet.amount);
         PlayerData.canDuel = false;
     }
@@ -5180,7 +5521,8 @@ document.getElementById("cant-duel-leave-button").onclick = function(e){
 document.getElementById("star-steal-steal-button").onclick = function(e){
     if (PlayerData.coins >= 20 && PlayerData.canSteal){
         PlayerData.isStealing = true;
-        document.getElementById(mapData[PlayerData.position.y][PlayerData.position.x].popup).style.display = "none";
+        let tile = getMapTile(PlayerData.position.x, PlayerData.position.y);
+        document.getElementById(tile.popup).style.display = "none";
         TriggerCoinChangeAnimation(-20);
         PlayerData.canSteal = false;
     }
@@ -5577,6 +5919,7 @@ function RemovePlayer(data){
 
 var leaderboardPlaces = document.getElementsByClassName("leaderboard-player");
 var GlobalLeaderboard = document.getElementsByClassName("global-leaderboard-list")[0];
+var yourPlacement = 0;
 function UpdateLeaderboards(){
     let data = [{ ign: IGN, coins: PlayerData.coins, stars: PlayerData.stars, character: PlayerCharacter, rank: Rank }];
 
@@ -5677,6 +6020,8 @@ function UpdateLeaderboards(){
         GlobalLeaderboard.children[i].children[4].setAttribute("ign", rankings[i].ign);
         GlobalLeaderboard.children[i].children[6].children[0].textContent = rankings[i].stars + " ";
         GlobalLeaderboard.children[i].children[5].children[0].textContent = rankings[i].coins + " ";
+
+        if (rankings[i].ign == IGN) yourPlacement = rankings[i].placement;
     }
 }
 
@@ -6496,8 +6841,8 @@ function confirmMod(data){
     //
     //Copied from get_status (Below)
     //
-
-    if (Object.hasOwn(mapData[PlayerData.position.y][PlayerData.position.x], "popup")) document.getElementById(mapData[PlayerData.position.y][PlayerData.position.x].popup).style.display = "none";
+    let tile = getMapTile(PlayerData.position.x, PlayerData.position.y);
+    if (Object.hasOwn(tile, "popup")) document.getElementById(tile.popup).style.display = "none";
     document.getElementsByClassName("move-end-turn-button")[0].style.display = "none";
     document.getElementsByClassName("move-undo-button")[0].style.display = "none";
     document.getElementsByClassName("custom-dice-input")[0].style.display = "none";
@@ -6588,7 +6933,8 @@ function get_status_server(data){
         else{
             rollsRemaining = 1;
             if (PlayerData.coins != data.data.coins || PlayerData.stars != data.data.stars || !arraysEqual(PlayerData.items, data.data.items) || PlayerData.position.x != data.data.position.x || PlayerData.position.y != data.data.position.y|| PlayerData.tutorial != data.data.tutorial){
-                if (Object.hasOwn(mapData[PlayerData.position.y][PlayerData.position.x], "popup")) document.getElementById(mapData[PlayerData.position.y][PlayerData.position.x].popup).style.display = "none";
+                let tile = getMapTile(PlayerData.position.x, PlayerData.position.x);
+                if (Object.hasOwn(tile, "popup")) document.getElementById(tile.popup).style.display = "none";
                 
                 document.getElementsByClassName("move-end-turn-button")[0].style.display = "none";
                 document.getElementsByClassName("move-undo-button")[0].style.display = "none";
@@ -7267,8 +7613,10 @@ function get_lobby_server(data){
         document.getElementsByClassName("board-inputs")[0].style.display = "none";
         document.getElementsByClassName("item-menu")[0].style.display = "none";
         document.getElementsByClassName("item-toss-menu")[0].style.display = "none";
-        if (Object.hasOwn(mapData[PlayerData.position.y][PlayerData.position.x], "popup")){
-            document.getElementById(mapData[PlayerData.position.y][PlayerData.position.x].popup).style.display = "none";
+
+        let tile = getMapTile(PlayerData.position.x, PlayerData.position.y);
+        if (Object.hasOwn(tile, "popup")){
+            document.getElementById(tile.popup).style.display = "none";
         }
 
         document.getElementById("minigame-end-time").textContent = new Date(data.endTime * 60000).toLocaleTimeString("en-US", {hour: "numeric", minute: "2-digit"});

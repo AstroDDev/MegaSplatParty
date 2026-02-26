@@ -2779,14 +2779,14 @@
 				"s": true,
 				"w": false
 			},
-			"material": 8,
+			"material": 70,
 			"wallMaterial": {
 				"n": 0,
 				"e": 0,
 				"s": 0,
 				"w": 0
 			},
-			"popup": "lucky-space",
+			"popup": "cohozuna-space",
 			"walkOver": false,
 			"silverStarSpawnable": true
 		},
@@ -2835,14 +2835,14 @@
 				],
 				"w": false
 			},
-			"material": 45,
+			"material": 63,
 			"wallMaterial": {
 				"n": 0,
 				"e": 0,
 				"s": 0,
 				"w": 0
 			},
-			"popup": "lucky-space",
+			"popup": "cohozuna-space",
 			"walkOver": false,
 			"silverStarSpawnable": true
 		},
@@ -2883,14 +2883,14 @@
 				"s": true,
 				"w": true
 			},
-			"material": 45,
+			"material": 63,
 			"wallMaterial": {
 				"n": 0,
 				"e": 0,
 				"s": 0,
 				"w": 0
 			},
-			"popup": "lucky-space",
+			"popup": "cohozuna-space",
 			"walkOver": false,
 			"silverStarSpawnable": true
 		},
@@ -4442,7 +4442,7 @@
 				"s": 0,
 				"w": 0
 			},
-			"coins": 3,
+			"popup": "cohozuna-space",
 			"walkOver": false,
 			"silverStarSpawnable": true,
 			"animation": {
@@ -4907,7 +4907,7 @@
 				"s": 0,
 				"w": 0
 			},
-			"coins": 3,
+			"popup": "cohozuna-space",
 			"walkOver": false,
 			"silverStarSpawnable": true,
 			"animation": {
@@ -5021,7 +5021,7 @@
 				"s": 0,
 				"w": 0
 			},
-			"coins": 3,
+			"popup": "cohozuna-space",
 			"walkOver": false,
 			"silverStarSpawnable": true,
 			"animation": {
@@ -7336,7 +7336,7 @@
 				"s": true,
 				"w": true
 			},
-			"material": 48,
+			"material": 32,
 			"wallMaterial": {
 				"n": 0,
 				"e": 0,
@@ -7384,7 +7384,7 @@
 				"s": true,
 				"w": true
 			},
-			"material": 48,
+			"material": 32,
 			"wallMaterial": {
 				"n": [
 					247,
@@ -7407,7 +7407,7 @@
 				"s": true,
 				"w": true
 			},
-			"material": 48,
+			"material": 32,
 			"wallMaterial": {
 				"n": [
 					246,
@@ -7430,7 +7430,7 @@
 				"s": true,
 				"w": true
 			},
-			"material": 48,
+			"material": 32,
 			"wallMaterial": {
 				"n": [
 					245,
@@ -7477,7 +7477,7 @@
 				"s": true,
 				"w": true
 			},
-			"material": 48,
+			"material": 32,
 			"wallMaterial": {
 				"n": 0,
 				"e": [
@@ -7617,7 +7617,7 @@
 				"s": true,
 				"w": true
 			},
-			"material": 48,
+			"material": 32,
 			"wallMaterial": {
 				"n": 161,
 				"e": 160,
@@ -7645,7 +7645,7 @@
 				"s": true,
 				"w": true
 			},
-			"material": 48,
+			"material": 32,
 			"wallMaterial": {
 				"n": 211,
 				"e": 211,
@@ -7665,7 +7665,7 @@
 				"s": true,
 				"w": true
 			},
-			"material": 48,
+			"material": 32,
 			"wallMaterial": {
 				"n": 211,
 				"e": 211,
@@ -7709,7 +7709,7 @@
 				"s": true,
 				"w": true
 			},
-			"material": 48,
+			"material": 32,
 			"wallMaterial": {
 				"n": 211,
 				"e": 211,
@@ -7729,7 +7729,7 @@
 				"s": true,
 				"w": true
 			},
-			"material": 48,
+			"material": 32,
 			"wallMaterial": {
 				"n": 211,
 				"e": 211,
@@ -7749,7 +7749,7 @@
 				"s": true,
 				"w": true
 			},
-			"material": 48,
+			"material": 32,
 			"wallMaterial": {
 				"n": 211,
 				"e": [
@@ -7912,7 +7912,7 @@
 				"s": true,
 				"w": true
 			},
-			"material": 48,
+			"material": 32,
 			"wallMaterial": {
 				"n": 176,
 				"e": 211,
@@ -7969,7 +7969,7 @@
 				"s": true,
 				"w": true
 			},
-			"material": 48,
+			"material": 32,
 			"wallMaterial": {
 				"n": 176,
 				"e": 211,
@@ -8022,7 +8022,7 @@
 				"s": true,
 				"w": true
 			},
-			"material": 48,
+			"material": 32,
 			"wallMaterial": {
 				"n": 176,
 				"e": [

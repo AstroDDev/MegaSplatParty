@@ -1,4 +1,5 @@
 @import url('https://fonts.googleapis.com/css2?family=Rubik+80s+Fade&family=Sono:wght@200..800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Jersey+10&display=swap');
 
 *{
     margin: 0;
@@ -2293,6 +2294,489 @@ button{
     padding: 0;
     margin: 0;
     border: none;
+}
+
+@keyframes cohozuna-open {
+    0%{
+        height: 0%;
+    }
+    100%{
+        height: 100%;
+    }
+}
+
+@keyframes cohozuna-close {
+    0%{
+        height: 100%;
+    }
+    50%{
+        height: 0%;
+    }
+    100%{
+        height: 0%;
+    }
+}
+
+#cohozuna-space{
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgb(15, 15, 15);
+    animation: cohozuna-open linear 1s;
+}
+
+@keyframes cohozuna-pattern-scroll{
+    0% {
+        background-position: -5vmin 0, -5vmin 0, 0 0, 0 0;
+    }
+    100% {
+        background-position: -5vmin 10vmin, -5vmin 10vmin, 0 10vmin, 0 10vmin;
+    }
+}
+
+.cohozuna-pattern{
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, rgb(10, 10, 10) 25%, transparent 25%) -5vmin 0,
+        linear-gradient(-135deg, rgb(10, 10, 10) 25%, transparent 25%) -5vmin 0,
+        linear-gradient(45deg, rgb(10, 10, 10) 25%, transparent 25%),
+        linear-gradient(-45deg, rgb(10, 10, 10) 25%, transparent 25%);
+    background-size: 10vmin 10vmin;
+    animation: cohozuna-pattern-scroll 4s linear infinite;
+}
+
+@keyframes cohozuna-player-open {
+    0%{
+        bottom: 100%;
+    }
+    30%{
+        bottom: 100%;
+    }
+    35%{
+        bottom: 10%;
+    }
+    37%{
+        bottom: 20%
+    }
+    39%{
+        bottom: 10%;
+    }
+    40.5%{
+        bottom: 12.5%;
+    }
+    43%{
+        bottom: 10%;
+    }
+    100%{
+        bottom: 10%;
+    }
+}
+
+#cohozuna-player{
+    image-rendering: pixelated;
+    position: absolute;
+    width: 24vmin;
+    height: 30vmin;
+    transform: translateX(-50%) scaleX(-1);
+    left: 80%;
+    bottom: 10%;
+    animation: cohozuna-player-open 5s linear;
+}
+
+@keyframes cohozuna-player-shadow-open {
+    0%{
+        transform: translate(-50%, 50%) scale(0);
+    }
+    30%{
+        transform: translate(-50%, 50%) scale(0);
+    }
+    35%{
+        transform: translate(-50%, 50%) scale(1);
+    }
+    37%{
+        transform: translate(-50%, 50%) scale(0.75);
+    }
+    39%{
+        transform: translate(-50%, 50%) scale(1);
+    }
+    40.5%{
+        transform: translate(-50%, 50%) scale(0.85);
+    }
+    43%{
+        transform: translate(-50%, 50%) scale(1);
+    }
+    100%{
+        transform: translate(-50%, 50%) scale(1);
+    }
+}
+
+.cohozuna-player-shadow{
+    width: 24vmin;
+    height: 6vmin;
+    background-image: radial-gradient(rgba(0, 0, 0, 0.65) 50%, transparent 75%);
+    position: absolute;
+    transform: translate(-50%, 50%);
+    left: 80%;
+    bottom: 10%;
+    animation: cohozuna-player-shadow-open 5s linear;
+}
+
+@keyframes cohozuna-chungus-open {
+    0%{
+        bottom: 100%;
+    }
+    60%{
+        bottom: 100%;
+    }
+    65%{
+        bottom: 10%;
+    }
+    100%{
+        bottom: 10%;
+    }
+}
+
+#cohozuna-chungus{
+    position: absolute;
+    width: 85vmin;
+    height: 85vmin;
+    image-rendering: pixelated;
+    transform: translateX(-50%);
+    left: 15%;
+    bottom: 10%;
+    animation: cohozuna-chungus-open 5s linear;
+}
+
+@keyframes cohozuna-chungus-shadow-open {
+    0%{
+        transform: translate(-50%, 50%) scale(0);
+    }
+    60%{
+        transform: translate(-50%, 50%) scale(0);
+    }
+    65%{
+        transform: translate(-50%, 50%) scale(1);
+    }
+    100%{
+        transform: translate(-50%, 50%) scale(1);
+    }
+}
+
+.cohozuna-chungus-shadow{
+    position: absolute;
+    width: 70vmin;
+    height: 15vmin;
+    background-image: radial-gradient(rgba(0, 0, 0, 0.65) 50%, transparent 75%);
+    transform: translate(-50%, 50%);
+    left: 15%;
+    bottom: 10%;
+    animation: cohozuna-chungus-shadow-open 5s linear;
+}
+
+@keyframes cohozuna-screen-shake {
+    0%{
+        transform: translate(0, 0) rotate(0);
+    }
+    65%{
+        transform: translate(0, 0) rotate(0);
+    }
+    66%{
+        transform: translate(3vmin, 0) rotate(-2deg);
+    }
+    67%{
+        transform: translate(0, -3vmin) rotate(1deg);
+    }
+    68%{
+        transform: translate(0, 3vmin) rotate(2deg);
+    }
+    69%{
+        transform: translate(-3vmin, 0) rotate(-1deg);
+    }
+    70%{
+        transform: translate(0, 0) rotate(0);
+    }
+}
+
+.cohozuna-content{
+    position: relative;
+    width: 100%;
+    height: 100%;
+    animation: cohozuna-screen-shake 5s linear;
+}
+
+@keyframes scrolling-coho {
+    0%{
+        background-position: 0 0, 0 0;
+    }
+    100%{
+        background-position: 0 0, 100px 100px;
+    }
+}
+
+.coho-popup{
+    padding: 40px;
+
+    color: white;
+
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    border-radius: 20px;
+    text-align: center;
+    align-content: center;
+
+    background: linear-gradient(45deg, rgb(0, 0, 0) 0%, rgb(15, 15, 15) 100%),
+        url("resources/textures/coho-pattern.svg");
+    background-size: 100% 100%, 200px 200px;
+    background-blend-mode: overlay;
+    background-repeat: no-repeat, repeat;
+
+    overflow: hidden;
+
+    width: max-content;
+    max-width: 90%;
+    max-height: 90%;
+
+    filter: drop-shadow(0 0 1rem black);
+
+    animation: scrolling-coho 4s linear infinite;
+}
+
+.coho-option{
+    background: rgb(0, 0, 0);
+    border-radius: 10px;
+    width: 360px;
+    height: 30px;
+    margin: 5px;
+    font-weight: 600;
+    font-size: 1em;
+    line-height: 30px;
+}
+
+.coho-selected{
+    background: rgb(35, 35, 35);
+}
+
+@keyframes coho-give-anim {
+    0%{
+        transform: scale(0);
+        left: 80%;
+        bottom: 10%;
+        visibility: visible;
+    }
+    10%{
+        transform: scale(1);
+        bottom: 15%;
+    }
+    25%{
+        bottom: calc(20% + 2vmin);
+    }
+    40%{
+        bottom: calc(25% + 4vmin);
+    }
+    60%{
+        bottom: calc(25% + 6vmin);
+    }
+    75%{
+        bottom: calc(20% + 8vmin);
+    }
+    90%{
+        transform: scale(1);
+        bottom: clac(15% + 10vmin);
+    }
+    100%{
+        transform: scale(0);
+        left: 15%;
+        bottom: calc(10% + 10vmin);
+    }
+}
+.coho-give-anim{
+    position: absolute;
+    left: 80%;
+    bottom: 10%;
+    animation: coho-give-anim 2s linear;
+    visibility: hidden;
+}
+@keyframes coho-lose-anim-1{
+    0%{
+        bottom: 10%;
+        transform: translate(-50%, -50%) scale(0);
+    }
+    10%{
+        bottom: 10%;
+        transform: translate(-50%, -50%) scale(1);
+    }
+    25%{
+        bottom: 10%;
+        transform: translate(-50%, -50%);
+    }
+    50%{
+        bottom: 100%;
+        transform: translate(-50%, -50%);
+    }
+}
+@keyframes coho-lose-anim-2{
+    0%{
+        bottom: 10%;
+        transform: translate(-50%, -50%) scale(0);
+    }
+    25%{
+        bottom: 10%;
+        transform: translate(-50%, -50%) scale(0);
+    }
+    35%{
+        bottom: 10%;
+        transform: translate(-50%, -50%) scale(1);
+    }
+    50%{
+        bottom: 10%;
+        transform: translate(-50%, -50%);
+    }
+    75%{
+        bottom: 100%;
+        transform: translate(-50%, -50%);
+    }
+}
+@keyframes coho-lose-anim-3{
+    0%{
+        bottom: 10%;
+        transform: translate(-50%, -50%) scale(0);
+    }
+    50%{
+        bottom: 10%;
+        transform: translate(-50%, -50%) scale(0);
+    }
+    60%{
+        bottom: 10%;
+        transform: translate(-50%, -50%) scale(1);
+    }
+    75%{
+        bottom: 10%;
+        transform: translate(-50%, -50%);
+    }
+    100%{
+        bottom: 100%;
+        transform: translate(-50%, -50%);
+    }
+}
+.coho-lose-anim{
+    position: absolute;
+    transform: translate(-50%, -50%);
+    left: 80%;
+    bottom: 100%;
+    color: white;
+    font-family: "Jersey 10";
+    font-size: 15vmin;
+    text-shadow: -0.5vmin -0.5vmin 0 #ff0000, 0.5vmin -0.5vmin 0 #ff0000, -0.5vmin 0.5vmin 0 #ff0000, 0.5vmin 0.5vmin 0 #ff0000;
+    animation: coho-lose-anim-1 4s linear;
+}
+
+.coho-lose-anim-1{
+    animation: coho-lose-anim-1 4s linear;
+}
+.coho-lose-anim-2{
+    animation: coho-lose-anim-2 4s linear;
+}
+.coho-lose-anim-3{
+    animation: coho-lose-anim-3 4s linear;
+}
+
+#coho-item-anim{
+    display: inline-block;
+    transform: translate(-50%, -50%);
+}
+
+@keyframes coho-get-anim-1{
+    0%{
+        bottom: 100%;
+        transform: translate(-50%, -50%);
+    }
+    25%{
+        bottom: 10%;
+        transform: translate(-50%, -50%);
+    }
+    40%{
+        bottom: 10%;
+        transform: translate(-50%, -50%) scale(1);
+    }
+    50%{
+        bottom: 10%;
+        transform: translate(-50%, -50%) scale(0);
+    }
+}
+@keyframes coho-get-anim-2{
+    0%{
+        bottom: 100%;
+        transform: translate(-50%, -50%);
+    }
+    25%{
+        bottom: 100%;
+        transform: translate(-50%, -50%);
+    }
+    50%{
+        bottom: 10%;
+        transform: translate(-50%, -50%);
+    }
+    65%{
+        bottom: 10%;
+        transform: translate(-50%, -50%) scale(1);
+    }
+    75%{
+        bottom: 10%;
+        transform: translate(-50%, -50%) scale(0);
+    }
+}
+@keyframes coho-get-anim-3{
+    0%{
+        bottom: 100%;
+        transform: translate(-50%, -50%);
+    }
+    50%{
+        bottom: 100%;
+        transform: translate(-50%, -50%);
+    }
+    75%{
+        bottom: 10%;
+        transform: translate(-50%, -50%);
+    }
+    90%{
+        bottom: 10%;
+        transform: translate(-50%, -50%) scale(1);
+    }
+    100%{
+        bottom: 10%;
+        transform: translate(-50%, -50%) scale(0);
+    }
+}
+.coho-get-anim{
+    position: absolute;
+    transform: translate(-50%, -50%) scale(0);
+    left: 80%;
+    bottom: 10%;
+    color: white;
+    font-family: "Jersey 10";
+    font-size: 15vmin;
+    text-shadow: -0.5vmin -0.5vmin 0 #0000ff, 0.5vmin -0.5vmin 0 #0000ff, -0.5vmin 0.5vmin 0 #0000ff, 0.5vmin 0.5vmin 0 #0000ff;
+    animation: coho-get-anim-1 4s linear;
+}
+
+.coho-get-anim-1{
+    animation: coho-get-anim-1 4s linear;
+}
+.coho-get-anim-2{
+    animation: coho-get-anim-2 4s linear;
+}
+.coho-get-anim-3{
+    animation: coho-get-anim-3 4s linear;
+}
+
+#coho-item-anim{
+    image-rendering: pixelated;
+    width: 15vmin;
+    height: 15vmin;
 }
 
 
