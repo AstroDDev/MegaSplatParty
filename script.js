@@ -6655,7 +6655,7 @@ document.getElementById("create-game-create-button").onclick = function(e){
         gameLength: Number.parseInt(document.getElementById("create-game-game-length").value),
         generateSilverStars: document.getElementById("create-game-generate-silver-stars").checked,
         battleMinigamesEnabled: document.getElementById("create-game-do-battle-minigames").checked,
-        enableTimers: document.getElementById("create-game-enable-timer")
+        enableTimers: document.getElementById("create-game-enable-timer").checked
     };
 
     if (isAdmin && document.getElementById("create-game-is-public").checked){
