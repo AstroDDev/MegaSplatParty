@@ -2308,12 +2308,15 @@ button{
 @keyframes cohozuna-close {
     0%{
         height: 100%;
+        top: 0;
     }
     50%{
         height: 0%;
+        top: 0;
     }
     100%{
         height: 0%;
+        top: -100%;
     }
 }
 
@@ -2595,6 +2598,7 @@ button{
 }
 .coho-give-anim{
     position: absolute;
+    transform: scale(0);
     left: 80%;
     bottom: 10%;
     animation: coho-give-anim 2s linear;
@@ -2671,6 +2675,7 @@ button{
     font-family: "Jersey 10";
     font-size: 15vmin;
     text-shadow: -0.5vmin -0.5vmin 0 #ff0000, 0.5vmin -0.5vmin 0 #ff0000, -0.5vmin 0.5vmin 0 #ff0000, 0.5vmin 0.5vmin 0 #ff0000;
+    white-space: nowrap;
     animation: coho-lose-anim-1 4s linear;
 }
 
@@ -2691,6 +2696,7 @@ button{
 
 @keyframes coho-get-anim-1{
     0%{
+        visibility: visible;
         bottom: 100%;
         transform: translate(-50%, -50%);
     }
@@ -2706,9 +2712,14 @@ button{
         bottom: 10%;
         transform: translate(-50%, -50%) scale(0);
     }
+    100%{
+        visibility: hidden;
+        transform: translate(-50%, -50%) scale(0);
+    }
 }
 @keyframes coho-get-anim-2{
     0%{
+        visibility: visible;
         bottom: 100%;
         transform: translate(-50%, -50%);
     }
@@ -2728,9 +2739,14 @@ button{
         bottom: 10%;
         transform: translate(-50%, -50%) scale(0);
     }
+    100%{
+        visibility: hidden;
+        transform: translate(-50%, -50%) scale(0);
+    }
 }
 @keyframes coho-get-anim-3{
     0%{
+        visibility: visible;
         bottom: 100%;
         transform: translate(-50%, -50%);
     }
@@ -2747,29 +2763,34 @@ button{
         transform: translate(-50%, -50%) scale(1);
     }
     100%{
+        visibility: hidden;
         bottom: 10%;
         transform: translate(-50%, -50%) scale(0);
     }
 }
 .coho-get-anim{
+    visibility: hidden;
     position: absolute;
-    transform: translate(-50%, -50%) scale(0);
     left: 80%;
     bottom: 10%;
     color: white;
     font-family: "Jersey 10";
     font-size: 15vmin;
     text-shadow: -0.5vmin -0.5vmin 0 #0000ff, 0.5vmin -0.5vmin 0 #0000ff, -0.5vmin 0.5vmin 0 #0000ff, 0.5vmin 0.5vmin 0 #0000ff;
+    white-space: nowrap;
     animation: coho-get-anim-1 4s linear;
 }
 
 .coho-get-anim-1{
+    visibility: hidden;
     animation: coho-get-anim-1 4s linear;
 }
 .coho-get-anim-2{
+    visibility: hidden;
     animation: coho-get-anim-2 4s linear;
 }
 .coho-get-anim-3{
+    visibility: hidden;
     animation: coho-get-anim-3 4s linear;
 }
 

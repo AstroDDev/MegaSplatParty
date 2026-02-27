@@ -3161,6 +3161,9 @@ function DoTurn(){
     else if (turnStep == "tutorial-give-anim"){
         TutorialGiveAnimation();
     }
+    else if (turnStep == "loadstone-anim"){
+        LoadstoneAnimation();
+    }
     else if (turnStep == "popup"){
         let popup = getMapTile(PlayerData.position.x, PlayerData.position.y).popup;
         if (popup == "lucky-space"){
@@ -3245,8 +3248,8 @@ const cohozunaPunishments = [
         trigger: function(){
             document.getElementById("cohozuna-punishment").style.display = "none";
             if (PlayerData.coins == 0){
-                document.getElementById("cohozuna-cannot").style.display = "intial";
-                document.getElementById("cohozuna-cannot-text").innerHTML = this.cannotText;
+                document.getElementById("cohozuna-cannot").style.display = "initial";
+                document.getElementById("cohozuna-cannot-text").innerHTML = cohozunaPunishments[0].cannotText;
             }
             else{
                 document.getElementById("coho-anim-container").innerHTML = '<span id="coho-text-anim" class="coho-lose-anim">-' +
@@ -3271,8 +3274,8 @@ const cohozunaPunishments = [
         trigger: function(){
             document.getElementById("cohozuna-punishment").style.display = "none";
             if (PlayerData.coins == 0){
-                document.getElementById("cohozuna-cannot").style.display = "intial";
-                document.getElementById("cohozuna-cannot-text").innerHTML = this.cannotText;
+                document.getElementById("cohozuna-cannot").style.display = "initial";
+                document.getElementById("cohozuna-cannot-text").innerHTML = cohozunaPunishments[1].cannotText;
             }
             else{
                 document.getElementById("coho-anim-container").innerHTML = '<span id="coho-text-anim" class="coho-lose-anim">-' +
@@ -3297,8 +3300,8 @@ const cohozunaPunishments = [
         trigger: function(){
             document.getElementById("cohozuna-punishment").style.display = "none";
             if (PlayerData.coins == 0){
-                document.getElementById("cohozuna-cannot").style.display = "intial";
-                document.getElementById("cohozuna-cannot-text").innerHTML = this.cannotText;
+                document.getElementById("cohozuna-cannot").style.display = "initial";
+                document.getElementById("cohozuna-cannot-text").innerHTML = cohozunaPunishments[2].cannotText;
             }
             else{
                 let loss = Math.ceil(PlayerData.coins / 2);
@@ -3324,8 +3327,8 @@ const cohozunaPunishments = [
         trigger: function(){
             document.getElementById("cohozuna-punishment").style.display = "none";
             if (PlayerData.stars == 0){
-                document.getElementById("cohozuna-cannot").style.display = "intial";
-                document.getElementById("cohozuna-cannot-text").innerHTML = this.cannotText;
+                document.getElementById("cohozuna-cannot").style.display = "initial";
+                document.getElementById("cohozuna-cannot-text").innerHTML = cohozunaPunishments[3].cannotText;
             }
             else{
                 document.getElementById("coho-anim-container").innerHTML = '<img id="coho-item-anim" class="coho-lose-anim" src="resources/textures/squid_star.svg">';
@@ -3348,8 +3351,8 @@ const cohozunaPunishments = [
         trigger: function(){
             document.getElementById("cohozuna-punishment").style.display = "none";
             if (PlayerData.items.length == 3){
-                document.getElementById("cohozuna-cannot").style.display = "intial";
-                document.getElementById("cohozuna-cannot-text").innerHTML = this.cannotText;
+                document.getElementById("cohozuna-cannot").style.display = "initial";
+                document.getElementById("cohozuna-cannot-text").innerHTML = cohozunaPunishments[4].cannotText;
             }
             else{
                 let html = "";
@@ -3378,8 +3381,8 @@ const cohozunaPunishments = [
         trigger: function(){
             document.getElementById("cohozuna-punishment").style.display = "none";
             if (PlayerData.items.length == 0){
-                document.getElementById("cohozuna-cannot").style.display = "intial";
-                document.getElementById("cohozuna-cannot-text").innerHTML = this.cannotText;
+                document.getElementById("cohozuna-cannot").style.display = "initial";
+                document.getElementById("cohozuna-cannot-text").innerHTML = cohozunaPunishments[5].cannotText;
             }
             else{
                 let removeItem = PlayerData.items.splice(Math.floor(Math.random() * PlayerData.items.length), 1);
@@ -3402,13 +3405,13 @@ const cohozunaPunishments = [
         trigger: function(){
             document.getElementById("cohozuna-punishment").style.display = "none";
             if (PlayerData.items.length == 0){
-                document.getElementById("cohozuna-cannot").style.display = "intial";
-                document.getElementById("cohozuna-cannot-text").innerHTML = this.cannotText;
+                document.getElementById("cohozuna-cannot").style.display = "initial";
+                document.getElementById("cohozuna-cannot-text").innerHTML = cohozunaPunishments[6].cannotText;
             }
             else{
                 let html = '';
                 for (let i = 0; i < PlayerData.items.length; i++){
-                    html += '<img id="coho-item-anim" class="coho-lose-anim coho-lose-anim'+(i+1)+'" src="' + ItemData[PlayerData.items[i]].url + '">'
+                    html += '<img id="coho-item-anim" class="coho-lose-anim coho-lose-anim-'+(i+1)+'" src="' + ItemData[PlayerData.items[i]].url + '">'
                 }
                 PlayerData.items = [];
                 document.getElementById("coho-anim-container").innerHTML = html;
@@ -3443,6 +3446,18 @@ const cohozunaPunishments = [
             CloseCohozuna();
         }
     },
+    {
+        losingWeight: 1,
+        winningWeight: 1,
+        wheelText: "Warp to a Random Space",
+        punishmentText: "Enjoy your forced free relocation!<br>Bwah ha ha!",
+        cannotText: "",
+        trigger: function(){
+            PlayerData.position = RandomMapSpace();
+            document.getElementById("cohozuna-punishment").style.display = "none";
+            CloseCohozuna();
+        }
+    }
 ];
 
 function CohoGenerateWheel(){
@@ -3454,7 +3469,7 @@ function CohoGenerateWheel(){
     }
 
     let usedIndicies = [];
-
+    
     while (usedIndicies.length < cohoOptions.length){
         let random = Math.random() * totalWeight;
         let checkedWeight = 0;
@@ -3875,7 +3890,7 @@ function UpdateItemUI(){
         playerItemDisplays[i].src = PlayerData.items.length > i ? ItemData[PlayerData.items[i]].url : "resources/textures/noitem.png";
     }
     for (var i = 0; i < itemHover.length; i++){
-        itemElems[i].disabled = !(PlayerData.items.length > i) || !ItemData[PlayerData.items[i]].usable;
+        itemElems[i].disabled = !(PlayerData.items.length > i) || (!ItemData[PlayerData.items[i]].usable && turnStep != "popup") || (!ItemData[PlayerData.items[i]].discardable && turnStep == "popup");
         if (PlayerData.items.length > i){
             itemElems[i].style.backgroundImage = "url(\"" + ItemData[PlayerData.items[i]].url + "\")";
             if (itemHover[i]){
@@ -3904,8 +3919,10 @@ var tossItem4;
 function UpdateTossItemUI(item4){
     tossItem4 = item4;
     var itemElems = document.getElementsByClassName("item-toss-option");
+    itemElems[0].disabled = !ItemData[item4].discardable;
     itemElems[0].style.backgroundImage = "url(\"" + ItemData[item4].url + "\")";
     for (var i = 1; i < 4; i++){
+        itemElems[i].disabled = !ItemData[PlayerData.items[i - 1]].discardable;
         itemElems[i].style.backgroundImage = "url(\"" + ItemData[PlayerData.items[i - 1]].url + "\")";
     }
 }
@@ -3970,6 +3987,13 @@ function UseItem(index){
                     document.getElementById("duel-select-sub-text").textContent = "Choose a player to steal a star from";
                     Socket.send(JSON.stringify({ method: "get_target_list" }));
                     break;
+                case "loadstone":
+                    //TODO!!!
+                    let amount = Math.floor(Math.random() * 3) + 1;
+                    PlayerData.coins += amount;
+                    TriggerLoadstoneAnimation(amount);
+                    Socket.send(JSON.stringify({ method: "set_player_data", token: TOKEN, usedItem: item, items: PlayerData.items, coins: PlayerData.coins }));
+                    break;
                 default:
                     console.error("Cannot Recognize item: " + item);
                     break;
@@ -4020,6 +4044,10 @@ function ServerUseItem(item){
             document.getElementById("roll-button-item-preview").style.display = "initial";
             break;
         case "shophopbox":
+            break;
+        case "duelingglove":
+            break;
+        case "loadstone":
             break;
         default:
             console.error("Cannot Recognize item: " + item);
@@ -4177,45 +4205,49 @@ function EndTurnPopup(){
             }
         }
         else if (tile.popup == "cohozuna-space"){
-            document.getElementsByClassName("coho-stop-button")[0].disabled = false;
-            document.getElementById("cohozuna-space").style.animation = "";
-            luckyTimer = 0;
-            luckyClickTimer = -1;
-            CohoGenerateWheel();
-            document.getElementById("cohozuna-player").src = GeneratePlayerURL(PlayerCharacter);
-            document.getElementById("cohozuna-greeting-text").innerHTML = cohoGreetings[Math.floor(Math.random() * cohoGreetings.length)];
+            document.getElementById("cohozuna-space").style.display = "none";
+            setTimeout(() => {
+                document.getElementById("cohozuna-space").style.display = "initial";
+                document.getElementsByClassName("coho-stop-button")[0].disabled = false;
+                document.getElementById("cohozuna-space").style.animation = "";
+                luckyTimer = 0;
+                luckyClickTimer = -1;
+                CohoGenerateWheel();
+                document.getElementById("cohozuna-player").src = GeneratePlayerURL(PlayerCharacter);
+                document.getElementById("cohozuna-greeting-text").innerHTML = cohoGreetings[Math.floor(Math.random() * cohoGreetings.length)];
 
-            if (Math.random() >= lerp(1, CohoGenerosityOdds, yourPlacement / (Object.keys(OpponentPlayers).length + 1) * 2 - 1)){
-                setTimeout(() => {
-                    document.getElementById("cohozuna-greeting").style.display = "initial";
-                    cohoNextFunction = () => {
-                        document.getElementById("cohozuna-greeting").style.display = "none";
-                        document.getElementById("cohozuna-charity").style.display = "initial";
+                if (Math.random() >= lerp(1, CohoGenerosityOdds, yourPlacement / (Object.keys(OpponentPlayers).length + 1) * 2 - 1)){
+                    setTimeout(() => {
+                        document.getElementById("cohozuna-greeting").style.display = "initial";
                         cohoNextFunction = () => {
-                            document.getElementById("cohozuna-charity").style.display = "none";
+                            document.getElementById("cohozuna-greeting").style.display = "none";
+                            document.getElementById("cohozuna-charity").style.display = "initial";
+                            cohoNextFunction = () => {
+                                document.getElementById("cohozuna-charity").style.display = "none";
 
-                            document.getElementById("coho-anim-container").innerHTML = '<span id="coho-text-anim" class="coho-get-anim" style="display: initial;">+10<img src="resources/textures/coin_low_res.png" style="padding-left: 0.25vmin; width: 8vmin; height: 8vmin; image-rendering: pixelated;"></span>';
-                            PlayerData.coins += 10;
-                            UpdatePlayerUI();
-                            UpdateLeaderboards();
-                            Socket.send(JSON.stringify({ method: "update_player", token: TOKEN, coins: PlayerData.coins }));
+                                document.getElementById("coho-anim-container").innerHTML = '<span id="coho-text-anim" class="coho-get-anim" style="display: initial;">+10<img src="resources/textures/coin_low_res.png" style="padding-left: 0.25vmin; width: 8vmin; height: 8vmin; image-rendering: pixelated;"></span>';
+                                PlayerData.coins += 10;
+                                UpdatePlayerUI();
+                                UpdateLeaderboards();
+                                Socket.send(JSON.stringify({ method: "update_player", token: TOKEN, coins: PlayerData.coins }));
 
-                            setTimeout(() => {
-                                document.getElementById("cohozuna-charity-goodbye").style.display = "initial";
-                            }, 3000);
+                                setTimeout(() => {
+                                    document.getElementById("cohozuna-charity-goodbye").style.display = "initial";
+                                }, 3000);
+                            };
                         };
-                    };
-                }, 4000);
-            }
-            else{
-                setTimeout(() => {
-                    document.getElementById("cohozuna-greeting").style.display = "initial";
-                    cohoNextFunction = () => {
-                        document.getElementById("cohozuna-greeting").style.display = "none";
-                        document.getElementById("cohozuna-roulette").style.display = "initial";
-                    };
-                }, 4000);
-            }
+                    }, 4000);
+                }
+                else{
+                    setTimeout(() => {
+                        document.getElementById("cohozuna-greeting").style.display = "initial";
+                        cohoNextFunction = () => {
+                            document.getElementById("cohozuna-greeting").style.display = "none";
+                            document.getElementById("cohozuna-roulette").style.display = "initial";
+                        };
+                    }, 4000);
+                }
+            }, 1000);
         }
     }
 }
@@ -5037,6 +5069,142 @@ function SetCoinText(coins){
     CoinPlane.position.set(coinInnerText.boundingBox.max.x + 0.2, 0.125, 0);
 
     return coinInnerText.boundingBox.max.x + 0.2 + 0.15;
+}
+
+var LoadstoneObject = new THREE.Group();
+let loadstoneGeoBuffer1 = new THREE.BufferGeometry();
+loadstoneGeoBuffer1.setIndex([
+    0, 1, 2,
+    1, 3, 2
+]);
+loadstoneGeoBuffer1.setAttribute("position", new THREE.BufferAttribute(new Float32Array([
+    -0.5, -0.5, 0,
+    0, -0.5, 0,
+    -0.5, 0.5, 0,
+    0, 0.5, 0
+]), 3));
+loadstoneGeoBuffer1.setAttribute("uv", new THREE.BufferAttribute(new Float32Array([
+    0, 0,
+    0.5, 0,
+    0, 1,
+    0.5, 1
+]), 2));
+loadstoneGeoBuffer1.computeVertexNormals();
+let loadstoneGeoBuffer2 = new THREE.BufferGeometry();
+loadstoneGeoBuffer2.setIndex([
+    0, 1, 2,
+    1, 3, 2
+]);
+loadstoneGeoBuffer2.setAttribute("position", new THREE.BufferAttribute(new Float32Array([
+    0, -0.5, 0,
+    0.5, -0.5, 0,
+    0, 0.5, 0,
+    0.5, 0.5, 0
+]), 3));
+loadstoneGeoBuffer2.setAttribute("uv", new THREE.BufferAttribute(new Float32Array([
+    0.5, 0,
+    1, 0,
+    0.5, 1,
+    1, 1
+]), 2));
+loadstoneGeoBuffer2.computeVertexNormals();
+LoadstoneObject.add(new THREE.Mesh(loadstoneGeoBuffer1, new THREE.MeshBasicMaterial({ map: ItemData["loadstone"].image, transparent: true })));
+LoadstoneObject.add(new THREE.Mesh(loadstoneGeoBuffer2, new THREE.MeshBasicMaterial({ map: ItemData["loadstone"].image, transparent: true })));
+function TriggerLoadstoneAnimation(amount){
+    animTimer = 5;
+    turnStep = "loadstone-anim";
+    UIState = "player";
+    coinsTextWidth = SetCoinText(amount);
+
+    let targetPos = new THREE.Vector3(PlayerData.position.x, getHeightTile(PlayerData.position.x, PlayerData.position.y) + 0.375, PlayerData.position.y);
+
+    CoinText.scale.set(0, 0, 0);
+    Scene.add(CoinText);
+    ItemRingParticle.scale.set(0, 0, 0);
+    ItemRingParticle.position.set(targetPos.x, targetPos.y, targetPos.z + 0.05);
+    ItemRingParticle.material.color.set(amount < 0 ? 0xff5555 : 0x5555ff);
+    Scene.add(ItemRingParticle);
+
+    Scene.add(LoadstoneObject);
+    LoadstoneObject.position.set(targetPos.x, targetPos.y + 0.1, targetPos.z + 0.01);
+    LoadstoneObject.children[0].position.set(0, 0, 0);
+    LoadstoneObject.children[0].rotation.set(0, 0, 0);
+    LoadstoneObject.children[0].material.opacity = 0;
+    LoadstoneObject.children[1].position.set(0, 0, 0);
+    LoadstoneObject.children[1].rotation.set(0, 0, 0);
+    LoadstoneObject.children[1].material.opacity = 0;
+    LoadstoneObject.scale.set(0.5, 0.5, 0.5);
+
+    coinsAnimFirstTrigger = true;
+}
+function LoadstoneAnimation(){
+    const animLength = 5;
+    animTimer -= DeltaTime;
+
+    let targetPos = new THREE.Vector3(PlayerData.position.x, getHeightTile(PlayerData.position.x, PlayerData.position.y) + 0.375, PlayerData.position.y);
+
+    if (animTimer > animLength - 1){
+        let t = 1 - ((animTimer - animLength + 1) / 1);
+        let eo = easeOut(t);
+        LoadstoneObject.position.set(targetPos.x, targetPos.y + lerp(0, 0.65, eo), targetPos.z + 0.01);
+        LoadstoneObject.children[0].material.opacity = lerp(0, 1, t);
+        LoadstoneObject.children[1].material.opacity = lerp(0, 1, t);
+    }
+    else if (animTimer > animLength - 1.5){
+        let t = 1 - ((animTimer - animLength + 1.5) / 0.5);
+        LoadstoneObject.position.set(targetPos.x, targetPos.y + 0.65, targetPos.z + 0.01);
+        LoadstoneObject.children[0].material.opacity = 1;
+        LoadstoneObject.children[1].material.opacity = 1;
+    }
+    else if (animTimer > animLength - 2){
+        let t = 1 - ((animTimer - animLength + 2) / 0.5);
+        let eo = easeOut(t);
+        LoadstoneObject.children[0].position.set(lerp(0, -0.4, eo), lerp(0, -0.15, eo), 0);
+        LoadstoneObject.children[1].position.set(lerp(0, 0.4, eo), lerp(0, -0.15, eo), 0);
+        LoadstoneObject.children[0].rotation.set(0, 0, lerp(0, Math.PI / 4, eo));
+        LoadstoneObject.children[1].rotation.set(0, 0, lerp(0, -Math.PI / 4, eo));
+        LoadstoneObject.children[0].material.opacity = lerp(1, 0, t);
+        LoadstoneObject.children[1].material.opacity = lerp(1, 0, t);
+        CoinText.scale.set(lerp(0, 0.85, eo), lerp(0, 0.85, eo), lerp(0, 0.85, eo));
+        CoinText.position.set(targetPos.x - (lerp(0, coinsTextWidth, eo) / 2 * 0.85), targetPos.y + lerp(0.575, 0.525, eo), targetPos.z + 0.1);
+    }
+    else if (animTimer > animLength - 2.5){
+        CoinText.scale.set(0.85, 0.85, 0.85);
+        LoadstoneObject.children[0].material.opacity = 0;
+        LoadstoneObject.children[1].material.opacity = 0;
+        CoinText.position.set(targetPos.x - (coinsTextWidth / 2 * 0.85), targetPos.y + 0.525, targetPos.z + 0.1);
+    }
+    else if (animTimer > animLength - 3.25){
+        let t = 1 - ((animTimer - animLength + 3.25) / 0.75);
+        let ei = easeIn(t);
+        CoinText.position.set(targetPos.x - (coinsTextWidth / 2 * 0.85), targetPos.y + lerp(0.525, 0.25, ei), targetPos.z + 0.1);
+    }
+    else if (animTimer > animLength - 4){
+        let t = 1 - ((animTimer - animLength + 4) / 0.75);
+        let eo = easeOut(t);
+        CoinText.scale.set(lerp(0.85, 0.1, eo), lerp(0.85, 0.1, eo), lerp(0.85, 0.1, eo));
+        CoinText.position.set(targetPos.x - (coinsTextWidth / 2 * lerp(0.85, 0.1, eo)), targetPos.y + lerp(0.25, 0, eo), targetPos.z + 0.1);
+    }
+    else if (animTimer > animLength - 5){
+        if (coinsAnimFirstTrigger){
+            coinsAnimFirstTrigger = false;
+            Socket.send(JSON.stringify({ method: "update_player", token: TOKEN, coins: PlayerData.coins }));
+            UpdatePlayerUI();
+            UpdateLeaderboards();
+        }
+        let t = 1 - ((animTimer - animLength + 5) / 1);
+        CoinText.scale.set(0, 0, 0);
+        ItemRingParticle.scale.set(lerp(0.1, 1, t), lerp(0.1, 1, t), lerp(0.1, 1, t));
+        ItemRingParticle.material.opacity = lerp(1, 0, t);
+    }
+    else{
+        Scene.remove(LoadstoneObject);
+        Scene.remove(ItemRingParticle);
+        Scene.remove(CoinText);
+
+        turnStep = "menu";
+        document.getElementsByClassName("player-inputs")[0].style.display = "flex";
+    }
 }
 
 var silverStarsAnimBuffer = [];
