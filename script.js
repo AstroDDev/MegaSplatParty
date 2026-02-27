@@ -2769,7 +2769,7 @@ function getMaxHeightTile(x, y){
 
 function getVariableHeightTile(x, y){
     let tileX = Math.round(x);
-    let tileY = Math.round(x);
+    let tileY = Math.round(y);
     let tx = x - tileX + 0.5;
     let ty = y - tileY + 0.5;
     let tile = getMapTile(tileX, tileY);
