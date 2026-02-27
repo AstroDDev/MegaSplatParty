@@ -6654,7 +6654,8 @@ document.getElementById("create-game-create-button").onclick = function(e){
         map: document.getElementById("create-game-map").value,
         gameLength: Number.parseInt(document.getElementById("create-game-game-length").value),
         generateSilverStars: document.getElementById("create-game-generate-silver-stars").checked,
-        battleMinigamesEnabled: document.getElementById("create-game-do-battle-minigames").checked
+        battleMinigamesEnabled: document.getElementById("create-game-do-battle-minigames").checked,
+        enableTimers: document.getElementById("create-game-enable-timer")
     };
 
     if (isAdmin && document.getElementById("create-game-is-public").checked){
@@ -8147,8 +8148,8 @@ function get_lobby_server(data){
             UIPanels.checkin.style.display = "initial";
             UIState = "menu";
             UIPanels.checkin.children[0].children[2].textContent = "You missed your turn and have been removed from the game.";
-            document.getElementById("checkinbtn").disabled = false;
-            document.getElementById("checkinbtn").textContent = "Join Back";
+            document.getElementById("private-checkin-play-game").disabled = false;
+            document.getElementById("private-checkin-play-game").textContent = "Join Back";
         }
         else{
             UIPanels.login.style.display = "initial";
