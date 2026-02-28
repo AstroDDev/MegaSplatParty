@@ -4159,7 +4159,7 @@ function OpenPopup(){
         document.getElementById("cantduel").style.display = PlayerData.canDuel ? "none" : "inline-block";
     }
     else if (tile.popup == "star-steal"){
-        document.getElementById("star-steal-steal-button").disabled = PlayerData.coins < 30;
+        document.getElementById("star-steal-steal-button").disabled = PlayerData.coins < 20;
 
         document.getElementById("cansteal").style.display = PlayerData.canSteal ? "inline-block" : "none";
         document.getElementById("cantsteal").style.display = PlayerData.canSteal ? "none" : "inline-block";
@@ -6283,12 +6283,14 @@ var SignedIn = false;
 var socketHasConnected = false;
 var IGN, Discord, Rank;
 function InitializeSocket(){
+    socketHasConnected = false;
     //Changes the Socket connection based on if it's local hosted or not
     //Also checks if the url search parameter has a unique url for the socket
     Socket = new WebSocket(window.location.hostname == "127.0.0.1" ? "ws://localhost:6969" : "wss://msp-server.astrodwarf.space");
     //Socket = new WebSocket("wss://msp-server.astrodwarf.space");
 
     Socket.onopen = function(e){
+        socketHasConnected = true;
         document.getElementById("settings-room-code").style.display = "none";
         if (TOKEN != null){
             Socket.send(JSON.stringify({ method: "test_token", token: TOKEN }));
@@ -6301,8 +6303,16 @@ function InitializeSocket(){
 
     Socket.onclose = function(e){
         console.log("Socket closed");
-        ResetUIToMenu();
-        UIPanels.disconnected.style.display = "initial";
+
+        if (!socketHasConnected){
+            ResetUIToMenu();
+            UIPanels.disconnected.style.display = "initial";
+        }
+        else{
+            setTimeout(() => {
+                Socket = new WebSocket(window.location.hostname == "127.0.0.1" ? "ws://localhost:6969" : "wss://msp-server.astrodwarf.space");
+            }, 10);
+        }
     };
 
     Socket.onmessage = function(e){
@@ -6714,7 +6724,10 @@ for (let i = 0; i < roomCodeCopyElems.length; i++){
 
 
 const debugPortMap = { server0: 6970, server1: 6971, server2: 6972, server3: 6973, server4: 6974, server5: 6975, server6: 6976, server7: 6977, server8: 6978, server9: 6979, server_public: 6980 };
+var connectedGameServer;
 function ConnectToServer(server){
+    socketHasConnected = false;
+    connectedGameServer = server;
     console.log("Connecting to server: " + server);
 
     Socket = new WebSocket(window.location.hostname == "127.0.0.1" ? "ws://localhost:" + debugPortMap[server] : "wss://msp.astrodwarf.space/" + server);
@@ -6796,10 +6809,17 @@ function ConnectToServer(server){
     Socket.onclose = function(e){
         console.log("Socket Closed");
 
-        turnStep = "dc";
-        
-        ResetUIToMenu();
-        UIPanels.disconnected.style.display = "initial";
+        if (!socketHasConnected){
+            turnStep = "dc";
+            
+            ResetUIToMenu();
+            UIPanels.disconnected.style.display = "initial";
+        }
+        else{
+            setTimeout(() => {
+                Socket = new WebSocket(window.location.hostname == "127.0.0.1" ? "ws://localhost:" + debugPortMap[connectedGameServer] : "wss://msp.astrodwarf.space/" + connectedGameServer);
+            }, 10);
+        }
     };
 
     Socket.onerror = function(e){
