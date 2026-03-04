@@ -437,8 +437,8 @@
         "soloMinigame": "speedrunsolo",
         "extraMinigame": "speedrun3extra",
         "title": "Secret Objective",
-        "random": [ "#1 Overall Splatter", "#1 Score Booster", "#1 Clam Carrier", "#1 Turf Inker", "#1 Popular Target", "#1 Super Jump Spot", "#1 Enemy Splatter", "#1 Splat Assister", "#1 Clam Stopper", "#1 Ground Traveler", "#1 Damage Taker", "#1 Ink Consumer", "First Splat!", "#1 Reefslider User", "#2 Score Booster", "#2 Clam Carrier", "#2 Turf Inker", "#2 Popular Target", "#2 Super Jump Spot", "#2 Enemy Splatter", "#2 Splat Assister" ],
-        "description": "This minigame is played together in a <b>Private Battle</b> lobby with the mode set to <b>Clam Blitz.</b> The host can pick their favorite map to play on. Randomly divide the players into 2 teams.<br><br>Players will be randomly split between 2 teams. Your goal is to achieve the <b>{random}</b> medal during a match of clam blitz. Each player has a different random medal given to them they must achieve.<br><br>When submitting results, enter <b>Win</b> if the player achieved their target medal in their battle history, otherwise enter <b>Lose</b>."
+        "random": [ "#1 Overall Splatter", "#1 Turf Inker", "#1 Popular Target", "#1 Home-Base Inker", "#1 Enemy-Base Inker", "#1 Super Jump Spot", "#1 Enemy Splatter", "#1 Splat Assister", "#1 Base Defender", "#1 Ground Traveler", "#1 Damage Taker", "#1 Ink Consumer", "First Splat!", "#1 Reefslider User", "#2 Overall Splatter", "#2 Turf Inker" ],
+        "description": "This minigame is played together in a <b>Private Battle</b> lobby with the mode set to <b>Turf War.</b> The host can pick their favorite map to play on. Randomly divide the players into 2 teams.<br><br>Players will be randomly split between 2 teams. Your goal is to achieve the <b>{random}</b> medal during a match of turf war. Each player has a different random medal given to them they must achieve.<br><br>When submitting results, enter <b>Win</b> if the player achieved their target medal in their battle history, otherwise enter <b>Lose</b>."
     },
     "brokencontroller": {
         "weight": 1,
@@ -455,7 +455,7 @@
         "soloMinigame": "anarchysolo",
         "extraMinigame": "speedrun1extra",
         "title": "Broken Controller",
-        "description": "This minigame is played together in a <b>Private Battle</b> lobby with the mode set to <b>Tower Control.</b> The host can pick their favorite map to play on. Set the teams to match the groups of players on the results tab.<br><br>Players are seperated into 2 teams. Each of your controllers is broken and only half of it works. {Player} and {Player} can only <b>Move</b>, <b>Jump</b>, and <b>Swim</b> and must equip any goo-tuber kit to set themselves apart. All other players can only <b>Superjump</b>, <b>Shoot</b>, <b>Throw Bombs</b>, and <b>Jump</b>. Your goal is for your team to win the game of Tower Control with your broken controllers. Only one of you can move and the rest of you can only shoot the enemy.<br><br>When submitting results, enter <b>Win</b> by the winning team and enter <b>Lose</b> by the losing team.",
+        "description": "This minigame is played together in a <b>Private Battle</b> lobby with the mode set to <b>Clam Blitz.</b> The host can pick their favorite map to play on. Set the teams to match the groups of players on the results tab.<br><br>Players are seperated into 2 teams. Each of your controllers is broken and only half of it works. {Player} and {Player} can only <b>Move</b>, <b>Jump</b>, <b>Swim</b>, <b>Place Beakons</b>, <b>Use Special</b>, and <b>Throw Clams</b> and must equip any weapon kit with <b>Squid Beakons</b> as its sub. All other players can only <b>Superjump</b>, <b>Shoot</b>, <b>Use Subs</b>, <b>Use Specials</b>, <b>Throw Clams</b>, and <b>Jump</b>. Your goal is for your team to win the game of Clam Blitz with your broken controllers. Only one of you can move and the rest of you can only shoot the enemy.<br><br>When submitting results, enter <b>Win</b> by the winning team and enter <b>Lose</b> by the losing team.",
         "setApartPlayers": 2,
         "invertSetApartScore": false
     },
@@ -568,7 +568,7 @@
         "rewards": [10, 0],
         "evenSize": false,
         "title": "Secret Objective",
-        "random": [ "#1 Overall Splatter", "#1 Score Booster", "#1 Turf Inker", "#1 Popular Target", "#1 Home-Base Inker", "#1 Enemy-Base Inker", "#1 Super Jump Spot", "#1 Enemy Splatter", "#1 Splat Assister", "#1 Base Defender", "#1 Ground Traveler", "#1 Damage Taker", "#1 Ink Consumer", "First Splat!", "#1 Reefslider User", "#2 Clam Carrier", "#2 Turf Inker", "#2 Popular Target", "#2 Home-Base Inker", "#2 Enemy-Base Inker", "#2 Super Jump Spot", "#2 Enemy Splatter", "#2 Splat Assister" ],
+        "random": [ "#1 Overall Splatter", "#1 Turf Inker", "#1 Popular Target", "#1 Home-Base Inker", "#1 Enemy-Base Inker", "#1 Super Jump Spot", "#1 Enemy Splatter", "#1 Splat Assister", "#1 Base Defender", "#1 Ground Traveler", "#1 Damage Taker", "#1 Ink Consumer", "First Splat!", "#1 Reefslider User", "#2 Overall Splatter", "#2 Turf Inker" ],
         "description": "This minigame is played together in a public <b>Turf War</b> lobby.<br><br>Your goal is to achieve the <b>{random}</b> medal during a match of turf war. Each player has a different random medal given to them they must achieve.<br><br>When submitting results, enter <b>Win</b> if the player achieved their target medal in their battle history, otherwise enter <b>Lose</b>."
     },
 
@@ -639,7 +639,7 @@
         "teams": 0,
         "rewards": [10, 0],
         "title": "Secret Objective Solo",
-        "random": [ "#1 Overall Splatter", "#1 Score Booster", "#1 Turf Inker", "#1 Popular Target", "#1 Home-Base Inker", "#1 Enemy-Base Inker", "#1 Super Jump Spot", "#1 Enemy Splatter", "#1 Splat Assister", "#1 Base Defender", "#1 Ground Traveler", "#1 Damage Taker", "#1 Ink Consumer", "First Splat!", "#1 Reefslider User", "#2 Clam Carrier", "#2 Turf Inker", "#2 Popular Target", "#2 Home-Base Inker", "#2 Enemy-Base Inker", "#2 Super Jump Spot", "#2 Enemy Splatter", "#2 Splat Assister" ],
+        "random": [ "#1 Overall Splatter", "#1 Turf Inker", "#1 Popular Target", "#1 Home-Base Inker", "#1 Enemy-Base Inker", "#1 Super Jump Spot", "#1 Enemy Splatter", "#1 Splat Assister", "#1 Base Defender", "#1 Ground Traveler", "#1 Damage Taker", "#1 Ink Consumer", "First Splat!", "#1 Reefslider User", "#2 Overall Splatter", "#2 Turf Inker" ],
         "description": "This minigame is played solo in a public <b>Turf War</b> lobby.<br><br>Your goal is to achieve the <b>{random}</b> medal during a match of turf war.<br><br>When submitting results, enter <b>Win</b> if you achieved your target medal in your battle history, otherwise enter <b>Lose</b>."
     },
 
@@ -698,7 +698,7 @@
         "type": "coop",
         "teams": 0,
         "title": "Astro's Modded Rainmaker #4",
-        "description": "My team has been hard at work figuring out how we can make Splatoon 3 for the Nintendo Switch better! And what we found was <b>YOU ALL HATE RAINMAKER.</b> So I made it worse! You may now applaud!<br><br>This minigame is played together in a <b>Private Battle</b> lobby with the mode set to <b>Rainmaker.</b> The host can pick their favorite map to play on.<br><br>Both players will be put on opposing teams. Your goal is to win the game of rainmaker but if on the battle history you exceeded <b>600p of paint</b> you will automatically lose despite the result of the match. If both players exceeded 600p of paint, the match is a tie.<br><br><b>Tip:</b> You can use your special gague to estimate how much you have painted.<br><br>When submitting results, enter <b>Win</b> if the player won the match and did not exceed 600p of paint. Enter <b>Lose</b> if they did not win or exceeded 600p of paint. In the case of a tie, enter either <b>Win</b> or <b>Lose</b> for both players."
+        "description": "My team has been hard at work figuring out how we can make Splatoon 3 for the Nintendo Switch better! And what we found was <b>YOU ALL HATE RAINMAKER.</b> So I made it worse! You may now applaud!<br><br>This minigame is played together in a <b>Private Battle</b> lobby with the mode set to <b>Rainmaker.</b> The host can pick their favorite map to play on.<br><br>Both players will be put on opposing teams. Your goal is to win the game of rainmaker but if on the battle history you exceeded <b>600p of paint</b> you will automatically lose despite the result of the match. If both players exceeded 600p of paint, the match is a tie.<br><br><b>Tip:</b> You can use your special gauge to estimate how much you have painted.<br><br>When submitting results, enter <b>Win</b> if the player won the match and did not exceed 600p of paint. Enter <b>Lose</b> if they did not win or exceeded 600p of paint. In the case of a tie, enter either <b>Win</b> or <b>Lose</b> for both players."
     },
     "speedrunduel": {
         "hidden": true,

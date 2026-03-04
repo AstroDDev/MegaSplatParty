@@ -576,9 +576,11 @@ button{
 }
 
 .roll-display > h1{
-    color: gold;
-    font-size: 8em;
+    font-family: "Jersey 10";
+    color: yellow;
+    font-size: 10em;
     transform: translate(-50%, -50%);
+    text-shadow: -5px -5px 0 goldenrod, -5px 5px 0 goldenrod, 5px -5px 0 goldenrod, 5px 5px 0 goldenrod;
 }
 
 .move-end-turn-button{
@@ -2798,6 +2800,16 @@ button{
     image-rendering: pixelated;
     width: 15vmin;
     height: 15vmin;
+}
+
+#try-reconnect{
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 99999999;
 }
 
 

@@ -33,7 +33,7 @@ function getNextRank(rank){
     for (const [key, value] of Object.entries(RankThresholds)){
         if (rank < value && (RankThresholds[closestRank] - rank) > (value - rank)) closestRank = key;
     }
-    console.log(closestRank);
+    
     return closestRank == "X" || rank < 0 ? null : closestRank;
 }
 
@@ -353,6 +353,7 @@ if (Object.hasOwn(COOKIES, "hideRoomCode")){
         }
     }
     document.getElementById("hide-room-code").checked = HIDE_ROOM_CODE;
+    document.getElementById("join-game-code").setAttribute("type", HIDE_ROOM_CODE ? "password" : "text");
 }
 
 var Scene = new THREE.Scene();
@@ -374,8 +375,8 @@ window.onresize = function(e){
 var mapData;
 var mapSize = {x: 0, y: 0};
 
-const BlockMat = new THREE.MeshStandardMaterial({ color: 0x111111, alphaTest: 0.5 });
-const TrimMat = new THREE.MeshStandardMaterial({ color: 0xaaaaaa, alphaTest: 0.5 });
+const BlockMat = new THREE.MeshStandardMaterial({ color: 0x111111, alphaHash: true });
+const TrimMat = new THREE.MeshStandardMaterial({ color: 0xaaaaaa, alphaHash: true });
 
 const TexLoader = new THREE.TextureLoader();
 const ModelLoader = new FBXLoader();
@@ -1799,7 +1800,7 @@ function buildMap(){
             if (x > 0 && mapData[y][x].connections.w == "lock" && mapData[y][x - 1].connections.e == "lock"){
                 //Clone keygate here
                 let gate = KeyGateModel.clone(true);
-                let lock = new THREE.Mesh(new THREE.PlaneGeometry(0.85, 0.85), LockMat);
+                let lock = new THREE.Mesh(new THREE.PlaneGeometry(0.65, 0.65), LockMat);
                 KeyDoors.add(gate);
                 MapLocks.add(lock);
                 gate.scale.set(0.1 / 16, 0.1 / 16, 0.1 / 16);
@@ -1815,11 +1816,11 @@ function buildMap(){
                     gate.position.set(x - 0.5, getHeightTile(x, y), y);
                 }
                 lock.rotation.set(-Math.PI / 2, 0, 0);
-                lock.position.set(x - 0.5, getHeightTile(x, y) + 1.5, y);
+                lock.position.set(x - 0.5, getHeightTile(x, y) + 1, y);
             }
             if (y > 0 && mapData[y][x].connections.n == "lock" && mapData[y - 1][x].connections.s == "lock"){
                 let gate = KeyGateModel.clone(true);
-                let lock = new THREE.Mesh(new THREE.PlaneGeometry(0.85, 0.85), LockMat);
+                let lock = new THREE.Mesh(new THREE.PlaneGeometry(0.65, 0.65), LockMat);
                 KeyDoors.add(gate);
                 MapLocks.add(lock);
                 gate.scale.set(0.1 / 16, 0.1 / 16, 0.1 / 16);
@@ -1835,7 +1836,7 @@ function buildMap(){
                     gate.position.set(x, getHeightTile(x, y), y - 0.5);
                 }
                 lock.rotation.set(-Math.PI / 2, 0, 0);
-                lock.position.set(x, getHeightTile(x, y) + 1.5, y - 0.5);
+                lock.position.set(x, getHeightTile(x, y) + 1, y - 0.5);
             }
         }
     }
@@ -1846,7 +1847,8 @@ function buildMap(){
         entityGeometry.setAttribute("position", new THREE.BufferAttribute(new Float32Array(value.vertices), 3));
         entityGeometry.setAttribute("uv", new THREE.BufferAttribute(new Float32Array(value.uvs), 2));
         entityGeometry.computeVertexNormals();
-        let entityMesh = new THREE.Mesh(entityGeometry, MapMat);
+        entityGeometry.computeBoundingBox();
+        let entityMesh = new THREE.Mesh(entityGeometry, new THREE.MeshStandardMaterial({ map: ATLAS, alphaHash: true }));
         entityMesh.castShadow = true;
         entityMesh.receiveShadow = true;
         Scene.add(entityMesh);
@@ -2022,9 +2024,9 @@ window.onkeydown = function(e){
         }
     }
     
-    if (e.key == "t"){
+    /*if (e.key == "t"){
         console.log(getMapTile(PlayerData.position.x, PlayerData.position.y));
-    }
+    }*/
 
     if (e.keyCode == 27 && UIState == "editor"){
         //ESC
@@ -2116,6 +2118,7 @@ function update(){
         updateDoorOpenings();
 
         UpdatePlayerPositions();
+        SetEntityTransparency();
 
         if (UIState == "editor") TestOrbitControls();
 
@@ -2176,14 +2179,15 @@ const transitionLength = {
     player: 500,
     above: 200,
     roll: 200,
-    map: 500,
+    map: 200,
     doorn: 500,
     doors: 500,
     doore: 500,
     doorw: 500,
     podium: 500,
     tutorialstar: 500,
-    tutorialshop: 500
+    tutorialshop: 500,
+    wholemap: 500
 };
 var transitionStart = 0;
 var tutorialStarPos, tutorialStarRot, tutorialShopPos, tutorialShopRot;
@@ -2252,7 +2256,19 @@ function UpdateUI(){
         filter = 0;
         playerRot = new THREE.Euler(-Math.PI / 2, 0, 0);
         playerPos = new THREE.Vector3(PlayerData.position.x, playerTileHeight + 0.02, PlayerData.position.y);
-        cameraPos = new THREE.Vector3(mapSize.x / 2 - 0.5, 32, mapSize.y / 2 - 0.5);
+        cameraPos = new THREE.Vector3(mapPosition.x, 10, mapPosition.y);
+        cameraRot = new THREE.Euler(-Math.PI / 2, 0, 0, "YXZ");
+    }
+    else if (UIState == "wholemap"){
+        let playerTileHeight = getMaxHeightTile(PlayerData.position.x, PlayerData.position.y);
+        filter = 0;
+        playerRot = new THREE.Euler(-Math.PI / 2, 0, 0);
+        playerPos = new THREE.Vector3(PlayerData.position.x, playerTileHeight + 0.02, PlayerData.position.y);
+        const vFOV = 60 * deg2Rad;
+        let hFOV = Math.atan(Math.tan(vFOV * deg2Rad / 2) * Camera.aspect) * 2;
+        let distZ = mapSize.y / 2 * Math.sin(vFOV) / Math.sin(90 * deg2Rad - vFOV);
+        let distX = mapSize.x / 2 * Math.sin(hFOV) / Math.sin(90 * deg2Rad - hFOV);
+        cameraPos = new THREE.Vector3(mapSize.x / 2 - 0.5, Math.max(distZ, distX), mapSize.y / 2 - 0.5);
         cameraRot = new THREE.Euler(-Math.PI / 2, 0, 0, "YXZ");
     }
     else if (UIState == "doorn"){
@@ -2311,12 +2327,6 @@ function UpdateUI(){
         //Enable transition
         lastUIState = UIState;
         transitionStart = Date.now();
-        if (UIState == "player"){
-            SetBlockTranparency();
-        }
-        else{
-            SetBlockOpaque();
-        }
     }
 
     if (UIState == "podium"){
@@ -2392,22 +2402,78 @@ function UpdatePlayerPositions(){
 }
 
 function SetBlockTranparency(){
+    let tZ = PlayerData.position.y + EPSILON;
     for (let i = 0; i < BlockList.children.length; i++){
-        let tZ = PlayerData.position.y + EPSILON;
-        BlockList.children[i].material.opacity = getHeightTile(PlayerData.position.x, Math.round(tZ)) == getHeightTile(Math.round(BlockList.children[i].position.x), Math.round(BlockList.children[i].position.z)) ? 1 : Math.max(0, Math.min(1, Math.sign(tZ - BlockList.children[i].position.z)));
+        BlockList.children[i].material.opacity = 
+            getHeightTile(PlayerData.position.x, Math.round(tZ)) == getHeightTile(Math.round(BlockList.children[i].position.x), Math.round(BlockList.children[i].position.z)) ? 1 :
+            Math.max(0, Math.min(1, tZ - BlockList.children[i].position.z + 0.5));
     }
 }
 
 function SetBlockTranparencyFromCamera(){
+    let tZ = Camera.position.z - 1.5 + EPSILON;
     for (let i = 0; i < BlockList.children.length; i++){
-        let tZ = Camera.position.z - 1.5 + EPSILON;
-        BlockList.children[i].material.opacity = Math.max(0, Math.min(1, Math.sign(tZ - BlockList.children[i].position.z)));
+        BlockList.children[i].material.opacity = Math.max(0, Math.min(1, tZ - BlockList.children[i].position.z + 0.5));
     }
 }
 
 function SetBlockOpaque(){
     for (let i = 0; i < BlockList.children.length; i++){
         BlockList.children[i].material.opacity = 1;
+    }
+}
+
+function SetEntityTransparency(){
+    //menu, roll, popup, map, item
+    //star-get-anim star-lose-anim give-item-anim coin-change-anim coin-space-anim silver-stars-to-star-anim silver-stars-to-star-anim-intro tutorial-give-anim loadstone-anim
+    //spawn-silver-star-anim step-map-anim results-anim
+    if (
+        turnStep == "menu" || turnStep == "roll" || turnStep == "popup" || turnStep == "item" || turnStep == "tutorial" || turnStep == "star-get-anim" ||
+        turnStep == "star-lose-anim" || turnStep == "give-itme-anim" || turnStep == "coin-change-anim" || turnStep == "coin-space-anim" || turnStep == "silver-stars-to-star-anim" ||
+        turnStep == "silver-stars-to-star-anim-intro" || turnStep == "tutorial-give-anim" || turnStep == "loadstone-anim"
+    ){
+        let tZ = PlayerData.position.y + EPSILON;
+        let targetHeight = getHeightTile(PlayerData.position.x, Math.round(tZ));
+        for (let i = 0; i < PlayerObjects.children.length; i++){
+            PlayerObjects.children[i].material.opacity = Math.max(0, Math.min(1, tZ - PlayerObjects.children[i].position.z));
+        }
+
+        for (let i = 0; i < BlockList.children.length; i++){
+            BlockList.children[i].material.opacity = 
+                targetHeight >= getHeightTile(Math.round(BlockList.children[i].position.x), Math.round(BlockList.children[i].position.z)) ? 1 :
+                Math.max(0, Math.min(1, tZ - BlockList.children[i].position.z + 1));
+        }
+
+        for (const value of Object.values(EntityTiles)){
+            value.mesh.material.opacity = Math.max(0, Math.min(1, tZ - value.mesh.position.z - value.mesh.geometry.boundingBox.min.z));
+        }
+    }
+    else if (turnStep == "map" || turnStep == "move" || turnStep == "step-map-anim" || turnStep == "spawn-silver-star-anim" || turnStep == "results-anim"){
+        for (let i = 0; i < PlayerObjects.children.length; i++){
+            PlayerObjects.children[i].material.opacity = 1;
+        }
+
+        for (let i = 0; i < BlockList.children.length; i++){
+            BlockList.children[i].material.opacity = 1;
+        }
+
+        for (const value of Object.values(EntityTiles)){
+            value.mesh.material.opacity = 1;
+        }
+    }
+    else{
+        let tZ = Camera.position.z - 1.5 + EPSILON;
+        for (let i = 0; i < PlayerObjects.children.length; i++){
+            PlayerObjects.children[i].material.opacity = Math.max(0, Math.min(1, tZ - PlayerObjects.children[i].position.z));
+        }
+
+        for (let i = 0; i < BlockList.children.length; i++){
+            BlockList.children[i].material.opacity = Math.max(0, Math.min(1, tZ - BlockList.children[i].position.z));
+        }
+
+        for (const value of Object.values(EntityTiles)){
+            value.mesh.material.opacity = Math.max(0, Math.min(1, tZ - value.mesh.position.z - value.mesh.geometry.boundingBox.min.z));
+        }
     }
 }
 
@@ -2643,7 +2709,7 @@ var playerTileAnim = null;
 var playerTileHeight = null;
 function TriggerStepMapAnimation(){
     animTimer = 4;
-    UIState = "map";
+    UIState = "wholemap";
     turnStep = "step-map-anim";
     let standingOnTile = getMapTile(PlayerData.position.x, PlayerData.position.y, ServerTurn);
     playerTileHeight = standingOnTile.ramp ? (standingOnTile.height.pos + standingOnTile.height.neg) / 2 : standingOnTile.height;
@@ -2655,7 +2721,7 @@ function StepMapAnimation(){
     animTimer -= DeltaTime;
 
     if (animTimer > animLength - 1){
-        UIState = "map";
+        UIState = "wholemap";
     }
     else if (animTimer > animLength - 3){
         let t = 1 - ((animTimer - animLength + 3) / 2);
@@ -3066,60 +3132,7 @@ function DoTurn(){
         }
     }
     else if (turnStep == "map"){
-        raycaster.setFromCamera(pointer, Camera);
-        var intersections = raycaster.intersectObjects(Scene.children, true);
-        if (intersections.length > 0){
-            //DO STUFF HERE!!!
-            let intersectPos = new THREE.Vector2(Math.round(intersections[0].point.x), Math.round(intersections[0].point.z));
-            if (intersectPos.x < 0 || intersectPos.x >= mapSize.x || intersectPos.y < 0 || intersectPos.y >= mapSize.y) return;
-            DistanceAwayMap(intersectPos.x, intersectPos.y);
-            mapSelectorBox.scale.set(1, 1, 1);
-            
-            let hitTile = getMapTile(intersectPos.x, intersectPos.y);
-            if (!hitTile.ramp){
-                mapSelectorBox.position.set(intersectPos.x, extractHeightTile(hitTile) + 0.05, intersectPos.y);
-                mapSelectorBox.rotation.set(-Math.PI / 2, 0, 0);
-                mapSelectorBox.scale.set(1, 1, 1);
-            }
-            else if (hitTile.height.dir == "v"){
-                let angle = -Math.atan2(hitTile.height.pos - hitTile.height.neg, 1);
-                mapSelectorBox.position.set(intersectPos.x, extractHeightTile(hitTile) + 0.05, intersectPos.y);
-                mapSelectorBox.rotation.set(angle - (Math.PI / 2), 0, 0);
-                mapSelectorBox.scale.set(1, Math.sqrt(Math.pow(hitTile.height.pos - hitTile.height.neg, 2) + 1), 1);
-            }
-            else{
-                let angle = -Math.atan2(hitTile.height.pos - hitTile.height.neg, 1);
-                mapSelectorBox.position.set(intersectPos.x, extractHeightTile(hitTile) + 0.05, intersectPos.y);
-                mapSelectorBox.rotation.set(-Math.PI / 2, angle, 0);
-                mapSelectorBox.scale.set(Math.sqrt(Math.pow(hitTile.height.pos - hitTile.height.neg, 2) + 1), 1, 1);
-            }
-
-            if (Object.hasOwn(hitTile, "popup") && hitTile.walkOver){
-                if (hitTile.popup != openShopPreview){
-                    if (openShopPreview != "") document.getElementById(openShopPreview + "-preview").style.display = "none";
-                    openShopPreview = hitTile.popup;
-                    document.getElementById(openShopPreview + "-preview").style.display = "initial";
-
-                    document.getElementsByClassName("leaderboard-button")[0].style.display = "none";
-                    document.getElementsByClassName("help-button")[0].style.display = "none";
-                    document.getElementsByClassName("options-button")[0].style.display = "none";
-                }
-            }
-            else{
-                if (openShopPreview != "") document.getElementById(openShopPreview + "-preview").style.display = "none";
-                openShopPreview = "";
-
-                document.getElementsByClassName("leaderboard-button")[0].style.display = "initial";
-                document.getElementsByClassName("help-button")[0].style.display = "initial";
-                document.getElementsByClassName("options-button")[0].style.display = "initial";
-            }
-        }
-        else{
-            if (openShopPreview != "") document.getElementById(openShopPreview + "-preview").style.display = "none";
-            openShopPreview = "";
-            document.getElementsByClassName("map-distance-text")[0].textContent = "";
-            mapSelectorBox.scale.set(0, 0, 0);
-        }
+        MapControls();
     }
     else if (turnStep == "star-get-anim"){
         StarGetAnimation();
@@ -3215,6 +3228,75 @@ function DoTurn(){
     }
 
     RollClick = false;
+    lastPointer.x = pointer.x;
+    lastPointer.y = pointer.y;
+}
+
+const lastPointer = new THREE.Vector2(0, 0);
+const MapDragSpeed = 5;
+var mapPosition = new THREE.Vector2();
+function MapControls(){
+    if (mouseDrag){
+        mapPosition.set(
+            Math.max(0, Math.min(mapSize.x - 1, mapPosition.x - ((pointer.x - lastPointer.x) * MapDragSpeed))),
+            Math.max(0, Math.min(mapSize.y - 1, mapPosition.y + ((pointer.y - lastPointer.y) * MapDragSpeed)))
+        );
+    }
+
+    raycaster.setFromCamera(pointer, Camera);
+    var intersections = raycaster.intersectObjects(Scene.children, true);
+    if (intersections.length > 0){
+        //DO STUFF HERE!!!
+        let intersectPos = new THREE.Vector2(Math.round(intersections[0].point.x), Math.round(intersections[0].point.z));
+        if (intersectPos.x < 0 || intersectPos.x >= mapSize.x || intersectPos.y < 0 || intersectPos.y >= mapSize.y) return;
+        DistanceAwayMap(intersectPos.x, intersectPos.y);
+        mapSelectorBox.scale.set(1, 1, 1);
+        
+        let hitTile = getMapTile(intersectPos.x, intersectPos.y);
+        if (!hitTile.ramp){
+            mapSelectorBox.position.set(intersectPos.x, extractHeightTile(hitTile) + 0.05, intersectPos.y);
+            mapSelectorBox.rotation.set(-Math.PI / 2, 0, 0);
+            mapSelectorBox.scale.set(1, 1, 1);
+        }
+        else if (hitTile.height.dir == "v"){
+            let angle = -Math.atan2(hitTile.height.pos - hitTile.height.neg, 1);
+            mapSelectorBox.position.set(intersectPos.x, extractHeightTile(hitTile) + 0.05, intersectPos.y);
+            mapSelectorBox.rotation.set(angle - (Math.PI / 2), 0, 0);
+            mapSelectorBox.scale.set(1, Math.sqrt(Math.pow(hitTile.height.pos - hitTile.height.neg, 2) + 1), 1);
+        }
+        else{
+            let angle = -Math.atan2(hitTile.height.pos - hitTile.height.neg, 1);
+            mapSelectorBox.position.set(intersectPos.x, extractHeightTile(hitTile) + 0.05, intersectPos.y);
+            mapSelectorBox.rotation.set(-Math.PI / 2, angle, 0);
+            mapSelectorBox.scale.set(Math.sqrt(Math.pow(hitTile.height.pos - hitTile.height.neg, 2) + 1), 1, 1);
+        }
+
+        if (Object.hasOwn(hitTile, "popup") && hitTile.walkOver){
+            if (hitTile.popup != openShopPreview){
+                if (openShopPreview != "") document.getElementById(openShopPreview + "-preview").style.display = "none";
+                openShopPreview = hitTile.popup;
+                document.getElementById(openShopPreview + "-preview").style.display = "initial";
+
+                document.getElementsByClassName("leaderboard-button")[0].style.display = "none";
+                document.getElementsByClassName("help-button")[0].style.display = "none";
+                document.getElementsByClassName("options-button")[0].style.display = "none";
+            }
+        }
+        else{
+            if (openShopPreview != "") document.getElementById(openShopPreview + "-preview").style.display = "none";
+            openShopPreview = "";
+
+            document.getElementsByClassName("leaderboard-button")[0].style.display = "initial";
+            document.getElementsByClassName("help-button")[0].style.display = "initial";
+            document.getElementsByClassName("options-button")[0].style.display = "initial";
+        }
+    }
+    else{
+        if (openShopPreview != "") document.getElementById(openShopPreview + "-preview").style.display = "none";
+        openShopPreview = "";
+        document.getElementsByClassName("map-distance-text")[0].textContent = "";
+        mapSelectorBox.scale.set(0, 0, 0);
+    }
 }
 
 document.getElementById("double-ditto-roll-okay").onclick = function(e){
@@ -3564,20 +3646,17 @@ function DistanceAwayMap(tx, ty){
             }
             else if (!checkedTiles[check.y][check.x]){
                 checkedTiles[check.y][check.x] = true;
-                let lowXTile = check.x > 0 ? getMapTile(check.x - 1, check.y) : null;
-                let highXTile = check.x < mapSize.x - 1 ? getMapTile(check.x + 1, check.y) : null;
-                let lowYTile = check.y > 0 ? getMapTile(check.x, check.y - 1) : null;
-                let highYTile = check.y < mapSize.y - 1 ? getMapTile(check.x, check.y + 1) : null;
-                if (lowXTile && (thisTile.animation ? thisTile.animation.states[getAnimTurnIndex(thisTile.animation.id)].connections.w : thisTile.connections.w) && lowXTile.height !== 0){
+
+                if (check.x > 0 && (canMoveToTile(check.x, check.y, -1, 0) || (thisTile.connections.w == "lock" && PlayerData.items.includes("key")))){
                     checkList.push({x: check.x - 1, y: check.y});
                 }
-                if (highXTile && (thisTile.animation ? thisTile.animation.states[getAnimTurnIndex(thisTile.animation.id)].connections.e : thisTile.connections.e) && highXTile.height !== 0){
+                if (check.x < mapSize.x - 1 && (canMoveToTile(check.x, check.y, 1, 0) || (thisTile.connections.e == "lock" && PlayerData.items.includes("key")))){
                     checkList.push({x: check.x + 1, y: check.y});
                 }
-                if (lowYTile && (thisTile.animation ? thisTile.animation.states[getAnimTurnIndex(thisTile.animation.id)].connections.n : thisTile.connections.n) && lowYTile.height !== 0){
+                if (check.y > 0 && (canMoveToTile(check.x, check.y, 0, -1) || (thisTile.connections.n == "lock" && PlayerData.items.includes("key")))){
                     checkList.push({x: check.x, y: check.y - 1});
                 }
-                if (highYTile && (thisTile.animation ? thisTile.animation.states[getAnimTurnIndex(thisTile.animation.id)].connections.s : thisTile.connections.s) && highYTile.height !== 0){
+                if (check.y < mapSize.y - 1 ){
                     checkList.push({x: check.x, y: check.y + 1});
                 }
             }
@@ -3600,8 +3679,11 @@ window.onpointermove = function(e){
 }
 //THIS IS A MAP BUILDING FUNCTION
 var targetDebugPos;
+var mouseDrag = false;
 window.onmousedown = function(e){
     UpdateMusicPlaylist();
+
+    mouseDrag = true;
 
     if (UIState == "editor" && keys["Tab"]){
         raycaster.setFromCamera(pointer, Camera);
@@ -3619,6 +3701,9 @@ window.onmousedown = function(e){
         }
     }
 }
+window.onmouseup = function(e){
+    mouseDrag = false;
+};
 document.getElementById("debug-set-button").onclick = function(e){
     let data = JSON.parse(document.getElementById("debug-text-input").value);
     mapData[targetDebugPos.y][targetDebugPos.x] = data;
@@ -3663,13 +3748,14 @@ function SetMoveUI(){
         document.getElementsByClassName("down-move-button")[0].style.display = "none";
     }
     else if (spacesMoved < PlayerData.roll){
+        let tile = getMapTile(PlayerData.position.x, PlayerData.position.y);
         document.getElementsByClassName("move-undo-button")[0].style.display = spacesMoved > 0 ? "initial" : "none";
         document.getElementsByClassName("move-end-turn-button")[0].style.display = "none";
         document.getElementsByClassName("roll-display")[0].children[0].textContent = PlayerData.roll - spacesMoved;
-        document.getElementsByClassName("left-move-button")[0].style.display = canMoveToTile(PlayerData.position.x, PlayerData.position.y, -1, 0) ? "initial" : "none";
-        document.getElementsByClassName("right-move-button")[0].style.display = canMoveToTile(PlayerData.position.x, PlayerData.position.y, 1, 0) ? "initial" : "none";
-        document.getElementsByClassName("up-move-button")[0].style.display = canMoveToTile(PlayerData.position.x, PlayerData.position.y, 0, -1) ? "initial" : "none";
-        document.getElementsByClassName("down-move-button")[0].style.display = canMoveToTile(PlayerData.position.x, PlayerData.position.y, 0, 1) ? "initial" : "none";
+        document.getElementsByClassName("left-move-button")[0].style.display = canMoveToTile(PlayerData.position.x, PlayerData.position.y, -1, 0) || (tile.connections.w == "lock" && PlayerData.items.includes("key")) ? "initial" : "none";
+        document.getElementsByClassName("right-move-button")[0].style.display = canMoveToTile(PlayerData.position.x, PlayerData.position.y, 1, 0) || (tile.connections.e == "lock" && PlayerData.items.includes("key")) ? "initial" : "none";
+        document.getElementsByClassName("up-move-button")[0].style.display = canMoveToTile(PlayerData.position.x, PlayerData.position.y, 0, -1) || (tile.connections.n == "lock" && PlayerData.items.includes("key")) ? "initial" : "none";
+        document.getElementsByClassName("down-move-button")[0].style.display = canMoveToTile(PlayerData.position.x, PlayerData.position.y, 0, 1) || (tile.connections.s == "lock" && PlayerData.items.includes("key")) ? "initial" : "none";
     }
     else{
         document.getElementsByClassName("move-undo-button")[0].style.display = "initial";
@@ -4015,15 +4101,12 @@ function UseItem(index){
     }
 }
 function ServerUseItem(item){
-    console.log(PlayerData.roll);
     if (PlayerData.roll > 0 || item == null) return;
-    console.log("1");
     document.getElementById("items-button").disabled = true;
     document.getElementsByClassName("used-item")[0].setAttribute("src", ItemData[item].url);
     switch (item){
         case "doubledice":
             rollsRemaining = 2;
-            console.log("use");
             document.getElementById("roll-button-item-preview").style.display = "initial";
             break;
         case "tripledice":
@@ -4217,6 +4300,7 @@ function EndTurnPopup(){
                 document.getElementById("cohozuna-greeting-text").innerHTML = cohoGreetings[Math.floor(Math.random() * cohoGreetings.length)];
 
                 if (Math.random() >= lerp(1, CohoGenerosityOdds, yourPlacement / (Object.keys(OpponentPlayers).length + 1) * 2 - 1)){
+                    //Charity!!!
                     setTimeout(() => {
                         document.getElementById("cohozuna-greeting").style.display = "initial";
                         cohoNextFunction = () => {
@@ -4239,6 +4323,7 @@ function EndTurnPopup(){
                     }, 4000);
                 }
                 else{
+                    //Spin Wheel
                     setTimeout(() => {
                         document.getElementById("cohozuna-greeting").style.display = "initial";
                         cohoNextFunction = () => {
@@ -4318,6 +4403,7 @@ var animTimer = 0;
 var starGetAnimWarp = false;
 var starGetAnimCount = 0;
 var starGetAnimStarObjs = [];
+var starAnimFirstLoop = true;
 function TriggerStarGetAnimation(warp, amount){
     starGetAnimWarp = warp;
     starGetAnimCount = amount;
@@ -4335,6 +4421,8 @@ function TriggerStarGetAnimation(warp, amount){
     }
 
     minigameCoinGiveCheck = false;
+
+    starAnimFirstLoop = true;    
 }
 
 function StarGetAnimation(){
@@ -4392,6 +4480,11 @@ function StarGetAnimation(){
         }
     }
     else if (animTimer > 1){
+        if (starAnimFirstLoop){
+            UpdatePlayerUI();
+            UpdateLeaderboards();
+            starAnimFirstLoop = false;
+        }
         let t = 1 - ((animTimer - 1) / 0.25);
         //Star.scale.set(0, 0, 0);
         StarRingParticle.scale.set(lerp(0, 0.35, t), lerp(0, 0.35, t), lerp(0, 0.35, t));
@@ -4399,7 +4492,6 @@ function StarGetAnimation(){
         for (var i = 0; i < starGetAnimCount; i++){
             starGetAnimStarObjs[i].scale.set(0, 0, 0);
         }
-        UpdatePlayerUI();
     }
     else if (animTimer > 0.5){
         let t = 1 - ((animTimer - 0.5) / 0.5);
@@ -4441,6 +4533,8 @@ function TriggerStarLoseAnimation(){
     UpdatePlayerUI();
 
     minigameCoinGiveCheck = false;
+
+    UpdateLeaderboards();
 }
 function StarLoseAnimation(){
     const animLength = 3;
@@ -4555,7 +4649,6 @@ function PipeWarpAnimation(){
         Player.position.set(endPlayerPos.x, 0, endPlayerPos.z);
         GreenPipe.position.set(startPlayerPos.x, startPlayerPos.y - 0.375 - lerp(0.1, 0.6, t), startPlayerPos.z);
         Camera.position.set(lerp(startPlayerPos.x, endPlayerPos.x, eio), lerp(startPlayerPos.y + 0.125, endPlayerPos.y + 0.125, eio), lerp(startPlayerPos.z + 1.5, endPlayerPos.z + 1.5, eio));
-        SetBlockTranparencyFromCamera();
     }
     else if (animTimer > animLength - 4.45){
         let t = 1 - ((animTimer - animLength + 4.45) / 1);
@@ -4578,7 +4671,6 @@ function PipeWarpAnimation(){
         GreenPipe.position.set(0, 0, 0);
         Scene.remove(GreenPipe);
         UIState = "player";
-        SetBlockTranparency();
         PlayerData.position = { x: pipeWarpLocation.x, y: pipeWarpLocation.y };
 
         transitionValues.cameraPos = Camera.position;
@@ -4602,6 +4694,16 @@ function PipeWarpAnimation(){
         }
 
         Socket.send(JSON.stringify({ method: "update_player", token: TOKEN, position: PlayerData.position }));
+
+        for (let i = 0; i < ServerSilverStars.length; i++){
+            if (PlayerData.collectedSilverStars.includes(i)) continue;
+            let silverStarTilePos = getPositionTile(ServerSilverStars[i].x, ServerSilverStars[i].y);
+            if (Math.round(silverStarTilePos.x) == PlayerData.position.x && Math.round(silverStarTilePos.z) == PlayerData.position.y){
+                //Collect it
+                CollectSilverStar(i);
+                break;
+            }
+        }
     }
 }
 var StarWarpLocation = { x: 6, y: 7 };
@@ -4679,6 +4781,16 @@ function GoldPipeWarpAnimation(){
         document.getElementsByClassName("player-inputs")[0].style.display = "flex";
 
         Socket.send(JSON.stringify({ method: "update_player", token: TOKEN, position: PlayerData.position }));
+
+        for (let i = 0; i < ServerSilverStars.length; i++){
+            if (PlayerData.collectedSilverStars.includes(i)) continue;
+            let silverStarTilePos = getPositionTile(ServerSilverStars[i].x, ServerSilverStars[i].y);
+            if (Math.round(silverStarTilePos.x) == PlayerData.position.x && Math.round(silverStarTilePos.z) == PlayerData.position.y){
+                //Collect it
+                CollectSilverStar(i);
+                break;
+            }
+        }
     }
 }
 const shopHopBoxTex = TexLoader.load("./resources/textures/shophopboxmodel.png");
@@ -4793,7 +4905,6 @@ function ShopHopBoxAnimation(){
         Player.scale.set(1, 1, 1);
 
         UIState = "player";
-        SetBlockTranparency();
         PlayerData.position = { x: pipeWarpLocation.x, y: pipeWarpLocation.y };
 
         transitionValues.cameraPos = Camera.position;
@@ -4805,6 +4916,16 @@ function ShopHopBoxAnimation(){
         document.getElementsByClassName("player-inputs")[0].style.display = "flex";
 
         Socket.send(JSON.stringify({ method: "update_player", token: TOKEN, position: PlayerData.position }));
+
+        for (let i = 0; i < ServerSilverStars.length; i++){
+            if (PlayerData.collectedSilverStars.includes(i)) continue;
+            let silverStarTilePos = getPositionTile(ServerSilverStars[i].x, ServerSilverStars[i].y);
+            if (Math.round(silverStarTilePos.x) == PlayerData.position.x && Math.round(silverStarTilePos.z) == PlayerData.position.y){
+                //Collect it
+                CollectSilverStar(i);
+                break;
+            }
+        }
     }
 }
 
@@ -5311,6 +5432,8 @@ function SilverStarsToStarAnimation(){
     else if (animTimer > animLength - 7){
         if (firstSilverStarTrigger){
             UpdatePlayerUI();
+            UpdateLeaderboards();
+            Socket.send(JSON.stringify({ method: "update_player", token: TOKEN, stars: PlayerData.stars }));
             firstSilverStarTrigger = false;
         }
 
@@ -5351,6 +5474,7 @@ function UpdatePlayerUI(){
 
 var mapTriggeredFrom = "null";
 function OpenMap(){
+    mapPosition = new THREE.Vector2(PlayerData.position.x, PlayerData.position.y);
     Scene.add(MapLocks);
     mapTriggeredFrom = turnStep;
     Scene.add(mapSelectorBox);
@@ -5463,7 +5587,7 @@ document.getElementById("new-minigame-submit-button").onclick = function(e){
     var result = [];
 
     let setApartSkips = 0;
-    for (var i = 0; i < CurrentMinigameLobby.length; i++){
+    for (let i = 0; i < CurrentMinigameLobby.length; i++){
         if (MinigameData[CurrentMinigame].teams == 0){
             //No Teams
             result.push(Number.parseInt(document.getElementsByClassName("new-minigame-player-result-" + MinigameData[CurrentMinigame].type)[i].value));
@@ -5489,6 +5613,10 @@ document.getElementById("new-minigame-submit-button").onclick = function(e){
             }
         }
 
+        if (!Number.isInteger(result[result.length - 1])){
+            result[result.length - 1] = 0;
+        }
+
         if (Object.hasOwn(MinigameData[CurrentMinigame], "setApartPlayers") && MinigameData[CurrentMinigame].type == "coop" && MinigameData[CurrentMinigame].invertSetApartScore && CurrentMinigameSetApartPlayers.includes(i)){
             //Invert Set Apart Score if it's a coop minigame
             result[result.length - 1] = result[result.length - 1] == 0 ? 1 : 0;
@@ -5496,7 +5624,6 @@ document.getElementById("new-minigame-submit-button").onclick = function(e){
     }
 
     Socket.send(JSON.stringify({ method: "submit_results", token: TOKEN, result: result }));
-    console.log(result);
 
     minigameSubmitButton.disabled = true;
     minigameSubmitButton.textContent = "Submitted";
@@ -5586,6 +5713,7 @@ document.getElementById("hide-room-code").onchange = function(e){
     for (let i = 0; i < roomCodeCopyElems.length; i++){
         roomCodeCopyElems[i].textContent = HIDE_ROOM_CODE ? "******" : roomCodeCopyElems[i].getAttribute("code");
     }
+    document.getElementById("join-game-code").setAttribute("type", HIDE_ROOM_CODE ? "password" : "text");
     document.cookie = "hideRoomCode=" + HIDE_ROOM_CODE + "; expires=" + new Date(2999, 0, 0).toUTCString();
 };
 document.getElementsByClassName("edit-profile")[0].onclick = function(e){
@@ -5628,6 +5756,8 @@ settingsElement.style.display = "none";
     document.getElementById("lucky-space").style.display = "none";
     document.getElementById("results").style.display = "none";
     document.getElementById("global-leaderboard").style.display = "none";
+    document.getElementById("duel-select").style.display = "none";
+    document.getElementById("cohozuna-space").style.display = "none";
 
     document.getElementsByClassName("roll-inputs")[0].style.display = "none";
     document.getElementsByClassName("custom-dice-input")[0].style.display = "none";
@@ -5644,6 +5774,8 @@ settingsElement.style.display = "none";
     document.getElementById("turn-counter").style.display = "none";
     document.getElementById("wait-minigame-map").style.display = "none";
     document.getElementsByClassName("leaderboard-button")[0].style.display = "none";
+
+    document.getElementById("try-reconnect").style.display = "none";
 }
 
 var duelBet = false;
@@ -5966,8 +6098,8 @@ document.getElementById("edit-change-button").onclick = function(e){
     if (newPassword.length > 0) Object.defineProperty(editPlayerMessageBuffer, "password", {writable: true, enumerable: true, configurable: true, value: newPassword});
     if (CCHatIndex != PlayerCharacter.hat || CCHairIndex != PlayerCharacter.hair || CCSkinIndex != PlayerCharacter.skin || CCShirtIndex != PlayerCharacter.shirt) Object.defineProperty(editPlayerMessageBuffer, "character", {writable: true, enumerable: true, configurable: true, value: { hat: CCHatIndex, hair: CCHairIndex, skin: CCSkinIndex, shirt: CCShirtIndex } });
 
-    //editPlayerSocket = new WebSocket(window.location.hostname == "127.0.0.1" ? "ws://localhost:6969" : "wss://msp-server.astrodwarf.space");
-    editPlayerSocket = new WebSocket("wss://msp-server.astrodwarf.space");
+    editPlayerSocket = new WebSocket(window.location.hostname == "127.0.0.1" ? "ws://localhost:6969" : "wss://msp-server.astrodwarf.space");
+    //editPlayerSocket = new WebSocket("wss://msp-server.astrodwarf.space");
 
     UIPanels.connecting.style.display = "initial";
     document.getElementById("edit-profile").style.display = "none";
@@ -6049,7 +6181,7 @@ function AddPlayer(data){
                 coins: data.coins,
                 character: data.character,
                 rank: data.rank,
-                object: new THREE.Mesh(new THREE.PlaneGeometry(0.6, 0.75), new THREE.MeshStandardMaterial({map: GeneratePlayerTexture(data.character), alphaTest: 0.5, side: THREE.DoubleSide})),
+                object: new THREE.Mesh(new THREE.PlaneGeometry(0.6, 0.75), new THREE.MeshStandardMaterial({map: GeneratePlayerTexture(data.character), alphaHash: true, alphaTest: 0.5, side: THREE.DoubleSide})),
                 position: data.position
             }});
             PlayerObjects.add(OpponentPlayers[data.ign].object);
@@ -6199,6 +6331,7 @@ document.getElementsByClassName("duel-cancel")[0].onclick = function(e){
     turnStep = "menu";
     document.getElementsByClassName("player-inputs")[0].style.display = "flex";
     document.getElementById("items-button").disabled = false;
+    UpdateItemUI();
 };
 
 var duelingList = document.getElementsByClassName("duel-list")[0];
@@ -6284,12 +6417,10 @@ var socketHasConnected = false;
 var IGN, Discord, Rank;
 function InitializeSocket(){
     socketHasConnected = false;
-    //Changes the Socket connection based on if it's local hosted or not
-    //Also checks if the url search parameter has a unique url for the socket
-    Socket = new WebSocket(window.location.hostname == "127.0.0.1" ? "ws://localhost:6969" : "wss://msp-server.astrodwarf.space");
-    //Socket = new WebSocket("wss://msp-server.astrodwarf.space");
 
-    Socket.onopen = function(e){
+    function onOpen(e){
+        document.getElementById("try-reconnect").style.display = "none";
+
         socketHasConnected = true;
         document.getElementById("settings-room-code").style.display = "none";
         if (TOKEN != null){
@@ -6299,23 +6430,8 @@ function InitializeSocket(){
             //Fail to login without sending packets
             test_token_main_server({ method: "test_token", success: false });
         }
-    };
-
-    Socket.onclose = function(e){
-        console.log("Socket closed");
-
-        if (!socketHasConnected){
-            ResetUIToMenu();
-            UIPanels.disconnected.style.display = "initial";
-        }
-        else{
-            setTimeout(() => {
-                Socket = new WebSocket(window.location.hostname == "127.0.0.1" ? "ws://localhost:6969" : "wss://msp-server.astrodwarf.space");
-            }, 10);
-        }
-    };
-
-    Socket.onmessage = function(e){
+    }
+    function onMessage(e){
         let data;
         
         try { data = JSON.parse(e.data); }
@@ -6340,7 +6456,41 @@ function InitializeSocket(){
                 create_game_main_server(data);
                 break;
         }
-    };
+    }
+    function onClose(e){
+        console.log("Socket closed");
+
+        if (!socketHasConnected){
+            ResetUIToMenu();
+            UIPanels.disconnected.style.display = "initial";
+        }
+        else{
+            document.getElementById("try-reconnect").style.display = "initial";
+            setTimeout(() => {
+                socketHasConnected = false;
+                Socket = new WebSocket(window.location.hostname == "127.0.0.1" ? "ws://localhost:6969" : "wss://msp-server.astrodwarf.space");
+                Socket.onclose = onClose;
+                Socket.onerror = onError;
+                Socket.onmessage = onMessage;
+            }, 10);
+        }
+
+        socketHasConnected = false;
+    }
+    function onError(e){
+        console.log("Socket Error");
+        console.log(e);
+    }
+
+    //Changes the Socket connection based on if it's local hosted or not
+    //Also checks if the url search parameter has a unique url for the socket
+    Socket = new WebSocket(window.location.hostname == "127.0.0.1" ? "ws://localhost:6969" : "wss://msp-server.astrodwarf.space");
+    //Socket = new WebSocket("wss://msp-server.astrodwarf.space");
+
+    Socket.onopen = onOpen;
+    Socket.onclose = onClose;
+    Socket.onmessage = onMessage
+    Socket.onerror = onError;
 }
 
 var tempServer = "";
@@ -6730,10 +6880,7 @@ function ConnectToServer(server){
     connectedGameServer = server;
     console.log("Connecting to server: " + server);
 
-    Socket = new WebSocket(window.location.hostname == "127.0.0.1" ? "ws://localhost:" + debugPortMap[server] : "wss://msp.astrodwarf.space/" + server);
-    //Socket = new WebSocket("wss://msp.astrodwarf.space/" + server);
-
-    Socket.onmessage = function(e){
+    function onMessage(e){
         if (e.data == "pong" || e.data == "ping") return;
 
         try{
@@ -6798,15 +6945,14 @@ function ConnectToServer(server){
                 duel_glove_server(data);
                 break;
         }
-    };
-
-    Socket.onopen = function(e){
+    }
+    function onOpen(e){
         socketHasConnected = true;
+        document.getElementById("try-reconnect").style.display = "none";
         document.getElementById("settings-room-code").style.display = "inline-block";
         Socket.send(JSON.stringify({ method: "init", token: TOKEN }));
-    };
-
-    Socket.onclose = function(e){
+    }
+    function onClose(e){
         console.log("Socket Closed");
 
         if (!socketHasConnected){
@@ -6816,16 +6962,29 @@ function ConnectToServer(server){
             UIPanels.disconnected.style.display = "initial";
         }
         else{
+            document.getElementById("try-reconnect").style.display = "initial";
             setTimeout(() => {
                 Socket = new WebSocket(window.location.hostname == "127.0.0.1" ? "ws://localhost:" + debugPortMap[connectedGameServer] : "wss://msp.astrodwarf.space/" + connectedGameServer);
+                Socket.onclose = onClose;
+                Socket.onmessage = onMessage;
+                Socket.onerror = onError;
             }, 10);
         }
-    };
 
-    Socket.onerror = function(e){
+        socketHasConnected = false;
+    }
+    function onError(e){
         console.log("Socket Error");
         console.log(e);
-    };
+    }
+
+    Socket = new WebSocket(window.location.hostname == "127.0.0.1" ? "ws://localhost:" + debugPortMap[server] : "wss://msp.astrodwarf.space/" + server);
+    //Socket = new WebSocket("wss://msp.astrodwarf.space/" + server);
+
+    Socket.onmessage = onMessage;
+    Socket.onopen = onOpen;
+    Socket.onclose = onClose;
+    Socket.onerror = onError;
 }
 
 function duel_glove_server(data){
@@ -6839,7 +6998,7 @@ function duel_glove_server(data){
         document.getElementById("duel-select-list-page").style.display = "none";
         document.getElementById("duel-select-wait-page").style.display = "block";
         document.getElementById("duel-select-sub-text").textContent = "Cannot duel selected player";
-        Socket.send({ method: "get_target_list" });
+        Socket.send(JSON.stringify({ method: "get_target_list" }));
     }
 }
 
@@ -6895,8 +7054,16 @@ function leave_game_server(data){
             window.location.reload();
         }
         Socket.onclose = null;
+        Socket.onerror = null;
         Socket.close();
         ServerStatus = "null";
+        ResetUIToMenu();
+        clearTimeout(initTimeout);
+        clearTimeout(GetLobbyServerTimeout);
+        clearTimeout(CheckInServerTimeout);
+        clearTimeout(EndTurnServerTimeout);
+        clearTimeout(GetPlayerDataServerTimeout);
+        clearTimeout(GetStatusServerTimeout);
         InitializeSocket();
         spacesMoved = 0;
         currentRoll = 0;
@@ -7019,7 +7186,7 @@ function confirmMod(data){
     rollsRemaining = 1;
     addToRoll = 0;
     spacesMoved = 0;
-    console.log(data.data.usedItem);
+
     ServerUseItem(data.data.usedItem);
     
     document.getElementsByClassName("player-data")[0].style.display = "initial";
@@ -7340,7 +7507,7 @@ function announcement_server(data){
                 document.getElementById("leaderboard").style.display = "initial";
                 document.getElementById("items-button").disabled = false;
                 document.getElementById("turn-counter").style.display = "initial";
-                console.log(ServerTurn);
+                
                 if (Object.hasOwn(data, "silverStar")){
                     SpawnSilverStarBoard(data.silverStar, lastStatus == "MINIGAME");
                 }

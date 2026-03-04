@@ -968,7 +968,7 @@
                                 Wait, looks like you're having a rough day.<br>
                                 Here, have 10 coins for your troubles.
                             </h3><br><br>
-                            <button>Next</button>
+                            <button class="cohozuna-next">Next</button>
                         </div>
 
                         <div class="coho-popup" id="cohozuna-charity-goodbye" style="display: none;">
@@ -1025,7 +1025,7 @@
                 <div class="popup-inset">
                     <h1>Join Game</h1>
                     <b id="join-game-error" style="color: red; display: none;"><br></b><br>
-                    <input id="join-game-code" type="text" placeholder="Join Code" maxlength="6" style="text-transform: uppercase;"><br><br>
+                    <input id="join-game-code" type="text" autocomplete="off" placeholder="Join Code" maxlength="6" style="text-transform: uppercase;"><br><br>
                     <button id="join-game-back-button">Back</button>
                     <button id="join-game-join-button">Join</button>
                 </div>
@@ -1663,6 +1663,15 @@
                     <button class="leave-game" disabled>Leave Game</button><br>
                     <button class="sign-out" disabled>Sign Out</button><br>
                     <button class="settings-close-button">Close</button>
+                </div>
+            </div>
+        </div>
+        
+        <div id="try-reconnect" style="display: none;">
+            <div class="popup">
+                <div class="popup-inset">
+                    <h2>Disconnected From Server</h2><br>
+                    <h3>Attempting to reconnect...</h3>
                 </div>
             </div>
         </div>

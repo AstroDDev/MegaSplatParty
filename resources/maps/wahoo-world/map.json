@@ -1645,7 +1645,7 @@
 			},
 			"coins": 3,
 			"walkOver": false,
-			"silverStarSpawnable": true
+			"silverStarSpawnable": false
 		},
 		{
 			"ramp": true,
@@ -1953,7 +1953,7 @@
 			},
 			"coins": 3,
 			"walkOver": false,
-			"silverStarSpawnable": true
+			"silverStarSpawnable": false
 		},
 		{
 			"ramp": false,
@@ -2764,7 +2764,7 @@
 			},
 			"popup": "lucky-space",
 			"walkOver": false,
-			"silverStarSpawnable": true
+			"silverStarSpawnable": false
 		},
 		{
 			"ramp": true,
@@ -3076,7 +3076,7 @@
 			},
 			"popup": "lucky-space",
 			"walkOver": false,
-			"silverStarSpawnable": true
+			"silverStarSpawnable": false
 		},
 		{
 			"ramp": true,
@@ -3570,7 +3570,7 @@
 			},
 			"popup": "lucky-space",
 			"walkOver": false,
-			"silverStarSpawnable": true
+			"silverStarSpawnable": false
 		},
 		{
 			"ramp": false,
@@ -4709,7 +4709,7 @@
 			},
 			"popup": "lucky-space",
 			"walkOver": false,
-			"silverStarSpawnable": true
+			"silverStarSpawnable": false
 		},
 		{
 			"ramp": false,
@@ -5203,7 +5203,7 @@
 			},
 			"popup": "lucky-space",
 			"walkOver": false,
-			"silverStarSpawnable": true
+			"silverStarSpawnable": false
 		},
 		{
 			"ramp": true,
@@ -5522,7 +5522,7 @@
 			},
 			"popup": "lucky-space",
 			"walkOver": false,
-			"silverStarSpawnable": true
+			"silverStarSpawnable": false
 		},
 		{
 			"ramp": true,
@@ -6358,7 +6358,7 @@
 			},
 			"coins": 3,
 			"walkOver": false,
-			"silverStarSpawnable": true
+			"silverStarSpawnable": false
 		},
 		{
 			"ramp": true,
@@ -6665,7 +6665,7 @@
 			},
 			"coins": 3,
 			"walkOver": false,
-			"silverStarSpawnable": true
+			"silverStarSpawnable": false
 		},
 		{
 			"ramp": true,
