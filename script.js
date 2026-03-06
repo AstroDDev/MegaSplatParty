@@ -357,7 +357,7 @@ if (Object.hasOwn(COOKIES, "hideRoomCode")){
 }
 
 var Scene = new THREE.Scene();
-const Camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
+const Camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.25, 1000);//TODO!!! Set clipping plane to not allow objects in front of player
 const Renderer = new THREE.WebGLRenderer({powerPreference: "high-performance"});
 Renderer.shadowMap.enabled = true;
 Renderer.shadowMap.type = THREE.BasicShadowMap;
@@ -1848,7 +1848,7 @@ function buildMap(){
         entityGeometry.setAttribute("uv", new THREE.BufferAttribute(new Float32Array(value.uvs), 2));
         entityGeometry.computeVertexNormals();
         entityGeometry.computeBoundingBox();
-        let entityMesh = new THREE.Mesh(entityGeometry, new THREE.MeshStandardMaterial({ map: ATLAS, alphaHash: true }));
+        let entityMesh = new THREE.Mesh(entityGeometry, MapMat);
         entityMesh.castShadow = true;
         entityMesh.receiveShadow = true;
         Scene.add(entityMesh);
@@ -2444,9 +2444,9 @@ function SetEntityTransparency(){
                 Math.max(0, Math.min(1, tZ - BlockList.children[i].position.z + 1));
         }
 
-        for (const value of Object.values(EntityTiles)){
+        /*for (const value of Object.values(EntityTiles)){
             value.mesh.material.opacity = Math.max(0, Math.min(1, tZ - value.mesh.position.z - value.mesh.geometry.boundingBox.min.z));
-        }
+        }*/
     }
     else if (turnStep == "map" || turnStep == "move" || turnStep == "step-map-anim" || turnStep == "spawn-silver-star-anim" || turnStep == "results-anim"){
         for (let i = 0; i < PlayerObjects.children.length; i++){
@@ -2457,9 +2457,9 @@ function SetEntityTransparency(){
             BlockList.children[i].material.opacity = 1;
         }
 
-        for (const value of Object.values(EntityTiles)){
+        /*for (const value of Object.values(EntityTiles)){
             value.mesh.material.opacity = 1;
-        }
+        }*/
     }
     else{
         let tZ = Camera.position.z - 1.5 + EPSILON;
@@ -2471,9 +2471,9 @@ function SetEntityTransparency(){
             BlockList.children[i].material.opacity = Math.max(0, Math.min(1, tZ - BlockList.children[i].position.z));
         }
 
-        for (const value of Object.values(EntityTiles)){
+        /*for (const value of Object.values(EntityTiles)){
             value.mesh.material.opacity = Math.max(0, Math.min(1, tZ - value.mesh.position.z - value.mesh.geometry.boundingBox.min.z));
-        }
+        }*/
     }
 }
 
