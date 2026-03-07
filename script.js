@@ -4187,7 +4187,7 @@ function EndTurn(){
     if (PlayerSilverStarObjs.length >= 5) {
         TriggerSilverStarsToStarAnimation();
     }
-    else if (Object.keys(MapAnimations).length > 0 && turnStep != "map-anim-end-turn") {
+    else if (MapAnimations && turnStep != "map-anim-end-turn") {
         if (turnStep == "popup") document.getElementById(tile.popup).style.display = "none";
         document.getElementsByClassName("move-end-turn-button")[0].style.display = "none";
         document.getElementsByClassName("move-undo-button")[0].style.display = "none";
